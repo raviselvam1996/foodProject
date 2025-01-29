@@ -1,18 +1,85 @@
-import { useState } from 'react';
+import { z } from 'zod';
 import { TbEdit } from 'react-icons/tb';
+import { useForm } from 'react-hook-form';
+import { useState, useCallback } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Switch } from '@mui/material';
+import { Switch, Stack } from '@mui/material';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import TextField from '@mui/material/TextField';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
 
-import { useGetSupplierCategoryQuery, useMenuStatusChangeMutation } from 'src/services/menu';
+import {
+  useGetSupplierCategoryQuery,
+  useMenuStatusChangeMutation,
+  useAddMenuMutation,
+} from 'src/services/menu';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { Upload } from 'src/components/upload';
 import { toast } from 'src/components/snackbar';
 
-import { MenuAddForm } from './menu-add-form';
-
 // ----------------------------------------------------------------------
-
+// Zod Schema
+const schema = z.object({
+  name: z.string().nonempty('Menu Name is required'),
+  short_desc: z.string().nonempty('Short Description is required'),
+});
 export function MenuDetails() {
-  const [menuStatus, setMenuStatus] = useState(true);
+  const dialog = useBoolean();
+  const [file, setFile] = useState(null);
+  const [formDatas, setFormData] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
+
+  const [addMenu, { isLoading: statusLoad }] = useAddMenuMutation();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema),
+  });
+
+  const onSubmit = async (data) => {
+    console.log('Form Data:', data);
+    try {
+      // Create FormData instance
+      const formData = new FormData();
+      formData.append('name', data.name); // Append text field
+      formData.append('short_desc', data.short_desc); // Append text field
+      formData.append('image', formDatas); // Append the image file
+      let response;
+      if (isEdit) {
+        response = await addMenu(formData).unwrap();
+      } else {
+        response = await addMenu(formData).unwrap();
+      }
+      if (response.status) {
+        toast.success(response.message);
+        if (response.status) {
+          reset();
+          refetch();
+          dialog.onFalse();
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleDropSingleFile = useCallback((acceptedFiles) => {
+    const newFile = acceptedFiles[0];
+    setFormData(newFile); // Save file to state if needed
+    setFile(newFile); // Save file to state if needed
+  }, []);
+
+  // Expose handleSubmit to a custom button
+  const handleExternalSubmit = handleSubmit(onSubmit);
 
   const handleChange = (event, id) => {
     console.log(id);
@@ -28,7 +95,7 @@ export function MenuDetails() {
     error: categoriesError,
     refetch,
   } = useGetSupplierCategoryQuery();
-  const [menuStatusChange, { isLoading: statusLoad }] = useMenuStatusChangeMutation();
+  const [menuStatusChange, { isLoading: satusLoad }] = useMenuStatusChangeMutation();
 
   const changeMenuStatus = async (id, val) => {
     try {
@@ -45,10 +112,84 @@ export function MenuDetails() {
       console.log(error);
     }
   };
+
+  const openEditMenuData = (val) => {
+    setIsEdit(true);
+    dialog.onTrue();
+    reset(val);
+    const img = `http://localhost:3000${val.image}`;
+    setFile(img);
+  };
   return (
     <>
       <div className="flex justify-end">
-        <MenuAddForm />
+        <div>
+          <Button variant="contained" color="primary" size="small" onClick={dialog.onTrue}>
+            Add Menu
+          </Button>
+
+          <Dialog
+            open={dialog.value}
+            onClose={(event, reason) => {
+              if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+                dialog.onFalse();
+              }
+            }}
+          >
+            <DialogTitle>{isEdit ? 'Edit Menu' : 'Add Menu'}</DialogTitle>
+
+            <DialogContent>
+              <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                <TextField
+                  {...register('name')}
+                  autoFocus
+                  fullWidth
+                  type="text"
+                  margin="dense"
+                  variant="outlined"
+                  label="Menu Name"
+                  size="small"
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                />
+                <TextField
+                  {...register('short_desc')}
+                  fullWidth
+                  type="text"
+                  margin="dense"
+                  variant="outlined"
+                  label="Short Description"
+                  size="small"
+                  error={!!errors.short_desc}
+                  helperText={errors.short_desc?.message}
+                />
+                <Stack direction="row" spacing={2}>
+                  <Upload
+                    value={file}
+                    onDrop={handleDropSingleFile}
+                    onDelete={() => setFile(null)}
+                  />
+                </Stack>
+              </form>
+            </DialogContent>
+
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  setIsEdit(false);
+                  dialog.onFalse();
+                }}
+                variant="outlined"
+                color="inherit"
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleExternalSubmit} variant="contained" color="primary">
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
       </div>
 
       <div className="max-w-sm p-4 bg-white rounded-lg shadow-md">
@@ -65,7 +206,7 @@ export function MenuDetails() {
                 <div className="flex items-center gap-5">
                   <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
                     <img
-                      src={'http://localhost:3000' + item.image}
+                      src={`http://localhost:3000${item.image}`}
                       alt="Item"
                       className="w-full h-full object-cover"
                     />
@@ -84,7 +225,7 @@ export function MenuDetails() {
                   />
                   <div>
                     <span className="text-red-700 text-xl">
-                      <TbEdit />
+                      <TbEdit onClick={() => openEditMenuData(item)} />
                     </span>
                   </div>
                 </div>

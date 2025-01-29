@@ -15,8 +15,8 @@ export function MenuCreation() {
         heading="Menu"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Tour', href: paths.dashboard.tour.root },
-          { name: 'New tour' },
+          { name: 'Menu', href: paths.dashboard.tour.root },
+          // { name: 'New tour' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

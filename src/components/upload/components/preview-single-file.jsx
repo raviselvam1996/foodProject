@@ -31,7 +31,7 @@ export function SingleFilePreview({ file }) {
           width: 1,
           height: 1,
           borderRadius: 1,
-          objectFit: 'cover',
+          objectFit: 'contain',
         }}
       />
     </Box>

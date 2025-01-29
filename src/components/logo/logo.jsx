@@ -96,7 +96,8 @@ export const Logo = forwardRef(
           }}
           {...other}
         >
-          {logo}
+          {/* {logo} */}
+          <img src="/logo/foodLogo.png" alt="" />
         </Box>
       </NoSsr>
     );
