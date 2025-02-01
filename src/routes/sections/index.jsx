@@ -5,10 +5,8 @@ import { Navigate, useRoutes } from 'react-router-dom';
 // import { SplashScreen } from 'src/components/loading-screen';
 
 import { authRoutes } from './auth';
-import { mainRoutes } from './main';
 import { authDemoRoutes } from './auth-demo';
 import { dashboardRoutes } from './dashboard';
-import { componentsRoutes } from './components';
 
 // ----------------------------------------------------------------------
 
@@ -36,10 +34,9 @@ export function Router() {
     ...dashboardRoutes,
 
     // Main
-    ...mainRoutes,
+ 
 
     // Components
-    ...componentsRoutes,
 
     // No match
     { path: '*', element: <Navigate to="/404" replace /> },

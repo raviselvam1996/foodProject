@@ -6,11 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Switch, Stack } from '@mui/material';
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
+
 
 import {
   useGetSupplierCategoryQuery,
@@ -22,6 +19,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Upload } from 'src/components/upload';
 import { toast } from 'src/components/snackbar';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 // ----------------------------------------------------------------------
 // Zod Schema
@@ -31,6 +29,8 @@ const schema = z.object({
 });
 export function MenuDetails() {
   const dialog = useBoolean();
+  const confirm = useBoolean();
+
   const [file, setFile] = useState(null);
   const [formDatas, setFormData] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
@@ -120,14 +120,47 @@ export function MenuDetails() {
     const img = `http://localhost:3000${val.image}`;
     setFile(img);
   };
+  const formContent =     
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+  <TextField
+    {...register('name')}
+    autoFocus
+    fullWidth
+    type="text"
+    margin="dense"
+    variant="outlined"
+    label="Menu Name"
+    size="small"
+    error={!!errors.name}
+    helperText={errors.name?.message}
+  />
+  <TextField
+    {...register('short_desc')}
+    fullWidth
+    type="text"
+    margin="dense"
+    variant="outlined"
+    label="Short Description"
+    size="small"
+    error={!!errors.short_desc}
+    helperText={errors.short_desc?.message}
+  />
+  <Stack direction="row" spacing={2}>
+    <Upload
+      value={file}
+      onDrop={handleDropSingleFile}
+      onDelete={() => setFile(null)}
+    />
+  </Stack>
+</form>
   return (
     <>
       <div className="flex justify-end">
         <div>
-          <Button variant="contained" color="primary" size="small" onClick={dialog.onTrue}>
+          <Button variant="contained" color="primary" size="small" onClick={confirm.onTrue}>
             Add Menu
           </Button>
-
+{/* 
           <Dialog
             open={dialog.value}
             onClose={(event, reason) => {
@@ -188,7 +221,23 @@ export function MenuDetails() {
                 Submit
               </Button>
             </DialogActions>
-          </Dialog>
+          </Dialog> */}
+
+          <ConfirmDialog
+        open={confirm.value}
+        onClose={(event, reason) => {
+          if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+            confirm.onFalse();
+          }
+        }}
+        title={isEdit ? 'Edit Menu' : 'Add Menu'}
+        content={formContent}
+        action={
+          <Button onClick={handleExternalSubmit} variant="contained" color="primary">
+          Submit
+        </Button>
+        }
+      />
         </div>
       </div>
 
