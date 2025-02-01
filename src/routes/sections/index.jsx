@@ -7,6 +7,7 @@ import { Navigate, useRoutes } from 'react-router-dom';
 import { authRoutes } from './auth';
 import { authDemoRoutes } from './auth-demo';
 import { dashboardRoutes } from './dashboard';
+import { mainRoutes } from './main';
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +35,8 @@ export function Router() {
     ...dashboardRoutes,
 
     // Main
- 
+    ...mainRoutes,
+
 
     // Components
 
