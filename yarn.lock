@@ -207,10 +207,10 @@
   resolved "https://registry.npmjs.org/@emotion/weak-memoize/-/weak-memoize-0.3.1.tgz"
   integrity sha512-EsBwpc7hBUJWAsNPBmJy4hxWx12v6bshQsldrVmjxJoc3isbxhOrF2IcCpaXxfvq03NwkI7sbsOLXbYuqF/8Ww==
 
-"@esbuild/win32-x64@0.21.5":
+"@esbuild/linux-x64@0.21.5":
   version "0.21.5"
-  resolved "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.21.5.tgz"
-  integrity sha512-tQd/1efJuzPC6rCFwEvLtci/xNFcTZknmXs98FYDfGE4wP9ClFV98nyKrzJKVPMhdDnjzLhdUyMX4PsQAPjwIw==
+  resolved "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.21.5.tgz"
+  integrity sha512-1rYdTpyv03iycF1+BhzrzQJCdOuAOtaqHTWJZCWvijKD2N5Xu0TtVC8/+1faWqcP9iBCWOmjmhoH94dH82BxPQ==
 
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
@@ -777,10 +777,15 @@
   resolved "https://registry.npmjs.org/@remix-run/router/-/router-1.16.1.tgz"
   integrity sha512-es2g3dq6Nb07iFxGk5GuHN20RwBZOsuDQN7izWIisUcv9r+d2C5jQxqmgkdebXgReWfiyUabcki6Fg77mSNrig==
 
-"@rollup/rollup-win32-x64-msvc@4.18.0":
+"@rollup/rollup-linux-x64-gnu@4.18.0":
   version "4.18.0"
-  resolved "https://registry.npmjs.org/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.18.0.tgz"
-  integrity sha512-UOo5FdvOL0+eIVTgS4tIdbW+TtnBLWg1YBCcU2KWM7nuNwRz9bksDX1bekJJCpu25N1DVWaCwnT39dVQxzqS8g==
+  resolved "https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.18.0.tgz"
+  integrity sha512-xuglR2rBVHA5UsI8h8UbX4VJ470PtGCf5Vpswh7p2ukaqBGFTnsfzxUBetoWBWymHMxbIG0Cmx7Y9qDZzr648w==
+
+"@rollup/rollup-linux-x64-musl@4.18.0":
+  version "4.18.0"
+  resolved "https://registry.npmjs.org/@rollup/rollup-linux-x64-musl/-/rollup-linux-x64-musl-4.18.0.tgz"
+  integrity sha512-LKaqQL9osY/ir2geuLVvRRs+utWUNilzdE90TpyoX0eNqPzWjRm14oMEE+YLve4k/NAqCdPkGYDaDF5Sw+xBfg==
 
 "@supabase/auth-js@2.64.2":
   version "2.64.2"
@@ -839,10 +844,15 @@
     "@supabase/realtime-js" "2.9.5"
     "@supabase/storage-js" "2.5.5"
 
-"@swc/core-win32-x64-msvc@1.5.7":
+"@swc/core-linux-x64-gnu@1.5.7":
   version "1.5.7"
-  resolved "https://registry.npmjs.org/@swc/core-win32-x64-msvc/-/core-win32-x64-msvc-1.5.7.tgz"
-  integrity sha512-tp43WfJLCsKLQKBmjmY/0vv1slVywR5Q4qKjF5OIY8QijaEW7/8VwPyUyVoJZEnDgv9jKtUTG5PzqtIYPZGnyg==
+  resolved "https://registry.npmjs.org/@swc/core-linux-x64-gnu/-/core-linux-x64-gnu-1.5.7.tgz"
+  integrity sha512-25GXpJmeFxKB+7pbY7YQLhWWjkYlR+kHz5I3j9WRl3Lp4v4UD67OGXwPe+DIcHqcouA1fhLhsgHJWtsaNOMBNg==
+
+"@swc/core-linux-x64-musl@1.5.7":
+  version "1.5.7"
+  resolved "https://registry.npmjs.org/@swc/core-linux-x64-musl/-/core-linux-x64-musl-1.5.7.tgz"
+  integrity sha512-0VN9Y5EAPBESmSPPsCJzplZHV26akC0sIgd3Hc/7S/1GkSMoeuVL+V9vt+F/cCuzr4VidzSkqftdP3qEIsXSpg==
 
 "@swc/core@^1.5.7":
   version "1.5.7"
@@ -892,10 +902,15 @@
     jiti "^2.4.2"
     tailwindcss "4.0.0"
 
-"@tailwindcss/oxide-win32-x64-msvc@4.0.0":
+"@tailwindcss/oxide-linux-x64-gnu@4.0.0":
   version "4.0.0"
-  resolved "https://registry.npmjs.org/@tailwindcss/oxide-win32-x64-msvc/-/oxide-win32-x64-msvc-4.0.0.tgz"
-  integrity sha512-bqT0AY8RXb8GMDy28JtngvqaOSB2YixbLPLvUo6I6lkvvUwA6Eqh2Tj60e2Lh7O/k083f8tYiB0WEK4wmTI7Jg==
+  resolved "https://registry.npmjs.org/@tailwindcss/oxide-linux-x64-gnu/-/oxide-linux-x64-gnu-4.0.0.tgz"
+  integrity sha512-hGtRYIUEx377/HlU49+jvVKKwU1MDSKYSMMs0JFO2Wp7LGxk5+0j5+RBk9NFnmp/lbp32yPTgIOO5m1BmDq36A==
+
+"@tailwindcss/oxide-linux-x64-musl@4.0.0":
+  version "4.0.0"
+  resolved "https://registry.npmjs.org/@tailwindcss/oxide-linux-x64-musl/-/oxide-linux-x64-musl-4.0.0.tgz"
+  integrity sha512-7xgQgSAThs0I14VAgmxpJnK6XFSZBxHMGoDXkLyYkEnu+8WRQMbCP93dkCUn2PIv+Q+JulRgc00PJ09uORSLXQ==
 
 "@tailwindcss/oxide@^4.0.0":
   version "4.0.0"
@@ -3484,10 +3499,15 @@ libphonenumber-js@^1.11.2:
   resolved "https://registry.npmjs.org/libphonenumber-js/-/libphonenumber-js-1.11.2.tgz"
   integrity sha512-V9mGLlaXN1WETzqQvSu6qf6XVAr3nFuJvWsHcuzCCCo6xUKawwSxOPTpan5CGOSKTn5w/bQuCZcLPJkyysgC3w==
 
-lightningcss-win32-x64-msvc@1.29.1:
+lightningcss-linux-x64-gnu@1.29.1:
   version "1.29.1"
-  resolved "https://registry.npmjs.org/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-1.29.1.tgz"
-  integrity sha512-NygcbThNBe4JElP+olyTI/doBNGJvLs3bFCRPdvuCcxZCcCZ71B858IHpdm7L1btZex0FvCmM17FK98Y9MRy1Q==
+  resolved "https://registry.npmjs.org/lightningcss-linux-x64-gnu/-/lightningcss-linux-x64-gnu-1.29.1.tgz"
+  integrity sha512-u1S+xdODy/eEtjADqirA774y3jLcm8RPtYztwReEXoZKdzgsHYPl0s5V52Tst+GKzqjebkULT86XMSxejzfISw==
+
+lightningcss-linux-x64-musl@1.29.1:
+  version "1.29.1"
+  resolved "https://registry.npmjs.org/lightningcss-linux-x64-musl/-/lightningcss-linux-x64-musl-1.29.1.tgz"
+  integrity sha512-L0Tx0DtaNUTzXv0lbGCLB/c/qEADanHbu4QdcNOXLIe1i8i22rZRpbT3gpWYsCh9aSL9zFujY/WmEXIatWvXbw==
 
 lightningcss@^1.21.0, lightningcss@^1.29.1:
   version "1.29.1"
