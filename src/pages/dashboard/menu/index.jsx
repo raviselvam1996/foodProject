@@ -6,7 +6,7 @@ import { MenuCreation } from 'src/sections/menu/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `User profile | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `Menu | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   return (
