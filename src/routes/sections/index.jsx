@@ -31,7 +31,7 @@ export function Router() {
     ...authRoutes,
     ...authDemoRoutes,
 
-    // Dashboard
+    // Dashboards
     ...dashboardRoutes,
 
     // Main
