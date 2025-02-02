@@ -10,7 +10,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 // ----------------------------------------------------------------------
 
-export function RHFSwitch({ name, helperText, label, slotProps, ...other }) {
+export function RHFSwitch({ name, helperText, label, slotProps,size = "small",labelPlace="start", ...other }) {
   const { control } = useFormContext();
 
   const ariaLabel = `Switch ${name}`;
@@ -26,6 +26,7 @@ export function RHFSwitch({ name, helperText, label, slotProps, ...other }) {
               <Switch
                 {...field}
                 checked={field.value}
+                size={size} // ✅ Use size prop
                 {...slotProps?.switch}
                 inputProps={{
                   ...(!label && { 'aria-label': ariaLabel }),
@@ -34,6 +35,7 @@ export function RHFSwitch({ name, helperText, label, slotProps, ...other }) {
               />
             }
             label={label}
+            labelPlacement={labelPlace}
             {...other}
           />
 

@@ -28,8 +28,37 @@ export const menuProductApi = createApi({
         body: data,
       }),
     }),
+    delMenu: builder.mutation({
+      query: (data) => ({
+        url: 'admin/menu/del',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    // For menu items
+    getMenuItems: builder.mutation({
+      query: (data) => ({
+        url: 'admin/menu_item/menu_item',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    itemCreate: builder.mutation({
+      query: (data) => ({
+        url: 'admin/menu_item/add',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    addonCreate: builder.mutation({
+      query: (data) => ({
+        url: 'admin/menu_item/add',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation } =
+export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation } =
   menuProductApi;
