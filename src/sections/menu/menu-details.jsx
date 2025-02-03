@@ -4,7 +4,17 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useState, useCallback, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Switch, Stack, IconButton } from '@mui/material';
+import {
+  Switch,
+  Stack,
+  IconButton,
+  Card,
+  Avatar,
+  Chip,
+  CardHeader,
+  CardContent,
+  FormControlLabel,
+} from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
@@ -16,6 +26,7 @@ import {
   useGetMenuItemsMutation,
   useItemCreateMutation,
   useAddonCreateMutation,
+  useAddonItemCreateMutation,
 } from 'src/services/menu';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -45,19 +56,28 @@ const itemSchema = z.object({
     .transform((val) => Number(val)),
   food_type: z.string(),
 });
-const addonSchema = z.object({
-  name: z.string().min(1,{ message: 'AddOn Name is required!' }),
-  select_upto: z.number(), // Prevents 0 and negative numbers
-  is_required:z.boolean(),
-  is_multi_select:z.boolean()
-}).refine((data) => {
-  if (data.is_multi_select) {
-    return data.select_upto !== null && data.select_upto >= 1;
-  }
-  return true; // If is_multi_select is false, select_upto can be null
-}, {
-  message: "Select Upto is required!",
-  path: ["select_upto"]
+const addonSchema = z
+  .object({
+    name: z.string().min(1, { message: 'AddOn Name is required!' }),
+    select_upto: z.number(), // Prevents 0 and negative numbers
+    is_required: z.boolean(),
+    is_multi_select: z.boolean(),
+  })
+  .refine(
+    (data) => {
+      if (data.is_multi_select) {
+        return data.select_upto !== null && data.select_upto >= 1;
+      }
+      return true; // If is_multi_select is false, select_upto can be null
+    },
+    {
+      message: 'Select Upto is required!',
+      path: ['select_upto'],
+    }
+  );
+const addonItemSchema = z.object({
+  name: z.string().min(1, { message: 'required!' }),
+  price: z.number().min(1, { message: 'required!' }),
 });
 export function MenuDetails() {
   const confirm = useBoolean();
@@ -70,28 +90,11 @@ export function MenuDetails() {
   const [isEdit, setIsEdit] = useState(false);
   const [isMenuItemEdit, setIsMenuItemEdit] = useState(false);
   const [delId, setDelId] = useState(null);
-  const [menuItems, setMenuItems] = useState([
-    {
-      id: 1,
-      menu_id: 1,
-      name: 'menu item name',
-      price: 100,
-      food_type: 'veg',
-      index: 1,
-      status: 'active',
-      add_ons: [],
-    },
-    {
-      id: 2,
-      menu_id: 1,
-      name: 'messsssnu item name',
-      price: 100,
-      food_type: 'veg',
-      index: 1,
-      status: 'active',
-      add_ons: [],
-    },
-  ]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [menuItemId, setMenuItemId] = useState(null);
+  const [addOnId, setAddOnId] = useState(null);
+  const [addOnData, setAddOnData] = useState([]);
+  const [isAddOn, setIsAddOn] = useState(true);
 
   const [addMenu, { isLoading: statusLoad }] = useAddMenuMutation();
   const [addonCreate, { isLoading: addonLoad }] = useAddonCreateMutation();
@@ -116,7 +119,7 @@ export function MenuDetails() {
 
   const {
     register: itemRegister,
-    reset:itemReset,
+    reset: itemReset,
     handleSubmit: itemSubmit,
     formState: { errors: itemError },
   } = methods;
@@ -132,12 +135,24 @@ export function MenuDetails() {
   });
 
   const {
-    register: addonRegister,
     handleSubmit: addonHandleSubmit,
     watch: addonWatch,
+    reset: addonReset,
     formState: { errors: addonError },
   } = addonMethods;
 
+  const addonItemMethods = useForm({
+    resolver: zodResolver(addonItemSchema),
+    defaultValues: {
+      name: '',
+      price: 0,
+    },
+  });
+
+  const {
+    handleSubmit: addonItemHandleSubmit,
+    formState: { errors: addonItemError },
+  } = addonItemMethods;
   const onSubmit = async (data) => {
     console.log('Form Data:', data);
     try {
@@ -191,6 +206,7 @@ export function MenuDetails() {
   const [delMenu, { isLoading: menuDelLoad }] = useDelMenuMutation();
   const [getMenuItems, { isLoading: itemLoad }] = useGetMenuItemsMutation();
   const [itemCreate, { isLoading: itemAddLoad }] = useItemCreateMutation();
+  const [addonItemCreate, { isLoading: AddonitemAddLoad }] = useAddonItemCreateMutation();
 
   const changeMenuStatus = async (id, val) => {
     try {
@@ -234,7 +250,6 @@ export function MenuDetails() {
     setIsMenuItemEdit(true);
     confirm3.onTrue();
     itemReset(val);
-
   };
   const formContent = (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -275,19 +290,7 @@ export function MenuDetails() {
         const response = await getMenuItems(payload).unwrap(); // ✅ Add `await`
 
         if (response.status) {
-          // setMenuItems(response.data);
-          setMenuItems([
-            {
-              id: 1,
-              menu_id: 1,
-              name: 'menu item name',
-              price: 100,
-              food_type: 'veg',
-              index: 1,
-              status: 'active',
-              add_ons: [],
-            },
-          ]);
+          setMenuItems(response.data);
         }
       } catch (error) {
         console.log(error);
@@ -369,49 +372,130 @@ export function MenuDetails() {
   const handleChangeControlled = (panel) => (event, isExpanded) => {
     setControlled(isExpanded ? panel : null);
   };
-
-  const addonFormContent = (
-    <FormProvider {...addonMethods}>
-      <form  noValidate>
-        <div className="grid grid-cols-4 p-3">
-          <RHFTextField name="name" label="Add On Name" type="text" size="small" />
-
-          <div className="flex items-center">
-            {/* <SwitchComponent /> */}
-            <RHFSwitch name="is_required" label="Required" />
-            <RHFSwitch name="is_multi_select" label="Select Multiple" />
-
-          </div>
-{
-      addonWatch('is_multi_select') &&    <RHFTextField name="select_upto" label="Select Upto" type="number" size="small" />
-}
-        </div>
-      </form>
-    </FormProvider>
-  );
-const addonSubmit =async (data) => {
-  try {
-    // Create FormData instance
-    const formData = data;
-    formData.menu_item_id = 1;
-    let response;
-    if (isEdit) {
-      response = await addonCreate(formData).unwrap();
-    } else {
-      response = await addonCreate(formData).unwrap();
-    }
-    if (response.status) {
-      toast.success(response.message);
-      if (response.status) {
-        reset();
-        confirm.onFalse();
+  const addonSubmit = async (data) => {
+    try {
+      // Create FormData instance
+      const formData = data;
+      formData.menu_item_id = menuItemId;
+      let response;
+      if (isEdit) {
+        response = await addonCreate(formData).unwrap();
+      } else {
+        response = await addonCreate(formData).unwrap();
+        menuItemsGet(menuItemId);
       }
+      if (response.status) {
+        toast.success(response.message);
+        setIsAddOn(false);
+        setAddOnId(response.id);
+
+        // addonReset()
+        // if (response.status) {
+        //   reset();
+        //   confirm.onFalse();
+        // }
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
-  }
-}
-  const addonHandleSubmitFin = addonHandleSubmit(addonSubmit);
+  };
+  const addonItemSubmit = async (data) => {
+    console.log(data);
+    try {
+      // Create FormData instance
+      const formData = data;
+      formData.addon_id = addOnId;
+      let response;
+      if (isEdit) {
+        response = await addonItemCreate(formData).unwrap();
+      } else {
+        response = await addonItemCreate(formData).unwrap();
+        menuItemsGet(menuItemId);
+      }
+      if (response.status) {
+        toast.success(response.message);
+        // addonReset()
+        // if (response.status) {
+        //   reset();
+        //   confirm.onFalse();
+        // }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleDelete = () => {
+    console.info('You clicked the delete icon.');
+  };
+  const addonFormContent = (
+    <>
+      <FormProvider {...addonMethods}>
+        <form onSubmit={addonHandleSubmit(addonSubmit)} noValidate>
+          <div
+            className={`grid grid-cols-2 sm:grid-cols-4 p-3 ${!isAddOn ? 'pointer-events-none opacity-50' : ''}`}
+          >
+            <RHFTextField name="name" label="Add On Name" type="text" size="small" />
+
+            <div className="flex items-center">
+              {/* <SwitchComponent /> */}
+              <RHFSwitch name="is_required" label="Required" />
+              <RHFSwitch name="is_multi_select" label="Select Multiple" />
+            </div>
+            {addonWatch('is_multi_select') && (
+              <RHFTextField name="select_upto" label="Select Upto" type="number" size="small" />
+            )}
+            <div className="ml-5">
+              {isAddOn && (
+                <Button type="submit" variant="contained" color="primary">
+                  Submit
+                </Button>
+              )}
+            </div>
+          </div>
+        </form>
+      </FormProvider>
+      {!isAddOn && (
+        <>
+          <FormProvider {...addonItemMethods}>
+            <form onSubmit={addonItemHandleSubmit(addonItemSubmit)} noValidate>
+              <div className="grid grid-cols-2  sm:grid-cols-4 gap-6 p-3">
+                <RHFTextField
+                  name="name"
+                  id="djskfh"
+                  label="Add On Item Name"
+                  type="text"
+                  size="small"
+                />
+
+                <RHFTextField name="price" label="Price" type="number" size="small" />
+                <div className="ml-5">
+                  <Button type="submit" variant="contained" color="primary">
+                    Submit
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </FormProvider>
+          <Card>
+            <CardHeader title="Addon item" />
+            <CardContent>
+              {' '}
+              <Chip
+                variant="outlined"
+                size="normal"
+                avatar={<Avatar>M</Avatar>}
+                label="Small"
+                onDelete={handleDelete}
+                color="info"
+              />
+            </CardContent>
+          </Card>
+        </>
+      )}
+    </>
+  );
+
+  // const addonHandleSubmitFin = addonHandleSubmit(addonSubmit);
 
   return (
     <>
@@ -423,7 +507,7 @@ const addonSubmit =async (data) => {
         </div>
       </div>
       <div className="grid grid-cols-3">
-        <div className="col-span-1 max-w-sm p-4 bg-white rounded-lg shadow-md">
+        <Card className="col-span-1 p-3">
           <div className="flex items-center justify-between border-b pb-2 mb-4">
             <h2 className="text-xl font-bold text-gray-800">Menu</h2>
             <span className="text-sm text-gray-500">d</span>
@@ -474,8 +558,8 @@ const addonSubmit =async (data) => {
                 </div>
               ))}
           </div>
-        </div>
-        <div className=" col-span-2 p-4 bg-white rounded-lg shadow-md">
+        </Card>
+        <Card className="col-span-2 p-3">
           <div className="flex justify-start">
             <div>
               <Button variant="contained" color="primary" size="small" onClick={confirm3.onTrue}>
@@ -524,14 +608,95 @@ const addonSubmit =async (data) => {
                     </div>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Typography>{item.food_type}</Typography>
+                    <div className="flex flex-col">
+                      {item?.add_ons?.length > 0 && (
+                        <>
+                          {item?.add_ons.map((addons, i) => (
+                            <Card className="p-3 mt-3">
+                              <div key={i} className="grid grid-cols-2  md:grid-cols-4 gap-4 p-2">
+                                <TextField
+                                  variant="outlined"
+                                  readOnly
+                                  fullWidth
+                                  label="Add On Name"
+                                  value={addons.name} // Manually setting the value
+                                  size="small"
+                                />
+
+                                <FormControlLabel
+                                  control={
+                                    <Switch
+                                      checked={addons.is_required}
+                                      inputProps={{ 'aria-label': 'Required' }}
+                                      size="small"
+                                      readOnly
+                                    />
+                                  }
+                                  label="Required"
+                                />
+                                <FormControlLabel
+                                  control={
+                                    <Switch
+                                      checked={addons.is_multi_select}
+                                      inputProps={{ 'aria-label': 'Select Multiple' }}
+                                      size="small"
+                                      readOnly
+                                    />
+                                  }
+                                  label="Multiple"
+                                />
+
+                                {addons.is_multi_select && (
+                                  <div className="flex justify-end w-full">
+                                    <TextField
+                                      sx={{ maxWidth: 100 }}
+                                      variant="outlined"
+                                      readOnly
+                                      fullWidth
+                                      label="Select Upto"
+                                      value={addons.select_upto || ''} // Manually setting the value
+                                      size="small"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                              {addons.items.length > 0 && (
+                                <Card className="p-2">
+                                  <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+                                    Addon items
+                                  </Typography>
+                                  <CardContent className="flex items-center flex-wrap gap-4">
+                                    {addons.items.map((itemss, j) => (
+                                      <div key={j}>
+                                        <Chip
+                                          variant="outlined"
+                                          size="normal"
+                                          avatar={<Avatar>M</Avatar>}
+                                          label={<p>{`${itemss.name} |  ${itemss.price}`}</p>}
+                                          onDelete={handleDelete}
+                                          color="primary"
+                                        />
+                                      </div>
+                                    ))}
+                                  </CardContent>
+                                </Card>
+                              )}
+                            </Card>
+                          ))}
+                        </>
+                      )}
+                    </div>{' '}
                     <div className="flex justify-end">
                       <div>
                         <Button
                           variant="contained"
                           color="primary"
                           size="small"
-                          onClick={addon.onTrue}
+                          onClick={() => {
+                            setMenuItemId(item.id);
+                            setAddOnData(item.add_ons);
+                            addon.onTrue();
+                          }}
                         >
                           Add Add on
                         </Button>
@@ -541,7 +706,7 @@ const addonSubmit =async (data) => {
                 </Accordion>
               ))}
           </div>
-        </div>
+        </Card>
       </div>
       <ConfirmDialog
         open={confirm.value}
@@ -594,11 +759,6 @@ const addonSubmit =async (data) => {
         }}
         title={isEdit ? 'Edit AddOn' : 'Create AddOn'}
         content={addonFormContent}
-        action={
-          <Button onClick={addonHandleSubmitFin} variant="contained" color="primary">
-            Submit
-          </Button>
-        }
       />
     </>
   );
