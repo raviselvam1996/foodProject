@@ -38,7 +38,7 @@ export const menuProductApi = createApi({
     // For menu items
     getMenuItems: builder.mutation({
       query: (data) => ({
-        url: 'admin/menu_item/menu_item',
+        url: 'admin/menu/menu_item',
         method: 'POST',
         body: data,
       }),
@@ -52,7 +52,14 @@ export const menuProductApi = createApi({
     }),
     addonCreate: builder.mutation({
       query: (data) => ({
-        url: 'admin/menu_item/add',
+        url: 'admin/add_on/add',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    addonItemCreate: builder.mutation({
+      query: (data) => ({
+        url: 'admin/add_on/add_item',
         method: 'POST',
         body: data,
       }),
@@ -60,5 +67,5 @@ export const menuProductApi = createApi({
   }),
 });
 
-export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation } =
+export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation } =
   menuProductApi;
