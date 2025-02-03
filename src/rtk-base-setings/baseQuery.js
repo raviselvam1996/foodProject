@@ -7,6 +7,12 @@ const BaseQueryInstance = fetchBaseQuery({
     // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqYm9faWQiOjIzMywidXNlcl9pZCI6MTExLCJvdHBfdmVyaWZpY2F0aW9uIjoxLCJreWNfdmVyaWZpY2F0aW9uIjoxLCJpYXQiOjE3MTYwMjQxMjF9.vn-dHXSzuKw7I9nt7TCGm9K0vSXu1CbvTTyI7YFNsEY";
 
     // headers.set('Content-Type', 'application/x-www-form-urlencoded');
+        // Get token from Redux state
+      const accessToken = sessionStorage.getItem('jwt_access_token');
+
+        if (accessToken) {
+          headers.set("Authorization", `Bearer ${accessToken}`);
+        }
     headers.set('Accept', '*/*')
 
     return headers
