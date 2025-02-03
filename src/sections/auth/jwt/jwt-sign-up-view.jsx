@@ -20,14 +20,15 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
-import { signUp } from 'src/auth/context/jwt';
+// import { signUp } from 'src/auth/context/jwt';
 import { useAuthContext } from 'src/auth/hooks';
+import { useSignInMutation } from 'src/services/auth';
+import { toast } from 'sonner';
 
 // ----------------------------------------------------------------------
 
 export const SignUpSchema = zod.object({
-  firstName: zod.string().min(1, { message: 'First name is required!' }),
-  lastName: zod.string().min(1, { message: 'Last name is required!' }),
+  name: zod.string().min(1, { message: 'Name is required!' }),
   email: zod
     .string()
     .min(1, { message: 'Email is required!' })
@@ -42,6 +43,7 @@ export const SignUpSchema = zod.object({
 
 export function JwtSignUpView() {
   const { checkUserSession } = useAuthContext();
+  const [signIn, { isLoading: addonLoad }] = useSignInMutation();
 
   const router = useRouter();
 
@@ -50,8 +52,7 @@ export function JwtSignUpView() {
   const [errorMsg, setErrorMsg] = useState('');
 
   const defaultValues = {
-    firstName: 'Hello',
-    lastName: 'Friend',
+    name: 'Friend',
     email: 'hello@gmail.com',
     password: '@demo1',
   };
@@ -68,18 +69,31 @@ export function JwtSignUpView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await signUp({
-        email: data.email,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-      });
-      await checkUserSession?.();
+      const payload = data;
 
-      router.refresh();
+      const res = await signIn(payload).unwrap(); 
+      console.log(res);
+      
+      if(res.status){
+        toast.success(res.message)
+        router.push('/auth/jwt/sign-in');
+
+      }
+  
+      // const { token } = res;
+  
+      // if (!token) {
+      //   throw new Error('Access token not found in response');
+      // }
+  
+      // setSession(token);
+      // await checkUserSession?.();
+
     } catch (error) {
-      console.error(error);
-      setErrorMsg(error instanceof Error ? error.message : error);
+      // console.error(error);
+      // setErrorMsg(error instanceof Error ? error.message : error);
+      toast.error(error.data.message || 'Failed to Sign in')
+
     }
   });
 
@@ -101,10 +115,7 @@ export function JwtSignUpView() {
 
   const renderForm = (
     <Stack spacing={3}>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-        <Field.Text name="firstName" label="First name" InputLabelProps={{ shrink: true }} />
-        <Field.Text name="lastName" label="Last name" InputLabelProps={{ shrink: true }} />
-      </Stack>
+        <Field.Text name="name" label="User name" InputLabelProps={{ shrink: true }} />
 
       <Field.Text name="email" label="Email address" InputLabelProps={{ shrink: true }} />
 

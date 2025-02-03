@@ -21,8 +21,12 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks';
-import { signInWithPassword } from 'src/auth/context/jwt';
+import { setSession } from 'src/auth/context/jwt';
 
+// import { STORAGE_KEY } from './constant';
+import { useLoginMutation } from 'src/services/auth';
+import { toast } from 'sonner';
+// import { toast } from 'src/components/snackbar';
 // ----------------------------------------------------------------------
 
 export const SignInSchema = zod.object({
@@ -47,9 +51,11 @@ export function JwtSignInView() {
 
   const password = useBoolean();
 
+  const [login, { isLoading: addonLoad }] = useLoginMutation();
+
   const defaultValues = {
-    email: 'demo@minimals.cc',
-    password: '@demo1',
+    email: 'ravi@gmail.com',
+    password: '12345678',
   };
 
   const methods = useForm({
@@ -64,13 +70,29 @@ export function JwtSignInView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await signInWithPassword({ email: data.email, password: data.password });
-      await checkUserSession?.();
+      // await signInWithPassword({ email: data.email, password: data.password });
+      const payload = { email: data.email, password: data.password };
+
+      const res = await login(payload).unwrap(); 
+      console.log(res);
+      
+      if(res.status) toast.success(res.message)
+  
+      const { token } = res;
+  
+      if (!token) {
+        throw new Error('Access token not found in response');
+      }
+  
+      setSession(token);
+  await checkUserSession?.(res);
+
 
       router.refresh();
     } catch (error) {
-      console.error(error);
-      setErrorMsg(error instanceof Error ? error.message : error);
+      // console.error(error.data);
+      // setErrorMsg(error instanceof Error ? error.data.message : error);
+      toast.error(error.data.message || 'Failed to Login')
     }
   });
 

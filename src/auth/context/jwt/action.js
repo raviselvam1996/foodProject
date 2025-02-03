@@ -2,28 +2,34 @@ import axios, { endpoints } from 'src/utils/axios';
 
 import { setSession } from './utils';
 import { STORAGE_KEY } from './constant';
+// import { useLoginMutation } from 'src/services/auth';
+// import { toast } from 'src/components/snackbar';
 
 /** **************************************
  * Sign in
  *************************************** */
-export const signInWithPassword = async ({ email, password }) => {
-  try {
-    const params = { email, password };
 
-    const res = await axios.post(endpoints.auth.signIn, params);
+//   const [login, { isLoading: addonLoad }] = useLoginMutation();
 
-    const { accessToken } = res.data;
+// export const signInWithPassword = async ({ email, password }) => {
+//   try {
+//     const params = { email, password };
 
-    if (!accessToken) {
-      throw new Error('Access token not found in response');
-    }
+//     const res = await login().unwrap(); 
+//     if(res.status) toast.success(res.messege)
 
-    setSession(accessToken);
-  } catch (error) {
-    console.error('Error during sign in:', error);
-    throw error;
-  }
-};
+//     const { accessToken } = res.token;
+
+//     if (!accessToken) {
+//       throw new Error('Access token not found in response');
+//     }
+
+//     setSession(accessToken);
+//   } catch (error) {
+//     console.error('Error during sign in:', error);
+//     throw error;
+//   }
+// };
 
 /** **************************************
  * Sign up
