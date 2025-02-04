@@ -28,6 +28,13 @@ export const menuProductApi = createApi({
         body: data,
       }),
     }),
+    editMenu: builder.mutation({
+      query: (data) => ({
+        url: 'admin/menu/update',
+        method: 'POST',
+        body: data,
+      }),
+    }),
     delMenu: builder.mutation({
       query: (data) => ({
         url: 'admin/menu/del',
@@ -50,9 +57,37 @@ export const menuProductApi = createApi({
         body: data,
       }),
     }),
+    itemEdit: builder.mutation({
+      query: (data) => ({
+        url: 'admin/menu_item/update',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    delMenuItem: builder.mutation({
+      query: (data) => ({
+        url: 'admin/menu_item/del',
+        method: 'POST',
+        body: data,
+      }),
+    }),
     addonCreate: builder.mutation({
       query: (data) => ({
         url: 'admin/add_on/add',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    addonUpdate: builder.mutation({
+      query: (data) => ({
+        url: 'admin/add_on/update',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    delAddOn: builder.mutation({
+      query: (data) => ({
+        url: 'admin/add_on/del',
         method: 'POST',
         body: data,
       }),
@@ -67,5 +102,5 @@ export const menuProductApi = createApi({
   }),
 });
 
-export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation } =
+export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation,useEditMenuMutation,useItemEditMutation,useDelMenuItemMutation,useAddonUpdateMutation,useDelAddOnMutation } =
   menuProductApi;
