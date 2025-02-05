@@ -1,5 +1,6 @@
-const { z } = require("zod");
 // Zod Schema
+
+import { z } from "zod";
 
 
 // Menu Schema
