@@ -115,7 +115,7 @@ export function UpgradeBlock({ sx, ...other }) {
         sx={{ right: 0, width: 112, height: 112, position: 'absolute' }}
       />
 
-      <Stack alignItems="flex-start" sx={{ position: 'relative' }}>
+      {/* <Stack alignItems="flex-start" sx={{ position: 'relative' }}>
         <Box component="span" sx={{ typography: 'h5', color: 'common.white' }}>
           35% OFF
         </Box>
@@ -135,7 +135,7 @@ export function UpgradeBlock({ sx, ...other }) {
         <Button variant="contained" size="small" color="warning">
           Upgrade to Pro
         </Button>
-      </Stack>
+      </Stack> */}
     </Stack>
   );
 }

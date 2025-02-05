@@ -71,6 +71,13 @@ export const menuProductApi = createApi({
         body: data,
       }),
     }),
+    menuItemStatusChange: builder.mutation({
+      query: (data) => ({
+        url: 'admin/menu_item/change_status',
+        method: 'POST',
+        body: data,
+      }),
+    }),
     addonCreate: builder.mutation({
       query: (data) => ({
         url: 'admin/add_on/add',
@@ -106,8 +113,15 @@ export const menuProductApi = createApi({
         body: data,
       }),
     }),
+    imageUpload: builder.mutation({
+      query: (data) => ({
+        url: 'admin/img_upload',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation,useEditMenuMutation,useItemEditMutation,useDelMenuItemMutation,useAddonUpdateMutation,useDelAddOnMutation,useGetAddonItemsMutation } =
+export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation,useEditMenuMutation,useItemEditMutation,useDelMenuItemMutation,useAddonUpdateMutation,useDelAddOnMutation,useGetAddonItemsMutation,useMenuItemStatusChangeMutation,useImageUploadMutation } =
   menuProductApi;

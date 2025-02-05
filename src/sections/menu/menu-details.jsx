@@ -30,6 +30,8 @@ import {
   useAddonUpdateMutation,
   useDelAddOnMutation,
   useGetAddonItemsMutation,
+  useMenuItemStatusChangeMutation,
+  useImageUploadMutation,
 } from 'src/services/menu';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -49,7 +51,6 @@ import { schema, itemSchema, addonSchema, addonItemSchema } from './menu-schema'
 // ----------------------------------------------------------------------
 
 export function MenuDetails() {
-
   const menu = useBoolean();
   const menuDel = useBoolean();
   const menuItemDel = useBoolean();
@@ -60,7 +61,6 @@ export function MenuDetails() {
 
   const [file, setFile] = useState(null);
   const [controlled, setControlled] = useState(null);
-  const [formDatas, setFormData] = useState(null);
   const [editId, setEditId] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [delId, setDelId] = useState(null);
@@ -71,6 +71,7 @@ export function MenuDetails() {
   const [addOnData, setAddOnData] = useState([]);
   const [isAddOn, setIsAddOn] = useState(true);
   const [addOnItems, setAddOnItems] = useState([]);
+  const [imgUrl, setImageUrl] = useState(null);
 
   const [addMenu, { isLoading: statusLoad }] = useAddMenuMutation();
   const [editMenu, { isLoading: menuLoad }] = useEditMenuMutation();
@@ -81,6 +82,7 @@ export function MenuDetails() {
     refetch,
   } = useGetSupplierCategoryQuery();
   const [menuStatusChange, { isLoading: satusLoad }] = useMenuStatusChangeMutation();
+  const [menuItemStatusChange] = useMenuItemStatusChangeMutation();
   const [delMenu, { isLoading: menuDelLoad }] = useDelMenuMutation();
   const [getMenuItems, { isLoading: itemLoad }] = useGetMenuItemsMutation();
   const [addonCreate, { isLoading: addonLoad }] = useAddonCreateMutation();
@@ -91,7 +93,7 @@ export function MenuDetails() {
   const [delMenuItem, { isLoading: itemDelLoad }] = useDelMenuItemMutation();
   const [addonItemCreate, { isLoading: AddonitemAddLoad }] = useAddonItemCreateMutation();
   const [getAddonItems] = useGetAddonItemsMutation();
-
+  const [imageUpload] = useImageUploadMutation();
 
   // Form for the Menu
   const menuMethods = useForm({
@@ -156,9 +158,34 @@ export function MenuDetails() {
   // For Image upload
   const handleDropSingleFile = useCallback((acceptedFiles) => {
     const newFile = acceptedFiles[0];
-    setFormData(newFile); // Save file to state if needed
     setFile(newFile); // Save file to state if needed
   }, []);
+
+  const imageUplaod = useCallback(
+    async (val) => {
+      try {
+        const formData = new FormData();
+        formData.append('image', val);
+        const response = await imageUpload(formData).unwrap();
+
+        if (response.status) {
+          toast.success(response.message);
+          setImageUrl(response?.imagePath);
+        } else {
+          setImageUrl(null);
+          toast.success(response?.message || 'Image Not Uploaded');
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [imageUpload]
+  ); // Dependencies that `imageUplaod` uses
+
+  useEffect(() => {
+    if (file) imageUplaod(file);
+  }, [file, imageUplaod]); // Include `imageUplaod` here
+
   // For Accordian Change
   const handleChangeControlled = (panel) => (event, isExpanded) => {
     setControlled(isExpanded ? panel : null);
@@ -168,16 +195,19 @@ export function MenuDetails() {
     console.log('Form Data:', data);
     try {
       // Create FormData instance
-      const formData = new FormData();
-      formData.append('name', data.name); // Append text field
-      formData.append('short_desc', data.short_desc); // Append text field
-      formData.append('image', formDatas); // Append the image file
+      // const formData = new FormData();
+      // formData.append('name', data.name); // Append text field
+      // formData.append('short_desc', data.short_desc); // Append text field
+      // formData.append('image', formDatas); // Append the image file
+      const payload = data;
+      if (!imgUrl) toast.error('Please upload a image');
+      payload.image = imgUrl;
       let response;
       if (isEdit) {
-        formData.append('id', editId); // Append the image file
-        response = await editMenu(formData).unwrap();
+        payload.append('id', editId); // Append the image file
+        response = await editMenu(payload).unwrap();
       } else {
-        response = await addMenu(formData).unwrap();
+        response = await addMenu(payload).unwrap();
       }
       if (response.status) {
         toast.success(response.message);
@@ -194,7 +224,7 @@ export function MenuDetails() {
   // Form content for the Menu creation and edit
   const formContent = (
     <FormProvider {...menuMethods}>
-      <form onSubmit={handleSubmit(menuOnSubmit)} noValidate className='p-3 flex flex-col gap-4'>
+      <form onSubmit={handleSubmit(menuOnSubmit)} noValidate className="p-3 flex flex-col gap-4">
         <RHFTextField name="name" label="Menu Item Name" size="small" />
         <RHFTextField name="short_desc" label="Short Description" size="small" />
         <Stack direction="row" spacing={2}>
@@ -205,8 +235,6 @@ export function MenuDetails() {
   );
   // Menu Submit Fun
   const handleExternalSubmit = handleSubmit(menuOnSubmit);
-
-
 
   // Menu status change
   const changeMenuStatus = async (id, val) => {
@@ -229,7 +257,7 @@ export function MenuDetails() {
     const value = event.target.checked ? 'active' : 'inactive';
     changeMenuStatus(id, value);
   };
-  // Edit menu 
+  // Edit menu
   const openEditMenuData = (val, id) => {
     setEditId(id);
     setIsEdit(true);
@@ -238,7 +266,7 @@ export function MenuDetails() {
     const img = `http://localhost:3000${val.image}`;
     setFile(img);
   };
-  // Delete menu 
+  // Delete menu
   const deleteMenu = async () => {
     try {
       const payload = {
@@ -259,7 +287,7 @@ export function MenuDetails() {
   const menuItemsGet = useCallback(
     async (id) => {
       try {
-        setMenuId(id)
+        setMenuId(id);
         const payload = { id };
         const response = await getMenuItems(payload).unwrap(); // ✅ Add `await`
 
@@ -297,11 +325,33 @@ export function MenuDetails() {
         toast.success(response.message);
         itemReset();
         menuItem.onFalse();
-        menuItemsGet(menuId)  
-          }
+        menuItemsGet(menuId);
+      }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  // Menu Item status change
+  const changeMenuItemStatus = async (id, val) => {
+    try {
+      const payload = {
+        id,
+        status: val,
+      };
+      const response = await menuItemStatusChange(payload).unwrap();
+      if (response.status) {
+        toast.success(response.message);
+        menuItemsGet(menuId);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // Menu status change
+  const handleItemChange = (event, id) => {
+    const value = event.target.checked ? 'active' : 'inactive';
+    changeMenuItemStatus(id, value);
   };
   // Menu item edit data get fun
   const openEditMenuItemData = (val, id) => {
@@ -310,7 +360,7 @@ export function MenuDetails() {
     menuItem.onTrue();
     itemReset(val);
   };
-  // Menu item delete fun 
+  // Menu item delete fun
   const deleteMenuItem = async () => {
     try {
       const payload = {
@@ -320,7 +370,7 @@ export function MenuDetails() {
       if (response.status) {
         toast.success(response.message);
         menuItemDel.onFalse();
-        menuItemsGet(menuId)  
+        menuItemsGet(menuId);
 
         //  refetch();
       }
@@ -329,11 +379,10 @@ export function MenuDetails() {
     }
   };
 
-  // Form content for the Menu item 
+  // Form content for the Menu item
   const itemFormContent = (
     <FormProvider {...methods}>
-      <form onSubmit={itemSubmit(itemOnSubmit)} noValidate className='p-3 flex flex-col gap-4'>
-
+      <form onSubmit={itemSubmit(itemOnSubmit)} noValidate className="p-3 flex flex-col gap-4">
         <RHFTextField name="name" label="Menu Item Name" size="small" />
 
         <RHFTextField name="price" label="Price" type="number" size="small" />
@@ -373,27 +422,26 @@ export function MenuDetails() {
         setIsAddOn(false);
         if (isEdit) {
           setAddOnId(editId);
-          addonItemsGet(addOnId)
+          addonItemsGet(addOnId);
         } else {
           setAddOnId(response?.id);
-          addonItemsGet(response?.id)
-
+          addonItemsGet(response?.id);
         }
-        menuItemsGet(menuId)  
+        menuItemsGet(menuId);
       }
     } catch (error) {
       console.log(error);
     }
   };
-  // Get Addon Edit data 
+  // Get Addon Edit data
   const openEditAddonData = (val, id) => {
     setEditId(id);
     setIsEdit(true);
     addon.onTrue();
     addonReset(val);
-    addonItemsGet(id)
+    addonItemsGet(id);
   };
-  // Addon delete fun 
+  // Addon delete fun
   const deleteAddon = async () => {
     try {
       const payload = {
@@ -403,7 +451,7 @@ export function MenuDetails() {
       if (response.status) {
         toast.success(response.message);
         addOnDel.onFalse();
-        menuItemsGet(menuId)  
+        menuItemsGet(menuId);
       }
     } catch (error) {
       console.log(error);
@@ -425,16 +473,15 @@ export function MenuDetails() {
       }
       if (response.status) {
         toast.success(response.message);
-        addonItemsGet(addOnId)
-        menuItemsGet(menuId)  
-
+        addonItemsGet(addOnId);
+        menuItemsGet(menuId);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  // Addon Item delete fun 
+  // Addon Item delete fun
   const deleteAddonItem = async () => {
     try {
       const payload = {
@@ -443,20 +490,22 @@ export function MenuDetails() {
       const response = await delAddOn(payload).unwrap();
       if (response.status) {
         toast.success(response.message);
-        addOnDel.onFalse();
-        menuItemsGet(menuId)  
+        addOnItemDel.onFalse();
+        setTimeout(() => {
+          menuItemsGet(menuId);
+        }, 100);
       }
     } catch (error) {
       console.log(error);
     }
   };
-  // Addon and Addon item Form content 
+  // Addon and Addon item Form content
   const addonFormContent = (
     <>
       <FormProvider {...addonMethods}>
         <form onSubmit={addonHandleSubmit(addonSubmit)} noValidate>
           <div
-            className={`grid grid-cols-2 sm:grid-cols-4 p-3 ${!isAddOn ? 'pointer-events-none opacity-50' : ''}`}
+            className={`grid grid-cols-2 sm:grid-cols-3 p-3 ${!isAddOn && !isEdit ? 'pointer-events-none opacity-50' : ''}`}
           >
             <RHFTextField name="name" label="Add On Name" type="text" size="small" />
 
@@ -465,11 +514,18 @@ export function MenuDetails() {
               <RHFSwitch name="is_required" label="Required" />
               <RHFSwitch name="is_multi_select" label="Select Multiple" />
             </div>
+            <div className="flex gap-2">
+
             {addonWatch('is_multi_select') && (
-              <RHFTextField name="select_upto" label="Select Upto" type="number" size="small" />
+              <RHFTextField
+                name="select_upto"
+                label="Select Upto"
+                type="number"
+                size="small"
+                sx={{ maxWidth: 100 }}
+              />
             )}
-            <div className="ml-5">
-              {isAddOn && (
+              {(isAddOn || isEdit) && (
                 <Button type="submit" variant="contained" color="primary">
                   Submit
                 </Button>
@@ -478,102 +534,99 @@ export function MenuDetails() {
           </div>
         </form>
       </FormProvider>
-      {!isAddOn && (
-        <>
-          <FormProvider {...addonItemMethods}>
-            <form onSubmit={addonItemHandleSubmit(addonItemSubmit)} noValidate>
-              <div className="grid grid-cols-2  sm:grid-cols-4 gap-6 p-3">
-                <RHFTextField
-                  name="name"
-                  id="djskfh"
-                  label="Add On Item Name"
-                  type="text"
-                  size="small"
-                />
+      {(!isAddOn || isEdit) && (
+        <FormProvider {...addonItemMethods}>
+          <form onSubmit={addonItemHandleSubmit(addonItemSubmit)} noValidate>
+            <div className="grid grid-cols-2  sm:grid-cols-4 gap-6 p-3">
+              <RHFTextField
+                name="name"
+                id="djskfh"
+                label="Add On Item Name"
+                type="text"
+                size="small"
+              />
 
-                <RHFTextField name="price" label="Price" type="number" size="small" />
-                <div className="ml-5">
-                  <Button type="submit" variant="contained" color="primary">
-                    Submit
-                  </Button>
-                </div>
+              <RHFTextField name="price" label="Price" type="number" size="small" />
+              <div className="ml-5">
+                <Button type="submit" variant="contained" color="primary">
+                  Submit
+                </Button>
               </div>
-            </form>
-          </FormProvider>
-      
-        </>
+            </div>
+          </form>
+        </FormProvider>
       )}
-          {addOnItems?.length > 0 && (
-            <Card className="p-2">
-              <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-                Addon items
-              </Typography>
-              <CardContent className="flex items-center flex-wrap gap-4">
-                {addOnItems.map((addonItem, j) => (
-                  <div key={j}>
-                    <Chip
-                      variant="outlined"
-                      size="normal"
-                      // avatar={<Avatar>M</Avatar>}
-                      label={<p>{`${addonItem.name} |  ${addonItem.price}`}</p>}
-                      onDelete={() => {
-                        setDelId(addonItem.id)
-                        addOnItemDel.onTrue()
-                      }}
-                      color="primary"
-                    />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+      {addOnItems?.length > 0 && (
+        <Card className="p-2">
+          <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+            Addon items
+          </Typography>
+          <CardContent className="flex items-center flex-wrap gap-4">
+            {addOnItems.map((addonItem, j) => (
+              <div key={j}>
+                <Chip
+                  variant="outlined"
+                  size="normal"
+                  // avatar={<Avatar>M</Avatar>}
+                  label={<p>{`${addonItem.name} |  ${addonItem.price}`}</p>}
+                  onDelete={() => {
+                    setDelId(addonItem.id);
+                    addOnItemDel.onTrue();
+                  }}
+                  color="primary"
+                />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </>
   );
 
   const addonItemsGet = async (id) => {
     try {
       const payload = {
-        id
-      }
-      const response = await getAddonItems(payload).unwrap()
+        id,
+      };
+      const response = await getAddonItems(payload).unwrap();
       if (response.status) {
-
-        setAddOnItems(response.data)
+        setAddOnItems(response.data);
       }
     } catch (error) {
       console.log(error);
-
     }
-  }
+  };
 
   return (
     <>
       <div className="flex justify-end">
         <div>
-          <Button variant="contained" color="primary" size="small" onClick={() => {
-            setIsEdit(false)
-            menu.onTrue()
-          }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => {
+              setIsEdit(false);
+              menu.onTrue();
+            }}
+          >
             Add Menu
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-3">
-        <Card className="col-span-1 p-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3">
+        <Card className="col-span-1 p-2">
           <div className="flex items-center justify-between border-b pb-2 mb-4">
             <h2 className="text-xl font-bold text-gray-800">Menu</h2>
             <span className="text-sm text-gray-500">d</span>
           </div>
 
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-2">
             {categoriesData?.data &&
               categoriesData?.data?.length > 0 &&
               categoriesData?.data?.map((item, index) => (
-                <div key={index} className="flex items-center justify-between  space-x-4" onClick={() =>{
-                  menuItemsGet(item.id)
-                }}
-                >
-                  <div className="flex items-center gap-5">
+                <Card key={index} className="flex items-center justify-between  space-x-4 px-2">
+                  <div className="flex items-center gap-2">
                     <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
                       <img
                         src={`http://localhost:3000${item.image}`}
@@ -581,11 +634,12 @@ export function MenuDetails() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-
-                    <p className="text-gray-700">{item.name}</p>
+                    <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
+                      {item.name}
+                    </p>{' '}
                   </div>
 
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-2">
                     {/* <SwitchComponent /> */}
                     <Switch
                       checked={item.status === 'active'}
@@ -594,9 +648,10 @@ export function MenuDetails() {
                       size="small"
                     />
                     <div>
-                      <span className="flex items-center gap-3 text-xl text-red-700">
+                      {/* Edit & Delete Icons */}
+                      <div className="flex flex-col items-center">
                         <IconButton color="primary" onClick={() => openEditMenuData(item, item.id)}>
-                          <TbEdit className="cursor-pointer hover:text-red-500 transition" />{' '}
+                          <TbEdit className="cursor-pointer hover:text-red-500 transition" />
                         </IconButton>
                         <IconButton
                           color="error"
@@ -607,21 +662,26 @@ export function MenuDetails() {
                         >
                           <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
                         </IconButton>
-                      </span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
           </div>
         </Card>
-        <Card className="col-span-2 p-3">
+        <Card className="col-span-1 lg:col-span-2 p-3">
           <div className="flex justify-start">
             <div>
-              <Button variant="contained" color="primary" size="small" onClick={() => {
-                setIsEdit(false)
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={() => {
+                  setIsEdit(false);
 
-                menuItem.onTrue()
-              }}>
+                  menuItem.onTrue();
+                }}
+              >
                 Add Item
               </Button>
             </div>
@@ -637,15 +697,18 @@ export function MenuDetails() {
                   <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
                     <div className="flex items-center justify-between w-full">
                       {/* Left Side: Name */}
-                      <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-                        {item.name}
-                      </Typography>
+
+                      <h4 className="text-lg font-bold text-gray-800">{item.name}</h4>
 
                       {/* Right Side: Switch and Icons */}
                       <div className="flex items-center gap-6">
                         <Switch
                           checked={item.status === 'active'}
-                          onChange={(e) => handleChange(e, item.id)}
+                          onChange={(e) => {
+                            e.preventDefault(); // Prevent default behavior
+                            e.stopPropagation(); // Prevents the accordion from expanding
+                            handleItemChange(e, item.id);
+                          }}
                           inputProps={{ 'aria-label': 'controlled' }}
                           size="small"
                         />
@@ -727,7 +790,7 @@ export function MenuDetails() {
                                   color="primary"
                                   onClick={() => {
                                     setMenuItemId(item.id);
-                                    openEditAddonData(addons, addons.id)
+                                    openEditAddonData(addons, addons.id);
                                   }}
                                 >
                                   <TbEdit className="cursor-pointer hover:text-red-500 transition" />
@@ -743,11 +806,11 @@ export function MenuDetails() {
                                 </IconButton>
                               </div>
                               {addons.items.length > 0 && (
-                                <Card className="p-2">
+                                <div className="px-5">
                                   <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-                                    Addon items
+                                    AddOn Items
                                   </Typography>
-                                  <CardContent className="flex items-center flex-wrap gap-4">
+                                  <div className="flex items-center flex-wrap gap-4 mt-2">
                                     {addons?.items?.map((itemss, j) => (
                                       <div key={j}>
                                         <Chip
@@ -756,14 +819,15 @@ export function MenuDetails() {
                                           // avatar={<Avatar>M</Avatar>}
                                           label={<p>{`${itemss.name} |  ${itemss.price}`}</p>}
                                           onDelete={() => {
-                                            setDelId(itemss.id)
-                                            addOnItemDel.onTrue()
-                                          }} color="primary"
+                                            setDelId(itemss.id);
+                                            addOnItemDel.onTrue();
+                                          }}
+                                          color="primary"
                                         />
                                       </div>
                                     ))}
-                                  </CardContent>
-                                </Card>
+                                  </div>
+                                </div>
                               )}
                             </Card>
                           ))}
@@ -780,7 +844,7 @@ export function MenuDetails() {
                             setMenuItemId(item.id);
                             setAddOnData(item.add_ons);
                             addon.onTrue();
-                            setIsEdit(false)
+                            setIsEdit(false);
                           }}
                         >
                           Add Add on
@@ -802,9 +866,8 @@ export function MenuDetails() {
             reset({
               name: '',
               short_desc: '',
-            })
-            setIsEdit(false)
-
+            });
+            setIsEdit(false);
           }
         }}
         title={isEdit ? 'Edit Menu' : 'Add Menu'}
@@ -837,9 +900,8 @@ export function MenuDetails() {
               name: '',
               price: 0,
               food_type: 'veg',
-            })
-            setIsEdit(false)
-
+            });
+            setIsEdit(false);
           }
         }}
         title={isEdit ? 'Edit Menu Item' : 'Add Menu Item'}
@@ -879,10 +941,10 @@ export function MenuDetails() {
               name: '',
               price: 0,
             });
-            setIsAddOn(true)
-            setIsEdit(false)
-        menuItemsGet(menuId)  
-
+            setIsAddOn(true);
+            setIsEdit(false);
+            menuItemsGet(menuId);
+            setAddOnItems([])
           }
         }}
         title={isEdit ? 'Edit AddOn' : 'Create AddOn'}
@@ -913,7 +975,6 @@ export function MenuDetails() {
           </Button>
         }
       />
-
     </>
   );
 }
