@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { TbEdit } from 'react-icons/tb';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useState, useCallback, useEffect } from 'react';
@@ -47,54 +46,23 @@ import Typography from '@mui/material/Typography';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import { Iconify } from 'src/components/iconify';
+import { schema, itemSchema, addonSchema, addonItemSchema } from './menu-schema';
 // ----------------------------------------------------------------------
-// Zod Schema
-const schema = z.object({
-  name: z.string().nonempty('Menu Name is required'),
-  short_desc: z.string().nonempty('Short Description is required'),
-});
-const itemSchema = z.object({
-  name: z.string().nonempty('Menu Name is required'),
-  price: z.number().min(1, { message: 'required!' }),
 
-  food_type: z.string(),
-});
-const addonSchema = z
-  .object({
-    name: z.string().min(1, { message: 'AddOn Name is required!' }),
-    select_upto: z.number(), // Prevents 0 and negative numbers
-    is_required: z.boolean(),
-    is_multi_select: z.boolean(),
-  })
-  .refine(
-    (data) => {
-      if (data.is_multi_select) {
-        return data.select_upto !== null && data.select_upto >= 1;
-      }
-      return true; // If is_multi_select is false, select_upto can be null
-    },
-    {
-      message: 'Select Upto is required!',
-      path: ['select_upto'],
-    }
-  );
-const addonItemSchema = z.object({
-  name: z.string().min(1, { message: 'required!' }),
-  price: z.number().min(1, { message: 'required!' }),
-});
 export function MenuDetails() {
-  const confirm = useBoolean();
-  const confirm2 = useBoolean();
+
+  const menu = useBoolean();
+  const menuDel = useBoolean();
   const menuItemDel = useBoolean();
-  const confirm3 = useBoolean();
+  const menuItem = useBoolean();
   const addon = useBoolean();
   const addOnDel = useBoolean();
 
   const [file, setFile] = useState(null);
+  const [controlled, setControlled] = useState(null);
   const [formDatas, setFormData] = useState(null);
   const [editId, setEditId] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
-  // const [isMenuItemEdit, setIsMenuItemEdit] = useState(false);
   const [delId, setDelId] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
   const [menuId, setMenuId] = useState(null);
@@ -122,15 +90,23 @@ export function MenuDetails() {
   const [delMenuItem, { isLoading: itemDelLoad }] = useDelMenuItemMutation();
   const [addonItemCreate, { isLoading: AddonitemAddLoad }] = useAddonItemCreateMutation();
 
+
+  // Form for the Menu
+  const menuMethods = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: '',
+      short_desc: '',
+    },
+  });
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({
-    resolver: zodResolver(schema),
-  });
+  } = menuMethods;
 
+  // Form for the Menu Item
   const methods = useForm({
     resolver: zodResolver(itemSchema),
     defaultValues: {
@@ -139,7 +115,6 @@ export function MenuDetails() {
       food_type: 'veg', // Default empty selection
     },
   });
-
   const {
     register: itemRegister,
     reset: itemReset,
@@ -147,6 +122,7 @@ export function MenuDetails() {
     formState: { errors: itemError },
   } = methods;
 
+  // Form for the AddOn
   const addonMethods = useForm({
     resolver: zodResolver(addonSchema),
     defaultValues: {
@@ -156,7 +132,6 @@ export function MenuDetails() {
       select_upto: 1, // Default empty selection
     },
   });
-
   const {
     handleSubmit: addonHandleSubmit,
     watch: addonWatch,
@@ -164,6 +139,7 @@ export function MenuDetails() {
     formState: { errors: addonError },
   } = addonMethods;
 
+  // Form for the AddOn Item
   const addonItemMethods = useForm({
     resolver: zodResolver(addonItemSchema),
     defaultValues: {
@@ -171,12 +147,23 @@ export function MenuDetails() {
       price: 0,
     },
   });
-
   const {
     handleSubmit: addonItemHandleSubmit,
     formState: { errors: addonItemError },
   } = addonItemMethods;
-  const onSubmit = async (data) => {
+
+  // For Image upload
+  const handleDropSingleFile = useCallback((acceptedFiles) => {
+    const newFile = acceptedFiles[0];
+    setFormData(newFile); // Save file to state if needed
+    setFile(newFile); // Save file to state if needed
+  }, []);
+  // For Accordian Change
+  const handleChangeControlled = (panel) => (event, isExpanded) => {
+    setControlled(isExpanded ? panel : null);
+  };
+  // Menu Creation and edit Fun
+  const menuOnSubmit = async (data) => {
     console.log('Form Data:', data);
     try {
       // Create FormData instance
@@ -196,30 +183,55 @@ export function MenuDetails() {
         if (response.status) {
           reset();
           refetch();
-          confirm.onFalse();
+          menu.onFalse();
         }
       }
     } catch (error) {
       console.log(error);
     }
   };
-  const handleDropSingleFile = useCallback((acceptedFiles) => {
-    const newFile = acceptedFiles[0];
-    setFormData(newFile); // Save file to state if needed
-    setFile(newFile); // Save file to state if needed
-  }, []);
+  // Form content for the Menu creation and edit
+  const formContent = (
+    <FormProvider {...menuMethods}>
+      <form onSubmit={handleSubmit(menuOnSubmit)} noValidate>
+        <TextField
+          {...register('name')}
+          autoFocus
+          fullWidth
+          type="text"
+          margin="dense"
+          variant="outlined"
+          label="Menu Name"
+          size="small"
+          error={!!errors.name}
+          helperText={errors.name?.message}
+        />
+        <RHFTextField name="name" label="Menu Item Name" size="small" />
+        <RHFTextField name="short_desc" label="Short Description" size="small" />
 
-  // Expose handleSubmit to a custom button
-  const handleExternalSubmit = handleSubmit(onSubmit);
+        <TextField
+          {...register('short_desc')}
+          fullWidth
+          type="text"
+          margin="dense"
+          variant="outlined"
+          label="Short Description"
+          size="small"
+          error={!!errors.short_desc}
+          helperText={errors.short_desc?.message}
+        />
+        <Stack direction="row" spacing={2}>
+          <Upload value={file} onDrop={handleDropSingleFile} onDelete={() => setFile(null)} />
+        </Stack>
+      </form>
+    </FormProvider>
+  );
+  // Menu Submit Fun
+  const handleExternalSubmit = handleSubmit(menuOnSubmit);
 
-  const handleChange = (event, id) => {
-    console.log(id);
 
-    const value = event.target.checked ? 'active' : 'inactive';
-    changeMenuStatus(id, value);
-    // setMenuStatus(value);
-  };
 
+  // Menu status change
   const changeMenuStatus = async (id, val) => {
     try {
       const payload = {
@@ -235,7 +247,21 @@ export function MenuDetails() {
       console.log(error);
     }
   };
-
+  // Menu status change
+  const handleChange = (event, id) => {
+    const value = event.target.checked ? 'active' : 'inactive';
+    changeMenuStatus(id, value);
+  };
+  // Edit menu 
+  const openEditMenuData = (val, id) => {
+    setEditId(id);
+    setIsEdit(true);
+    menu.onTrue();
+    reset(val);
+    const img = `http://localhost:3000${val.image}`;
+    setFile(img);
+  };
+  // Delete menu 
   const deleteMenu = async () => {
     try {
       const payload = {
@@ -244,7 +270,7 @@ export function MenuDetails() {
       const response = await delMenu(payload).unwrap();
       if (response.status) {
         toast.success(response.message);
-        confirm2.onFalse();
+        menuDel.onFalse();
         refetch();
       }
     } catch (error) {
@@ -252,58 +278,7 @@ export function MenuDetails() {
     }
   };
 
-  const openEditMenuData = (val, id) => {
-    setEditId(id);
-    setIsEdit(true);
-    confirm.onTrue();
-    reset(val);
-    const img = `http://localhost:3000${val.image}`;
-    setFile(img);
-  };
-  const openEditMenuItemData = (val, id) => {
-    setEditId(id);
-    setIsEdit(true);
-    confirm3.onTrue();
-    itemReset(val);
-  };
-  const openEditAddonData = (val, id) => {
-    setEditId(id);
-    setIsEdit(true);
-    addon.onTrue();
-    addonReset(val);
-  };
-  const formContent = (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <TextField
-        {...register('name')}
-        autoFocus
-        fullWidth
-        type="text"
-        margin="dense"
-        variant="outlined"
-        label="Menu Name"
-        size="small"
-        error={!!errors.name}
-        helperText={errors.name?.message}
-      />
-      <TextField
-        {...register('short_desc')}
-        fullWidth
-        type="text"
-        margin="dense"
-        variant="outlined"
-        label="Short Description"
-        size="small"
-        error={!!errors.short_desc}
-        helperText={errors.short_desc?.message}
-      />
-      <Stack direction="row" spacing={2}>
-        <Upload value={file} onDrop={handleDropSingleFile} onDelete={() => setFile(null)} />
-      </Stack>
-    </form>
-  );
-
-  // For menu item
+  // Get menu item Based on the menu id
   const menuItemsGet = useCallback(
     async (id) => {
       try {
@@ -319,13 +294,14 @@ export function MenuDetails() {
     },
     [getMenuItems] // ✅ Include `getMenuItems` as a dependency
   );
-
+  // Get the menu items
   useEffect(() => {
     if (categoriesData?.data?.length > 0) {
       menuItemsGet(categoriesData.data[0].id);
     }
   }, [categoriesData, menuItemsGet]); // ✅ Include `menuItemsGet` so it updates properly
 
+  // Menu item creation and edit fun
   const itemOnSubmit = async (data) => {
     try {
       // Create FormData instance
@@ -341,13 +317,21 @@ export function MenuDetails() {
       if (response.status) {
         toast.success(response.message);
         itemReset();
-        confirm3.onFalse();
+        menuItem.onFalse();
         // menuItemsGet()
       }
     } catch (error) {
       console.log(error);
     }
   };
+  // Menu item edit data get fun
+  const openEditMenuItemData = (val, id) => {
+    setEditId(id);
+    setIsEdit(true);
+    menuItem.onTrue();
+    itemReset(val);
+  };
+  // Menu item delete fun 
   const deleteMenuItem = async () => {
     try {
       const payload = {
@@ -363,47 +347,14 @@ export function MenuDetails() {
       console.log(error);
     }
   };
-  const deleteAddon = async () => {
-    try {
-      const payload = {
-        id: delId,
-      };
-      const response = await delAddOn(payload).unwrap();
-      if (response.status) {
-        toast.success(response.message);
-        addOnDel.onFalse();
-        //  refetch();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
+  // Form content for the Menu item 
   const itemFormContent = (
     <FormProvider {...methods}>
       <form onSubmit={itemSubmit(itemOnSubmit)} noValidate>
-        <TextField
-          {...itemRegister('name')}
-          autoFocus
-          fullWidth
-          type="text"
-          margin="dense"
-          variant="outlined"
-          label="Menu Name"
-          size="small"
-          error={!!itemError.name}
-          helperText={itemError.name?.message}
-        />
-        {/* <TextField
-          {...itemRegister('price')}
-          fullWidth
-          type="number"
-          margin="dense"
-          variant="outlined"
-          label="Price"
-          size="small"
-          error={!!itemError.price}
-          helperText={itemError.price?.message}
-        /> */}
+
+        <RHFTextField name="name" label="Menu Item Name" size="small" />
+
         <RHFTextField name="price" label="Price" type="number" size="small" />
 
         <RHFRadioGroup
@@ -419,12 +370,10 @@ export function MenuDetails() {
       </form>
     </FormProvider>
   );
+  // Menu item form submit
   const handleItemSubmit = itemSubmit(itemOnSubmit);
-  const [controlled, setControlled] = useState(null);
 
-  const handleChangeControlled = (panel) => (event, isExpanded) => {
-    setControlled(isExpanded ? panel : null);
-  };
+  //  Addon create and Edit fun
   const addonSubmit = async (data) => {
     try {
       // Create FormData instance
@@ -441,22 +390,46 @@ export function MenuDetails() {
       if (response.status) {
         toast.success(response.message);
         setIsAddOn(false);
-        if(isEdit){
+        if (isEdit) {
           setAddOnId(editId);
-        }else{
+        } else {
           setAddOnId(response.id);
         }
 
         // addonReset()
         // if (response.status) {
         //   reset();
-        //   confirm.onFalse();
+        //   menu.onFalse();
         // }
       }
     } catch (error) {
       console.log(error);
     }
   };
+  // Get Addon Edit data 
+  const openEditAddonData = (val, id) => {
+    setEditId(id);
+    setIsEdit(true);
+    addon.onTrue();
+    addonReset(val);
+  };
+  // Addon delete fun 
+  const deleteAddon = async () => {
+    try {
+      const payload = {
+        id: delId,
+      };
+      const response = await delAddOn(payload).unwrap();
+      if (response.status) {
+        toast.success(response.message);
+        addOnDel.onFalse();
+        //  refetch();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // Addon Item creation and Edit fun
   const addonItemSubmit = async (data) => {
     console.log(data);
     try {
@@ -475,16 +448,18 @@ export function MenuDetails() {
         // addonReset()
         // if (response.status) {
         //   reset();
-        //   confirm.onFalse();
+        //   menu.onFalse();
         // }
       }
     } catch (error) {
       console.log(error);
     }
   };
+  // Addon item Delete Fun
   const handleDelete = () => {
     console.info('You clicked the delete icon.');
   };
+  // Addon and Addon item Form content 
   const addonFormContent = (
     <>
       <FormProvider {...addonMethods}>
@@ -553,13 +528,11 @@ export function MenuDetails() {
     </>
   );
 
-  // const addonHandleSubmitFin = addonHandleSubmit(addonSubmit);
-
   return (
     <>
       <div className="flex justify-end">
         <div>
-          <Button variant="contained" color="primary" size="small" onClick={confirm.onTrue}>
+          <Button variant="contained" color="primary" size="small" onClick={menu.onTrue}>
             Add Menu
           </Button>
         </div>
@@ -605,7 +578,7 @@ export function MenuDetails() {
                           color="error"
                           onClick={() => {
                             setDelId(item.id);
-                            confirm2.onTrue();
+                            menuDel.onTrue();
                           }}
                         >
                           <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
@@ -620,7 +593,7 @@ export function MenuDetails() {
         <Card className="col-span-2 p-3">
           <div className="flex justify-start">
             <div>
-              <Button variant="contained" color="primary" size="small" onClick={confirm3.onTrue}>
+              <Button variant="contained" color="primary" size="small" onClick={menuItem.onTrue}>
                 Add Item
               </Button>
             </div>
@@ -651,7 +624,7 @@ export function MenuDetails() {
                         <div className="flex items-center gap-3 text-xl text-red-700">
                           <IconButton
                             color="primary"
-                            onClick={() => openEditMenuItemData(item, item.id) }
+                            onClick={() => openEditMenuItemData(item, item.id)}
                           >
                             <TbEdit className="cursor-pointer hover:text-red-500 transition" />
                           </IconButton>
@@ -724,10 +697,10 @@ export function MenuDetails() {
                               <div className="flex items-center justify-end gap-3 text-xl text-red-700">
                                 <IconButton
                                   color="primary"
-                                  onClick={() =>{
+                                  onClick={() => {
                                     setMenuItemId(item.id);
                                     openEditAddonData(addons, addons.id)
-                                  } }
+                                  }}
                                 >
                                   <TbEdit className="cursor-pointer hover:text-red-500 transition" />
                                 </IconButton>
@@ -789,11 +762,12 @@ export function MenuDetails() {
           </div>
         </Card>
       </div>
+      {/* Menu Creation and Edit Model */}
       <ConfirmDialog
-        open={confirm.value}
+        open={menu.value}
         onClose={(event, reason) => {
           if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
-            confirm.onFalse();
+            menu.onFalse();
           }
         }}
         title={isEdit ? 'Edit Menu' : 'Add Menu'}
@@ -804,9 +778,10 @@ export function MenuDetails() {
           </Button>
         }
       />
+      {/* Menu delete model */}
       <ConfirmDialog
-        open={confirm2.value}
-        onClose={confirm2.onFalse}
+        open={menuDel.value}
+        onClose={menuDel.onFalse}
         title="Delete Menu"
         content="Are you sure want to delete this menu?"
         action={
@@ -815,11 +790,12 @@ export function MenuDetails() {
           </Button>
         }
       />
+      {/* Menu Item Creation and Edit Model */}
       <ConfirmDialog
-        open={confirm3.value}
+        open={menuItem.value}
         onClose={(event, reason) => {
           if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
-            confirm3.onFalse();
+            menuItem.onFalse();
           }
         }}
         title={isEdit ? 'Edit Menu Item' : 'Add Menu Item'}
@@ -830,6 +806,7 @@ export function MenuDetails() {
           </Button>
         }
       />
+      {/* Menu Item delete model */}
       <ConfirmDialog
         open={menuItemDel.value}
         onClose={menuItemDel.onFalse}
@@ -841,6 +818,7 @@ export function MenuDetails() {
           </Button>
         }
       />
+      {/* AddOn and Addon Item Creation and Edit Model */}
       <ConfirmDialog
         maxWidth="lg"
         open={addon.value}
@@ -852,7 +830,8 @@ export function MenuDetails() {
         title={isEdit ? 'Edit AddOn' : 'Create AddOn'}
         content={addonFormContent}
       />
-          <ConfirmDialog
+      {/* Addon Delete Modal */}
+      <ConfirmDialog
         open={addOnDel.value}
         onClose={addOnDel.onFalse}
         title="Delete AddOn"
