@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import Link from '@mui/material/Link';
+// import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
@@ -11,9 +11,9 @@ import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { paths } from 'src/routes/paths';
+// import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
+// import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -55,7 +55,7 @@ export function JwtSignInView() {
 
   const defaultValues = {
     email: 'ravi@gmail.com',
-    password: '12345678',
+    password: '123456',
   };
 
   const methods = useForm({
@@ -73,9 +73,7 @@ export function JwtSignInView() {
       // await signInWithPassword({ email: data.email, password: data.password });
       const payload = { email: data.email, password: data.password };
 
-      const res = await login(payload).unwrap(); 
-      console.log(res);
-      
+      const res = await login(payload).unwrap();       
       if(res.status) toast.success(res.message)
   
       const { token } = res;
@@ -100,7 +98,7 @@ export function JwtSignInView() {
     <Stack spacing={1.5} sx={{ mb: 5 }}>
       <Typography variant="h5">Sign in to your account</Typography>
 
-      <Stack direction="row" spacing={0.5}>
+      {/* <Stack direction="row" spacing={0.5}>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {`Don't have an account?`}
         </Typography>
@@ -108,7 +106,7 @@ export function JwtSignInView() {
         <Link component={RouterLink} href={paths.auth.jwt.signUp} variant="subtitle2">
           Get started
         </Link>
-      </Stack>
+      </Stack> */}
     </Stack>
   );
 
@@ -117,7 +115,7 @@ export function JwtSignInView() {
       <Field.Text name="email" label="Email address" InputLabelProps={{ shrink: true }} />
 
       <Stack spacing={1.5}>
-        <Link
+        {/* <Link
           component={RouterLink}
           href="#"
           variant="body2"
@@ -125,7 +123,7 @@ export function JwtSignInView() {
           sx={{ alignSelf: 'flex-end' }}
         >
           Forgot password?
-        </Link>
+        </Link> */}
 
         <Field.Text
           name="password"
@@ -163,11 +161,11 @@ export function JwtSignInView() {
     <>
       {renderHead}
 
-      <Alert severity="info" sx={{ mb: 3 }}>
+      {/* <Alert severity="info" sx={{ mb: 3 }}>
         Use <strong>{defaultValues.email}</strong>
         {' with password '}
         <strong>{defaultValues.password}</strong>
-      </Alert>
+      </Alert> */}
 
       {!!errorMsg && (
         <Alert severity="error" sx={{ mb: 3 }}>
