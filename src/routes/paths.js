@@ -153,5 +153,10 @@ export const paths = {
     menu: {
       root: `${ROOTS.DASHBOARD}/menu`,
     },
+    admin: {
+      root: `${ROOTS.DASHBOARD}/admin`,
+      shopDetail: `${ROOTS.DASHBOARD}/admin/shopDetail`,
+
+    },
   },
 };
