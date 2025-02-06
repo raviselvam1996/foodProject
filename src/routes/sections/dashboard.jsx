@@ -63,6 +63,8 @@ const ParamsPage = lazy(() => import('src/pages/dashboard/params'));
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 // Menu Page
 const MenuPage = lazy(() => import('src/pages/dashboard/menu'));
+const AdminPage = lazy(() => import('src/pages/dashboard/admin'));
+const ShopDetail = lazy(() => import('src/pages/dashboard/admin/shopDetail'));
 
 // ----------------------------------------------------------------------
 
@@ -160,7 +162,18 @@ export const dashboardRoutes = [
       { path: 'permission', element: <PermissionDeniedPage /> },
       { path: 'params', element: <ParamsPage /> },
       { path: 'blank', element: <BlankPage /> },
+
+
       { path: 'menu', element: <MenuPage /> },
+      { path: 'admin', element: <AdminPage /> },
+      {
+        path: 'admin',
+        children: [
+          { element: <AdminPage />, index: true },
+          { path: 'shopDetail', element: <ShopDetail /> },
+      
+        ],
+      },
     ],
   },
 ];

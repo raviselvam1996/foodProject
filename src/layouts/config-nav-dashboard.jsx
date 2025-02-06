@@ -56,6 +56,10 @@ export const navData = [
     subheader: 'Menu Management',
     items: [{ title: 'Menu', path: paths.dashboard.menu.root, icon: ICONS.user }],
   },
+  {
+    subheader: 'Super Admmin Settings',
+    items: [{ title: 'Admin Tools', path: paths.dashboard.admin.root, icon: ICONS.user }],
+  },
   // {
   //   subheader: 'Management',
   //   items: [
