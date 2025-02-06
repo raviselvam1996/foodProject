@@ -48,6 +48,8 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import { Iconify } from 'src/components/iconify';
 import { schema, itemSchema, addonSchema, addonItemSchema } from './menu-schema';
+import { handleApiError } from "../../utils/errorHandler"; 
+
 // ----------------------------------------------------------------------
 
 export function MenuDetails() {
@@ -176,7 +178,9 @@ export function MenuDetails() {
           toast.success(response?.message || 'Image Not Uploaded');
         }
       } catch (error) {
-        console.log(error);
+        const errorMessage = handleApiError(error);
+        console.error(errorMessage);
+        toast.error(errorMessage)
       }
     },
     [imageUpload]
@@ -218,8 +222,9 @@ export function MenuDetails() {
         }
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
   // Form content for the Menu creation and edit
   const formContent = (
@@ -249,8 +254,9 @@ export function MenuDetails() {
         if (response.status) refetch();
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
   // Menu status change
   const handleChange = (event, id) => {
@@ -279,8 +285,9 @@ export function MenuDetails() {
         refetch();
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
 
   // Get menu item Based on the menu id
@@ -295,8 +302,9 @@ export function MenuDetails() {
           setMenuItems(response.data);
         }
       } catch (error) {
-        console.log(error);
-      }
+        const errorMessage = handleApiError(error);
+        console.error(errorMessage);
+        toast.error(errorMessage)      }
     },
     [getMenuItems] // ✅ Include `getMenuItems` as a dependency
   );
@@ -328,8 +336,9 @@ export function MenuDetails() {
         menuItemsGet(menuId);
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
 
   // Menu Item status change
@@ -345,8 +354,9 @@ export function MenuDetails() {
         menuItemsGet(menuId);
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
   // Menu status change
   const handleItemChange = (event, id) => {
@@ -375,8 +385,9 @@ export function MenuDetails() {
         //  refetch();
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
 
   // Form content for the Menu item
@@ -430,8 +441,9 @@ export function MenuDetails() {
         menuItemsGet(menuId);
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
   // Get Addon Edit data
   const openEditAddonData = (val, id) => {
@@ -454,8 +466,9 @@ export function MenuDetails() {
         menuItemsGet(menuId);
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
   // Addon Item creation and Edit fun
   const addonItemSubmit = async (data) => {
@@ -477,8 +490,9 @@ export function MenuDetails() {
         menuItemsGet(menuId);
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
 
   // Addon Item delete fun
@@ -496,8 +510,9 @@ export function MenuDetails() {
         }, 100);
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
   // Addon and Addon item Form content
   const addonFormContent = (
@@ -515,16 +530,15 @@ export function MenuDetails() {
               <RHFSwitch name="is_multi_select" label="Select Multiple" />
             </div>
             <div className="flex gap-2">
-
-            {addonWatch('is_multi_select') && (
-              <RHFTextField
-                name="select_upto"
-                label="Select Upto"
-                type="number"
-                size="small"
-                sx={{ maxWidth: 100 }}
-              />
-            )}
+              {addonWatch('is_multi_select') && (
+                <RHFTextField
+                  name="select_upto"
+                  label="Select Upto"
+                  type="number"
+                  size="small"
+                  sx={{ maxWidth: 100 }}
+                />
+              )}
               {(isAddOn || isEdit) && (
                 <Button type="submit" variant="contained" color="primary">
                   Submit
@@ -593,8 +607,9 @@ export function MenuDetails() {
         setAddOnItems(response.data);
       }
     } catch (error) {
-      console.log(error);
-    }
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)    }
   };
 
   return (
@@ -625,8 +640,8 @@ export function MenuDetails() {
             {categoriesData?.data &&
               categoriesData?.data?.length > 0 &&
               categoriesData?.data?.map((item, index) => (
-                <Card key={index} className="flex items-center justify-between  space-x-4 px-2">
-                  <div className="flex items-center gap-2">
+                <Card key={index} className="grid grid-cols-3 space-x-4 px-2">
+                  <div className="flex items-center gap-2 col-span-1">
                     <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
                       <img
                         src={`http://localhost:3000${item.image}`}
@@ -634,22 +649,23 @@ export function MenuDetails() {
                         className="w-full h-full object-cover"
                       />
                     </div>
+                  </div>
+                  <div className="flex justify-between col-span-2 pt-2">
                     <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
                       {item.name}
-                    </p>{' '}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {/* <SwitchComponent /> */}
-                    <Switch
+                    </p>
+                 
+                       <div className="flex flex-col">
+                        <div className='flex justify-end'>
+                        <Switch
                       checked={item.status === 'active'}
                       onChange={(e) => handleChange(e, item.id)}
                       inputProps={{ 'aria-label': 'controlled' }}
                       size="small"
                     />
-                    <div>
-                      {/* Edit & Delete Icons */}
-                      <div className="flex flex-col items-center">
+                        </div>
+                 
+                      <div className="flex items-center">
                         <IconButton color="primary" onClick={() => openEditMenuData(item, item.id)}>
                           <TbEdit className="cursor-pointer hover:text-red-500 transition" />
                         </IconButton>
@@ -663,8 +679,10 @@ export function MenuDetails() {
                           <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
                         </IconButton>
                       </div>
-                    </div>
                   </div>
+                  </div>
+
+               
                 </Card>
               ))}
           </div>
@@ -944,7 +962,7 @@ export function MenuDetails() {
             setIsAddOn(true);
             setIsEdit(false);
             menuItemsGet(menuId);
-            setAddOnItems([])
+            setAddOnItems([]);
           }
         }}
         title={isEdit ? 'Edit AddOn' : 'Create AddOn'}
