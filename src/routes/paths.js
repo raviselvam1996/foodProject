@@ -156,6 +156,8 @@ export const paths = {
     admin: {
       root: `${ROOTS.DASHBOARD}/admin`,
       shopDetail: `${ROOTS.DASHBOARD}/admin/shopDetail`,
+      employeeProfile: `${ROOTS.DASHBOARD}/admin/employee-profile`,
+      customerProfile: `${ROOTS.DASHBOARD}/admin/customer-profile`,
 
     },
   },
