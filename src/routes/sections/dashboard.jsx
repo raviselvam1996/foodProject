@@ -65,6 +65,8 @@ const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 const MenuPage = lazy(() => import('src/pages/dashboard/menu'));
 const AdminPage = lazy(() => import('src/pages/dashboard/admin'));
 const ShopDetail = lazy(() => import('src/pages/dashboard/admin/shopDetail'));
+const EmployeeProfile = lazy(() => import('src/pages/dashboard/admin/employeeProfile'));
+const CustomerProfile = lazy(() => import('src/pages/dashboard/admin/customerProfile'));
 
 // ----------------------------------------------------------------------
 
@@ -171,6 +173,8 @@ export const dashboardRoutes = [
         children: [
           { element: <AdminPage />, index: true },
           { path: 'shopDetail', element: <ShopDetail /> },
+          { path: 'employee-profile', element: <EmployeeProfile /> },
+          { path: 'customer-profile', element: <CustomerProfile /> },
       
         ],
       },

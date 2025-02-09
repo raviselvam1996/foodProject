@@ -49,7 +49,7 @@ Employee Profile
           <CardContent>
             <p className="text-gray-500">ndsbfajsdhfhkasdfh</p>
             <div className='flex justify-end'>
-            <Button variant="outlined" color="primary" size="small" className="">
+            <Button variant="outlined" color="primary" size="small" href={paths.dashboard.admin.employeeProfile}>
               View
             </Button>
             </div>
@@ -69,7 +69,7 @@ Employee Profile
           <CardContent>
             <p className="text-gray-500">ndsbfajsdhfhkasdfh</p>
             <div className='flex justify-end'>
-            <Button variant="outlined" color="primary" size="small" className="">
+            <Button variant="outlined" color="primary" size="small" href={paths.dashboard.admin.customerProfile}>
               View
             </Button>
             </div>
