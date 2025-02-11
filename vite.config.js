@@ -15,15 +15,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    checker({
-      eslint: {
-        lintCommand: 'eslint "./src/**/*.{js,jsx,ts,tsx}"',
-      },
-      overlay: {
-        position: 'tl',
-        initialIsOpen: false,
-      },
-    }),
+
   ],
   resolve: {
     alias: [
