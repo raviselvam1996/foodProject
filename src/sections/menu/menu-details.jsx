@@ -353,7 +353,12 @@ export function MenuDetails() {
     try {
       // Create FormData instance
       const formData = data;
-      formData.menu_id = 1;
+      formData.menu_id = menuId;
+      if (!imgUrl) {
+        toast.error('Please upload a image');
+        return
+      }
+      formData.image = imgUrl;
       let response;
       if (isEdit) {
         formData.id = editId;
@@ -403,6 +408,8 @@ export function MenuDetails() {
     setIsEdit(true);
     menuItem.onTrue();
     itemReset(val);
+    const img = `${import.meta.env.VITE_DASHBOARD_BASE_URL + val.image}`;
+    setFile(img);
   };
   // Menu item delete fun
   const deleteMenuItem = async () => {
@@ -439,10 +446,13 @@ export function MenuDetails() {
           label="Food Type"
           options={[
             { label: 'VEG', value: 'veg' },
-            { label: 'NON-VEG', value: 'non_veg' },
+            { label: 'NON-VEG', value: 'non-veg' },
           ]}
           sx={{ gap: 4 }}
         />
+           <Stack direction="row" spacing={2}>
+          <Upload value={file} onDrop={handleDropSingleFile} onDelete={() => setFile(null)} />
+        </Stack>
       </form>
     </FormProvider>
   );
@@ -760,7 +770,6 @@ export function MenuDetails() {
           </div>
         </div>
         <div>
-          <div className='flex items-center justify-center'> 
 
 
           {menuItems?.length > 0 ?
@@ -774,8 +783,18 @@ export function MenuDetails() {
                 <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
                   <div className="flex items-center justify-between w-full">
                     {/* Left Side: Name */}
-
-                    <h4 className="text-lg font-bold text-gray-800">{item.name}</h4>
+                    <div className="flex items-center gap-2 col-span-1">
+                    <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
+                      <img
+                        src={`${import.meta.env.VITE_DASHBOARD_BASE_URL + item.image}`}
+                        alt="Item"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
+                      {item.name}
+                    </p>
+                  </div>
 
                     {/* Right Side: Switch and Icons */}
                     <div className="flex items-center gap-6">
@@ -937,7 +956,6 @@ export function MenuDetails() {
 
           </div>
 }
-          </div>
       
         </div>
       </Card>
