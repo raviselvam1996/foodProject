@@ -1,4 +1,3 @@
-'use client';
 
 // Third-party Imports
 import { Provider } from 'react-redux';

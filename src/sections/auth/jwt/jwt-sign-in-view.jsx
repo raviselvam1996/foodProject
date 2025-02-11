@@ -54,8 +54,8 @@ export function JwtSignInView() {
   const [login, { isLoading: addonLoad }] = useLoginMutation();
 
   const defaultValues = {
-    email: 'ravi@gmail.com',
-    password: '123456',
+    email: 'johnsnow@kebab.com',
+    password: '12345678',
   };
 
   const methods = useForm({
