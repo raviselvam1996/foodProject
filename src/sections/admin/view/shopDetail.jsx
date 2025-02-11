@@ -13,7 +13,7 @@ export function ShopDetail() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Menu"
+        heading="Shop Details"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Admin', href: paths.dashboard.tour.root },

@@ -28,9 +28,16 @@ export const adminApi = createApi({
           body: data,
         }),
       }),
+      timingUpdate: builder.mutation({
+        query: (data) => ({
+          url: 'admin/shopTimings/update',
+          method: 'POST',
+          body: data,
+        }),
+      }),
 
   }),
 });
 
-export const { useShopSettingsQuery, usePolicyUpdateMutation,useInfoUpdateMutation } =
+export const { useShopSettingsQuery, usePolicyUpdateMutation,useInfoUpdateMutation,useTimingUpdateMutation } =
 adminApi;

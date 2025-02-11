@@ -16,7 +16,7 @@ export function EmployeeProfile() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Menu"
+        heading="Employee Profile"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Employee Profile', href: paths.dashboard.tour.root },

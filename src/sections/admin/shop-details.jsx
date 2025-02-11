@@ -1,51 +1,23 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Card, CardHeader, CardContent, Button, Typography } from "@mui/material";
 import { TimePicker } from '@mui/x-date-pickers';
 import dayjs from "dayjs";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { RHFEditor, RHFTextField } from 'src/components/hook-form';
-import { useInfoUpdateMutation, usePolicyUpdateMutation, useShopSettingsQuery } from 'src/services/admin';
+import { useInfoUpdateMutation, usePolicyUpdateMutation, useShopSettingsQuery, useTimingUpdateMutation } from 'src/services/admin';
 import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
 import { PolicySchema, ShopSchema } from './admin-schema';
 
-const daysOfWeek = [
-  { day: "Monday", pickupFrom: "08:00 AM", pickupTo: "10:00 AM", deliveryFrom: "10:30 AM", deliveryTo: "12:00 PM", shopFrom: "07:00 AM", shopTo: "09:00 PM" },
-  { day: "Tuesday", pickupFrom: "09:30 AM", pickupTo: "11:00 AM", deliveryFrom: "11:30 AM", deliveryTo: "01:00 PM", shopFrom: "07:30 AM", shopTo: "09:30 PM" },
-  { day: "Wednesday", pickupFrom: "07:45 AM", pickupTo: "09:45 AM", deliveryFrom: "10:00 AM", deliveryTo: "11:30 AM", shopFrom: "07:00 AM", shopTo: "08:30 PM" },
-  { day: "Thursday", pickupFrom: "08:15 AM", pickupTo: "10:15 AM", deliveryFrom: "10:45 AM", deliveryTo: "12:15 PM", shopFrom: "07:15 AM", shopTo: "09:15 PM" },
-  { day: "Friday", pickupFrom: "09:00 AM", pickupTo: "11:30 AM", deliveryFrom: "11:45 AM", deliveryTo: "01:15 PM", shopFrom: "07:45 AM", shopTo: "09:45 PM" },
-  { day: "Saturday", pickupFrom: "10:00 AM", pickupTo: "12:00 PM", deliveryFrom: "12:30 PM", deliveryTo: "02:00 PM", shopFrom: "08:00 AM", shopTo: "10:00 PM" },
-  { day: "Sunday", pickupFrom: "08:30 AM", pickupTo: "10:30 AM", deliveryFrom: "11:00 AM", deliveryTo: "12:30 PM", shopFrom: "07:30 AM", shopTo: "08:00 PM" },
-];
 export const ShopDetailComponent = () => {
-  const [timeValues, setTimeValues] = useState(
-    daysOfWeek.map((item) => ({
-      pickupFrom: dayjs(item.pickupFrom, "hh:mm A"),
-      pickupTo: dayjs(item.pickupTo, "hh:mm A"),
-      deliveryFrom: dayjs(item.deliveryFrom, "hh:mm A"),
-      deliveryTo: dayjs(item.deliveryTo, "hh:mm A"),
-      shopFrom: dayjs(item.shopFrom, "hh:mm A"),
-      shopTo: dayjs(item.shopTo, "hh:mm A"),
-    }))
-  );
-
-  const {
-    data: categoriesData,
-    isLoading: loadingCategories,
-    error: categoriesError,
-    refetch,
-  } = useShopSettingsQuery();
-    const [policyUpdate] = usePolicyUpdateMutation();
-    const [infoUpdate] = useInfoUpdateMutation();
-  
+  const [timeValues, setTimeValues] = useState([])
   // Form for the AddOn
   const shopMethods = useForm({
     resolver: zodResolver(ShopSchema),
     defaultValues: {
       email: '',
-      phone: null,
+      phone: '',
       address: '',
     },
   });
@@ -70,6 +42,53 @@ export const ShopDetailComponent = () => {
       reset: policyReset,
       formState: { errors: policyError },
     } = policyMethods;
+
+  const {
+    data: shopData,
+    isLoading: loadingCategories,
+    error: categoriesError,
+    refetch,
+  } = useShopSettingsQuery();
+    const [policyUpdate] = usePolicyUpdateMutation();
+    const [infoUpdate] = useInfoUpdateMutation();
+    const [timingUpdate] = useTimingUpdateMutation();
+  
+    useEffect(() => {
+if(shopData?.shopTimimngs?.length > 0){
+  const datass = shopData.shopTimimngs
+  const timings = datass.map((item) => ({
+    id:item.id,
+    day:item.day,
+    pickup_from: dayjs(item.pickup_from),
+    pickup_to: dayjs(item.pickup_to),
+    delivery_from: dayjs(item.delivery_from),
+    delivery_to: dayjs(item.delivery_to),
+    shop_opensat: dayjs(item.shop_opensat),
+    shop_closesat: dayjs(item.shop_closesat),
+  }))
+  setTimeValues(timings)
+  const info = shopData?.shop || {  email: '',
+    phone: null,
+    address: '',}
+
+  shopReset(
+    {
+      email: info.email,
+      phone:info.phone,
+      address: info.address,
+    }
+  )
+  const policy = shopData?.policy || {      privacy_policy: '',
+    tnc: '',  }
+
+  policyReset(
+    {
+      privacy_policy: policy.privacy_policy,
+      tnc: policy.tnc,
+    }
+  )
+}
+    },[shopData,shopReset,policyReset])
 
   const handleTimeChange = (index, type, newTime) => {
     const updatedTimes = [...timeValues];
@@ -111,6 +130,21 @@ export const ShopDetailComponent = () => {
       console.error(errorMessage);
       toast.error(errorMessage)    }
   };
+     // Addon Item creation and Edit fun
+     const timingSubmit = async () => {
+      try {
+        // Create FormData instance
+        const formData = timeValues;
+        const  response = await timingUpdate(formData).unwrap();
+  
+        if (response.status) {
+          toast.success(response.message);
+        }
+      } catch (error) {
+        const errorMessage = handleApiError(error);
+        console.error(errorMessage);
+        toast.error(errorMessage)    }
+    };
   return (
     <>
       <TableContainer component={Paper}>
@@ -124,22 +158,22 @@ export const ShopDetailComponent = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {daysOfWeek.map((row, index) => (
+            {timeValues?.length > 0 &&  timeValues?.map((item, index) => (
               <TableRow key={index}>
-                <TableCell>{row.day}</TableCell>
+                <TableCell>{item.day}</TableCell>
 
                 {/* Pickup Time */}
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <TimePicker
-                      value={timeValues[index].pickupFrom}
-                      onChange={(newValue) => handleTimeChange(index, "pickupFrom", newValue)}
+                      value={item.pickup_from}
+                      onChange={(newValue) => handleTimeChange(index, "pickup_from", newValue)}
                       slotProps={{ textField: { size: "small" } }}
                     />
                     <span>to</span>
                     <TimePicker
-                      value={timeValues[index].pickupTo}
-                      onChange={(newValue) => handleTimeChange(index, "pickupTo", newValue)}
+                      value={item.pickup_to}
+                      onChange={(newValue) => handleTimeChange(index, "pickup_to", newValue)}
                       slotProps={{ textField: { size: "small" } }}
                     />
                   </div>
@@ -149,14 +183,14 @@ export const ShopDetailComponent = () => {
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <TimePicker
-                      value={timeValues[index].deliveryFrom}
-                      onChange={(newValue) => handleTimeChange(index, "deliveryFrom", newValue)}
+                      value={item.delivery_from}
+                      onChange={(newValue) => handleTimeChange(index, "delivery_from", newValue)}
                       slotProps={{ textField: { size: "small" } }}
                     />
                     <span>to</span>
                     <TimePicker
-                      value={timeValues[index].deliveryTo}
-                      onChange={(newValue) => handleTimeChange(index, "deliveryTo", newValue)}
+                      value={item.delivery_to}
+                      onChange={(newValue) => handleTimeChange(index, "delivery_to", newValue)}
                       slotProps={{ textField: { size: "small" } }}
                     />
                   </div>
@@ -166,14 +200,14 @@ export const ShopDetailComponent = () => {
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <TimePicker
-                      value={timeValues[index].shopFrom}
-                      onChange={(newValue) => handleTimeChange(index, "shopFrom", newValue)}
+                      value={item.shop_opensat}
+                      onChange={(newValue) => handleTimeChange(index, "shop_opensat", newValue)}
                       slotProps={{ textField: { size: "small" } }}
                     />
                     <span>to</span>
                     <TimePicker
-                      value={timeValues[index].shopTo}
-                      onChange={(newValue) => handleTimeChange(index, "shopTo", newValue)}
+                      value={item.shop_closesat}
+                      onChange={(newValue) => handleTimeChange(index, "shop_closesat", newValue)}
                       slotProps={{ textField: { size: "small" } }}
                     />
                   </div>
@@ -184,6 +218,13 @@ export const ShopDetailComponent = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <div className='flex justify-end mt-5'>
+
+<Button variant="contained" color="primary" onClick={timingSubmit} 
+>
+Time Update
+</Button>
+</div>
       <Card>
         <CardHeader
           title={
@@ -196,7 +237,7 @@ export const ShopDetailComponent = () => {
           <FormProvider {...shopMethods}>
             <form onSubmit={shopHandleSubmit(shopSubmit)} noValidate className="p-3 flex flex-col gap-4">
               <RHFTextField name="email" label="Email Address" size="small" type='email' />
-              <RHFTextField name="phone" label="Phone Number" size="small" type='number' />
+              <RHFTextField name="phone" label="Phone Number" size="small"  />
               <RHFTextField name="address" label="Address" size="small" />
               <div className='flex justify-end'>
 

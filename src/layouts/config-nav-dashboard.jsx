@@ -58,7 +58,19 @@ export const navData = [
   },
   {
     subheader: 'Super Admmin Settings',
-    items: [{ title: 'Admin Tools', path: paths.dashboard.admin.root, icon: ICONS.user }],
+    items: [
+      { 
+        title: 'Admin Tools'
+        , path: paths.dashboard.admin.root
+        , icon: ICONS.user ,
+              children: [
+          { title: 'Admin Detail', path: paths.dashboard.admin.root },
+          { title: 'Shop Detail', path: paths.dashboard.admin.shopDetail },
+          { title: 'Employee Profile', path: paths.dashboard.admin.employeeProfile },
+          { title: 'Cutomer Profile', path: paths.dashboard.admin.customerProfile },
+   
+        ],
+      }],
   },
   // {
   //   subheader: 'Management',

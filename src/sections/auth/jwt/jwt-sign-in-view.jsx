@@ -73,14 +73,14 @@ export function JwtSignInView() {
       // await signInWithPassword({ email: data.email, password: data.password });
       const payload = { email: data.email, password: data.password };
 
-      // const res = await login(payload).unwrap();       
-      // if(res.status) toast.success(res.message)
-  const res = {
-    "status": true,
-    "message": "Login successful",
-    "role": "superadmin",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJyYXZpQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcmFkbWluIiwiaWF0IjoxNzM5MTE0NzU3LCJleHAiOjE3MzkxMTgzNTd9.xNxtU80pOgkMyz9EjKrS99zjKBT1wtFpuzw_ZCAOP1k"
-  }
+      const res = await login(payload).unwrap();       
+      if(res.status) toast.success(res.message)
+  // const res = {
+  //   "status": true,
+  //   "message": "Login successful",
+  //   "role": "superadmin",
+  //   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJyYXZpQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBlcmFkbWluIiwiaWF0IjoxNzM5MTE0NzU3LCJleHAiOjE3MzkxMTgzNTd9.xNxtU80pOgkMyz9EjKrS99zjKBT1wtFpuzw_ZCAOP1k"
+  // }
       const { token } = res;
   
       if (!token) {

@@ -10,9 +10,12 @@ export const ShopSchema = z.object({
         .string()
         .min(1, { message: 'Email is required!' })
         .email({ message: 'Email must be a valid email address!' }),
-    phone: z
-        .number()
-        .min(1, { message: 'Email is required!' }),
+        phone: z
+        .string()
+        .min(10, { message: 'Phone number must be at least 10 digits!' }) // Adjust length as needed
+        .max(15, { message: 'Phone number cannot exceed 15 digits!' }) // Prevent overly long numbers
+        .regex(/^\d+$/, { message: 'Phone number must contain only digits!' }), // Only numbers allowed
+
     address: z.string().min(1, { message: 'required!' }),
 });
 

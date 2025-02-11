@@ -52,63 +52,70 @@ export const menuProductApi = createApi({
     }),
     itemCreate: builder.mutation({
       query: (data) => ({
-        url: 'admin/menu_item/add',
+        url: 'admin/menu/menu_item/add',
         method: 'POST',
         body: data,
       }),
     }),
     itemEdit: builder.mutation({
       query: (data) => ({
-        url: 'admin/menu_item/update',
+        url: 'admin/menu/menu_item/update',
         method: 'POST',
         body: data,
       }),
     }),
     delMenuItem: builder.mutation({
       query: (data) => ({
-        url: 'admin/menu_item/del',
+        url: 'admin/menu/menu_item/del',
         method: 'POST',
         body: data,
       }),
     }),
     menuItemStatusChange: builder.mutation({
       query: (data) => ({
-        url: 'admin/menu_item/change_status',
+        url: 'admin/menu/menu_item/change_status',
         method: 'POST',
         body: data,
       }),
     }),
     addonCreate: builder.mutation({
       query: (data) => ({
-        url: 'admin/add_on/add',
+        url: 'admin/menu/add_on/add',
         method: 'POST',
         body: data,
       }),
     }),
     addonUpdate: builder.mutation({
       query: (data) => ({
-        url: 'admin/add_on/update',
+        url: 'admin/menu/add_on/update',
         method: 'POST',
         body: data,
       }),
     }),
     delAddOn: builder.mutation({
       query: (data) => ({
-        url: 'admin/add_on/del',
+        url: 'admin/menu/add_on/del',
         method: 'POST',
         body: data,
       }),
     }),
     addonItemCreate: builder.mutation({
       query: (data) => ({
-        url: 'admin/add_on/add_item',
+        url: 'admin/menu/add_on/add_item',
         method: 'POST',
         body: data,
       }),
     }),
     getAddonItems: builder.mutation({
       query: (data) => ({
-        url: 'admin/add_on/get_items',
+        url: 'admin/menu/add_on/get_items',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    delAddOnItem: builder.mutation({
+      query: (data) => ({
+        url: 'admin/menu/add_on/del_item',
         method: 'POST',
         body: data,
       }),
@@ -123,5 +130,5 @@ export const menuProductApi = createApi({
   }),
 });
 
-export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation,useEditMenuMutation,useItemEditMutation,useDelMenuItemMutation,useAddonUpdateMutation,useDelAddOnMutation,useGetAddonItemsMutation,useMenuItemStatusChangeMutation,useImageUploadMutation } =
+export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation,useEditMenuMutation,useItemEditMutation,useDelMenuItemMutation,useAddonUpdateMutation,useDelAddOnMutation,useGetAddonItemsMutation,useMenuItemStatusChangeMutation,useImageUploadMutation,useDelAddOnItemMutation } =
   menuProductApi;
