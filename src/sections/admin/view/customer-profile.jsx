@@ -16,7 +16,7 @@ export function CustomerProfile() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Menu"
+        heading="Customer Profile"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Employee Profile', href: paths.dashboard.tour.root },
