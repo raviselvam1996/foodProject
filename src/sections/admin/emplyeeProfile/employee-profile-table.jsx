@@ -42,6 +42,10 @@ import {
 import { UserTableRow } from './employee-table-row';
 import { UserTableToolbar } from './employee-table-toolbar';
 import { UserTableFiltersResult } from './employee-table-filters-result';
+import { EmployeeSchema } from '../admin-schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormProvider, useForm } from 'react-hook-form';
+import { RHFTextField } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -122,10 +126,59 @@ export function EmployeeProfileTable() {
     },
     [filters, table]
   );
+  const employeeAdd = useBoolean();
 
+  const shopSubmit = (datas) =>{
+    console.log(datas);
+    
+  }
+    // Form for the AddOn
+    const shopMethods = useForm({
+      resolver: zodResolver(EmployeeSchema),
+      defaultValues: {
+        email: '',
+        phone: '',
+        name: '',
+      },
+    });
+    const {
+      handleSubmit: shopHandleSubmit,
+      watch: shopWatch,
+      reset: shopReset,
+      formState: { errors: shopError },
+    } = shopMethods;
+
+    // Form content for the Menu creation and edit
+    const formContent = (
+      <FormProvider {...shopMethods}>
+      <form onSubmit={shopHandleSubmit(shopSubmit)} noValidate className="p-3 flex flex-col gap-4">
+      <RHFTextField name="name" label="Employee Name" size="small" />
+        <RHFTextField name="email" label="Email Address" size="small" type='email' />
+        <RHFTextField name="phone" label="Phone Number" size="small"  />
+    
+      </form>
+    </FormProvider>  
+    );
+  // Menu Submit Fun
+  const handleExternalSubmit = shopHandleSubmit(shopSubmit);
   return (
-    <>
+    <> 
       <DashboardContent>
+      <div className="flex mb-3">
+        <div>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => {
+              // setIsEdit(false);
+              employeeAdd.onTrue();
+            }}
+          >
+            Add Menu
+          </Button>
+        </div>
+      </div>
         {/* <CustomBreadcrumbs
           heading="List"
           links={[
@@ -297,6 +350,31 @@ export function EmployeeProfileTable() {
             Delete
           </Button>
         }
+      />
+
+          {/* Menu Creation and Edit Model */ }
+    < ConfirmDialog
+  open = { employeeAdd.value }
+  onClose = {(event, reason) => {
+    if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+      employeeAdd.onFalse();
+      reset({
+        name: '',
+        phone: '',
+        email: '',
+      });
+      setIsEdit(false);
+    }
+  }
+
+}
+title = { 'Add Employee' }
+content = { formContent }
+action = {
+  < Button onClick = { handleExternalSubmit } variant = "contained" color = "primary" >
+Submit
+  </Button >
+}
       />
     </>
   );
