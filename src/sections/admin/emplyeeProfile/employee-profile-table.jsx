@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 // import Tab from '@mui/material/Tab';
@@ -19,7 +19,7 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 // import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
-import {  _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
+import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
 
 // import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
@@ -46,6 +46,8 @@ import { EmployeeSchema } from '../admin-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { RHFTextField } from 'src/components/hook-form';
+import { useAddEmployeeMutation, useDelEmployeeMutation, useEditEmployeeMutation, useGetEmployeeMutation, useGetPermissionMutation } from 'src/services/admin';
+import { handleApiError } from 'src/utils/errorHandler';
 
 // ----------------------------------------------------------------------
 
@@ -68,8 +70,19 @@ export function EmployeeProfileTable() {
   const router = useRouter();
 
   const confirm = useBoolean();
+  const [editId, setEditId] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [delId, setDelId] = useState(null);
+  const [head, setHead] = useState([
+    { id: 'name', label: 'Employee Details' }]);
 
-  const [tableData, setTableData] = useState(_userList);
+  const [addEmployee] = useAddEmployeeMutation();
+  const [editEmployee] = useEditEmployeeMutation();
+  const [delEmployee] = useDelEmployeeMutation();
+  const [getEmployee] = useGetEmployeeMutation();
+  const [getPermission] = useGetPermissionMutation();
+
+  const [tableData, setTableData] = useState([]);
 
   const filters = useSetState({ name: '', role: [], status: 'all' });
 
@@ -127,58 +140,147 @@ export function EmployeeProfileTable() {
     [filters, table]
   );
   const employeeAdd = useBoolean();
+  const employeeDel = useBoolean();
+  // Addon Item creation and Edit fun
+  const employeeSubmit = async (data) => {
+    try {
+      // Create FormData instance
+      const formData = data;
+      let response;
+      if (isEdit) {
+        formData.id = editId
+        response = await editEmployee(formData).unwrap();
+      } else {
+        response = await addEmployee(formData).unwrap();
+        getEmployeeFun();
+      }
+      if (response.status) {
+        toast.success(response.message);
+        getEmployeeFun();
+        employeeAdd.onFalse()
+      } else {
+        toast.success(response.message);
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage)
+    }
+  };
+  // Addon Item creation and Edit fun
+  const delFun = async (id) => {
+    try {
+      // Create FormData instance
+      const formData = {
+        id: delId
+      };
+      const response = await delEmployee(formData).unwrap();
 
-  const shopSubmit = (datas) =>{
-    console.log(datas);
-    
-  }
-    // Form for the AddOn
-    const shopMethods = useForm({
-      resolver: zodResolver(EmployeeSchema),
-      defaultValues: {
-        email: '',
-        phone: '',
-        name: '',
-      },
-    });
-    const {
-      handleSubmit: shopHandleSubmit,
-      watch: shopWatch,
-      reset: shopReset,
-      formState: { errors: shopError },
-    } = shopMethods;
+      if (response.status) {
+        toast.success(response.message);
+        employeeDel.onFalse()
+        getEmployeeFun();
 
-    // Form content for the Menu creation and edit
-    const formContent = (
-      <FormProvider {...shopMethods}>
-      <form onSubmit={shopHandleSubmit(shopSubmit)} noValidate className="p-3 flex flex-col gap-4">
-      <RHFTextField name="name" label="Employee Name" size="small" />
+      } else {
+        toast.success(response.message);
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)
+    }
+  };
+  // Addon Item creation and Edit fun
+  const getEmployeeFun = async () => {
+    try {
+      // Create FormData instance
+      const response = await getEmployee().unwrap();
+
+      if (response.status) {
+        toast.success(response.message);
+        setTableData(response.data || [])
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage)
+    }
+  };
+    // Addon Item creation and Edit fun
+    const getEmployeePermission = async () => {
+      try {
+        // Create FormData instance
+        const response = await getPermission().unwrap();
+  
+        if (response.status) {
+          toast.success(response.message);
+          const datas = [...head,response.data] 
+          setHead(datas)
+        }
+      } catch (error) {
+        const errorMessage = handleApiError(error);
+        toast.error(errorMessage)
+      }
+    };
+  useEffect(() => {
+    getEmployeeFun()
+    getEmployeePermission()
+  }, [])
+
+  // Form for the AddOn
+  const employeeMethods = useForm({
+    resolver: zodResolver(EmployeeSchema),
+    defaultValues: {
+      email: '',
+      phone: '',
+      password: '',
+      name: '',
+    },
+  });
+  const {
+    handleSubmit: employeeHandleSubmit,
+    watch: employeeWatch,
+    reset: employeeReset,
+    formState: { errors: employeeError },
+  } = employeeMethods;
+
+  // Form content for the Menu creation and edit
+  const formContent = (
+    <FormProvider {...employeeMethods}>
+      <form onSubmit={employeeHandleSubmit(employeeSubmit)} noValidate className="p-3 flex flex-col gap-4">
+        <RHFTextField name="name" label="Employee Name" size="small" />
         <RHFTextField name="email" label="Email Address" size="small" type='email' />
-        <RHFTextField name="phone" label="Phone Number" size="small"  />
-    
+        <RHFTextField name="phone" label="Phone Number" size="small" />
+        <RHFTextField name="password" label="Password" size="small" />
+
       </form>
-    </FormProvider>  
-    );
+    </FormProvider>
+  );
   // Menu Submit Fun
-  const handleExternalSubmit = shopHandleSubmit(shopSubmit);
+  const handleExternalSubmit = employeeHandleSubmit(employeeSubmit);
+  const openEditData = (val, id) => {
+    setEditId(id);
+    setIsEdit(true);
+    employeeAdd.onTrue();
+    employeeReset(val);
+
+  };
   return (
-    <> 
+    <>
       <DashboardContent>
-      <div className="flex mb-3">
-        <div>
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={() => {
-              // setIsEdit(false);
-              employeeAdd.onTrue();
-            }}
-          >
-            Add Menu
-          </Button>
+        <div className="flex mb-3">
+          <div>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => {
+                setIsEdit(false);
+                employeeAdd.onTrue();
+              }}
+            >
+              Add Employee
+            </Button>
+          </div>
         </div>
-      </div>
         {/* <CustomBreadcrumbs
           heading="List"
           links={[
@@ -281,12 +383,12 @@ export function EmployeeProfileTable() {
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  // onSelectAllRows={(checked) =>
-                  //   table.onSelectAllRows(
-                  //     checked,
-                  //     dataFiltered.map((row) => row.id)
-                  //   )
-                  // }
+                // onSelectAllRows={(checked) =>
+                //   table.onSelectAllRows(
+                //     checked,
+                //     dataFiltered.map((row) => row.id)
+                //   )
+                // }
                 />
 
                 <TableBody>
@@ -301,8 +403,11 @@ export function EmployeeProfileTable() {
                         row={row}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
+                        onDeleteRow={() => {
+                          setDelId(row.id);
+                          employeeDel.onTrue();
+                        }}
+                        onEditRow={() => openEditData(row, row.id)}
                       />
                     ))}
 
@@ -352,29 +457,43 @@ export function EmployeeProfileTable() {
         }
       />
 
-          {/* Menu Creation and Edit Model */ }
-    < ConfirmDialog
-  open = { employeeAdd.value }
-  onClose = {(event, reason) => {
-    if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
-      employeeAdd.onFalse();
-      reset({
-        name: '',
-        phone: '',
-        email: '',
-      });
-      setIsEdit(false);
-    }
-  }
+      {/* Menu Creation and Edit Model */}
+      < ConfirmDialog
+        open={employeeAdd.value}
+        onClose={(event, reason) => {
+          if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+            employeeAdd.onFalse();
+            employeeReset({
+              name: '',
+              phone: '',
+              password: '',
+              email: '',
+            });
+            setIsEdit(false);
+          }
+        }
 
-}
-title = { 'Add Employee' }
-content = { formContent }
-action = {
-  < Button onClick = { handleExternalSubmit } variant = "contained" color = "primary" >
-Submit
-  </Button >
-}
+        }
+        title={isEdit ? 'Edit Employee' : 'Add Employee'}
+
+        content={formContent}
+        action={
+          < Button onClick={handleExternalSubmit} variant="contained" color="primary" >
+            Submit
+          </Button >
+        }
+      />
+      {/* Addon Item Delete Modal */}
+      <ConfirmDialog
+        open={employeeDel.value}
+        onClose={employeeDel.onFalse}
+        title="Delete Employee"
+        content="Are you sure want to delete this Employee?"
+        action={
+          <Button onClick={delFun} variant="contained" color="error">
+            Confirm
+          </Button>
+        }
       />
     </>
   );

@@ -2,9 +2,7 @@ import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
 import Drawer from '@mui/material/Drawer';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -109,7 +107,7 @@ export function AccountDrawer({ data = [], sx, ...other }) {
               {user?.email}
             </Typography>
           </Stack>
-
+{/* 
           <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="center" sx={{ p: 3 }}>
             {[...Array(3)].map((_, index) => (
               <Tooltip
@@ -134,9 +132,9 @@ export function AccountDrawer({ data = [], sx, ...other }) {
                 <Iconify icon="mingcute:add-line" />
               </IconButton>
             </Tooltip>
-          </Stack>
+          </Stack> */}
 
-          <Stack
+          {/* <Stack
             sx={{
               py: 3,
               px: 2.5,
@@ -174,11 +172,9 @@ export function AccountDrawer({ data = [], sx, ...other }) {
                 </MenuItem>
               );
             })}
-          </Stack>
+          </Stack> */}
 
-          <Box sx={{ px: 2.5, py: 3 }}>
-            <UpgradeBlock />
-          </Box>
+
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>

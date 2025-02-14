@@ -10,15 +10,17 @@ import {
   _analyticOrderTimeline,
 } from 'src/_mock';
 
-import { AnalyticsNews } from '../analytics-news';
-import { AnalyticsTasks } from '../analytics-tasks';
-import { AnalyticsCurrentVisits } from '../analytics-current-visits';
-import { AnalyticsOrderTimeline } from '../analytics-order-timeline';
-import { AnalyticsWebsiteVisits } from '../analytics-website-visits';
+// import { AnalyticsNews } from '../analytics-news';
+// import { AnalyticsTasks } from '../analytics-tasks';
+// import { AnalyticsCurrentVisits } from '../analytics-current-visits';
+// import { AnalyticsOrderTimeline } from '../analytics-order-timeline';
+// import { AnalyticsWebsiteVisits } from '../analytics-website-visits';
 import { AnalyticsWidgetSummary } from '../analytics-widget-summary';
-import { AnalyticsTrafficBySite } from '../analytics-traffic-by-site';
-import { AnalyticsCurrentSubject } from '../analytics-current-subject';
-import { AnalyticsConversionRates } from '../analytics-conversion-rates';
+import { AnalyticsWebsiteVisits } from '../analytics-website-visits';
+import { AnalyticsCurrentVisits } from '../analytics-current-visits';
+// import { AnalyticsTrafficBySite } from '../analytics-traffic-by-site';
+// import { AnalyticsCurrentSubject } from '../analytics-current-subject';
+// import { AnalyticsConversionRates } from '../analytics-conversion-rates';
 
 // ----------------------------------------------------------------------
 
@@ -127,7 +129,7 @@ export function OverviewAnalyticsView() {
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
+        {/* <Grid xs={12} md={6} lg={8}>
           <AnalyticsConversionRates
             title="Conversion rates"
             subheader="(+43%) than last year"
@@ -169,7 +171,7 @@ export function OverviewAnalyticsView() {
 
         <Grid xs={12} md={6} lg={8}>
           <AnalyticsTasks title="Tasks" list={_analyticTasks} />
-        </Grid>
+        </Grid> */}
       </Grid>
     </DashboardContent>
   );

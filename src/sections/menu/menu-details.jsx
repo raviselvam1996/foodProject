@@ -971,6 +971,9 @@ export function MenuDetails() {
         short_desc: '',
       });
       setIsEdit(false);
+      setImageUrl(null)
+      setFile(null)
+
     }
   }
 }
@@ -1006,6 +1009,8 @@ action = {
         food_type: 'veg',
       });
       setIsEdit(false);
+      setImageUrl(null)
+      setFile(null)
     }
   }}
   title={isEdit ? 'Edit Menu Item' : 'Add Menu Item'}

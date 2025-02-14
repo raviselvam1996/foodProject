@@ -38,10 +38,15 @@ export const adminApi = createApi({
 
       // For Employee profile
       getEmployee: builder.mutation({
-        query: (data) => ({
+        query: () => ({
           url: 'admin/employee',
           method: 'GET',
-          body: data,
+        }),
+      }),
+      getPermission: builder.mutation({
+        query: () => ({
+          url: 'admin/employee/permissions',
+          method: 'GET',
         }),
       }),
       addEmployee: builder.mutation({
@@ -51,7 +56,7 @@ export const adminApi = createApi({
           body: data,
         }),
       }),
-      editEmployee: builder.mutation({
+      editEmployee: builder.mutation({ 
         query: (data) => ({
           url: 'admin/employee/update',
           method: 'POST',
@@ -70,5 +75,5 @@ export const adminApi = createApi({
   }),
 });
 
-export const { useShopSettingsQuery, usePolicyUpdateMutation,useInfoUpdateMutation,useTimingUpdateMutation,useGetEmployeeMutation,useAddEmployeeMutation,useEditEmployeeMutation,useDelEmployeeMutation } =
+export const { useShopSettingsQuery, usePolicyUpdateMutation,useInfoUpdateMutation,useTimingUpdateMutation,useGetEmployeeMutation,useAddEmployeeMutation,useEditEmployeeMutation,useDelEmployeeMutation,useGetPermissionMutation } =
 adminApi;

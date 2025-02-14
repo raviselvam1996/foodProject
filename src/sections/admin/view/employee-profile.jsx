@@ -10,8 +10,6 @@ import { EmployeeProfileTable } from '../emplyeeProfile/employee-profile-table';
 // ----------------------------------------------------------------------
 
 export function EmployeeProfile() {
-    const dar = 'fsdfjsdf'
-    console.log(dar);
     
   return (
     <DashboardContent>
