@@ -38,5 +38,10 @@ export const EmployeeSchema = z.object({
         .max(15, { message: 'Phone number cannot exceed 15 digits!' }) // Prevent overly long numbers
         .regex(/^\d+$/, { message: 'Phone number must contain only digits!' }), // Only numbers allowed
 
+        password: z
+        .string()
+        .min(6, { message: 'Password must be at least 6 digits!' }), // Adjust length as needed
+
+
     name: z.string().min(1, { message: 'required!' }),
 });

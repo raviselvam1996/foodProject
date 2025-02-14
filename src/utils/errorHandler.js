@@ -1,15 +1,15 @@
 // utils/errorHandler.js
 
 export const handleApiError = (error) => {
-    if (!error.response) {
+    if (!error.data) {
       return "Network error. Please check your internet connection.";
     }
   
-    const { status, data } = error.response;
+    const { status, message } = error.data;
   
     switch (status) {
       case 400:
-        return data.message || "Bad Request. Please check your input.";
+        return message || "Bad Request. Please check your input.";
       case 401:
         return "Unauthorized. Please log in again.";
       case 403:
@@ -21,7 +21,7 @@ export const handleApiError = (error) => {
       case 503:
         return "Service Unavailable. Please try again later.";
       default:
-        return data.message || "An unexpected error occurred.";
+        return message || "An unexpected error occurred.";
     }
   };
   

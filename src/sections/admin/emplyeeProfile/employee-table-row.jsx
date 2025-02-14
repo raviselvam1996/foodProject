@@ -106,17 +106,7 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-   
-
-          <MenuItem
-            onClick={() => {
-              onEditRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Setus Super Admin
-          </MenuItem>
+  
           <MenuItem
             onClick={() => {
               onEditRow();
@@ -127,19 +117,13 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
             Setus Admin
           </MenuItem>
           <MenuItem
-            onClick={() => {
-              onEditRow();
-              popover.onClose();
-            }}
+            onClick={onEditRow}
           >
             <Iconify icon="solar:pen-bold" />
             Edit Employee Info
           </MenuItem>
           <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
+            onClick={onDeleteRow}
             sx={{ color: 'error.main' }}
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
@@ -148,17 +132,7 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
         </MenuList>
       </CustomPopover>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
-        action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
-          </Button>
-        }
-      />
+
     </>
   );
 }
