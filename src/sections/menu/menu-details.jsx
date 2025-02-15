@@ -77,7 +77,8 @@ export function MenuDetails() {
   const [imgUrl, setImageUrl] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [menuName, setMenuName] = useState('');
-
+// const imageBaseUrl = import.meta.env.VITE_DASHBOARD_BASE_URL;
+const imageBaseUrl = 'https://api.turkish-kebab-pizza-house.co.uk/api/';
   const [addMenu, { isLoading: statusLoad }] = useAddMenuMutation();
   const [editMenu, { isLoading: menuLoad }] = useEditMenuMutation();
   const {
@@ -296,7 +297,7 @@ export function MenuDetails() {
     setIsEdit(true);
     menu.onTrue();
     reset(val);
-    const img = `${import.meta.env.VITE_DASHBOARD_BASE_URL + val.image}`;
+    const img = imageBaseUrl + val?.image;
     setFile(img);
   };
   // Delete menu
@@ -408,7 +409,7 @@ export function MenuDetails() {
     setIsEdit(true);
     menuItem.onTrue();
     itemReset(val);
-    const img = `${import.meta.env.VITE_DASHBOARD_BASE_URL + val.image}`;
+    const img = imageBaseUrl + val?.image;
     setFile(img);
   };
   // Menu item delete fun
@@ -705,7 +706,7 @@ export function MenuDetails() {
                   <div className="flex items-center gap-2 col-span-1">
                     <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
                       <img
-                        src={`${import.meta.env.VITE_DASHBOARD_BASE_URL + item.image}`}
+                        src={imageBaseUrl+ item.image}
                         alt="Item"
                         className="w-full h-full object-cover"
                       />
@@ -786,7 +787,7 @@ export function MenuDetails() {
                     <div className="flex items-center gap-2 col-span-1">
                     <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
                       <img
-                        src={`${import.meta.env.VITE_DASHBOARD_BASE_URL + item.image}`}
+                        src={imageBaseUrl + item.image}
                         alt="Item"
                         className="w-full h-full object-cover"
                       />
