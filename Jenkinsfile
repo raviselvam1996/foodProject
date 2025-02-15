@@ -21,7 +21,7 @@ pipeline {
 
         stage('Deploy (Optional)') {
             steps {
-                sh 'cp -r build/* /home/turkish-kebab-pizza-house/domains/dashboard.turkish-kebab-pizza-house.co.uk/public_html/'  // Change based on your deployment method
+                sh 'cp -r dist/* /home/turkish-kebab-pizza-house/domains/dashboard.turkish-kebab-pizza-house.co.uk/public_html/'  // Change based on your deployment method
             }
         }
     }
