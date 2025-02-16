@@ -15,6 +15,7 @@ pipeline {
 
         stage('Build React App') {
             steps {
+                sh 'cp /var/www/dashboard/.env ./'
                 sh 'npm run build'
             }
         }
