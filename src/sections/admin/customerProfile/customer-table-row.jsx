@@ -22,7 +22,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow ,openDetails}) {
   const confirm = useBoolean();
 
   const popover = usePopover();
@@ -60,7 +60,7 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
        <Button variant="contained" size='small'
-            color="success">View Deteils</Button>
+            color="success" onClick={openDetails}>View Deteils</Button>
         </TableCell>
 
         {/* <TableCell>

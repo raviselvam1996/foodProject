@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Card, CardHeader, CardContent, Button, Typography } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Card, CardHeader, CardContent, Button, Typography, CircularProgress } from "@mui/material";
 import { TimePicker } from '@mui/x-date-pickers';
 import dayjs from "dayjs";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +9,7 @@ import { useInfoUpdateMutation, usePolicyUpdateMutation, useShopSettingsQuery, u
 import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
 import { PolicySchema, ShopSchema } from './admin-schema';
+import { LoadingScreen } from 'src/components/loading-screen';
 
 export const ShopDetailComponent = () => {
   const [timeValues, setTimeValues] = useState([])
@@ -147,6 +148,13 @@ if(shopData?.shopTimimngs?.length > 0){
     };
   return (
     <>
+    
+    {
+      loadingCategories ? 
+
+      <LoadingScreen />
+    :
+    <>
       <TableContainer component={Paper}>
         <Table size="small"> {/* Smaller Table */}
           <TableHead>
@@ -284,6 +292,8 @@ Time Update
 
         </CardContent>
       </Card>
+    </>
+    }
     </>
   )
 }
