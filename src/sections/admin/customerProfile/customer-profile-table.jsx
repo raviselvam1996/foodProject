@@ -42,6 +42,9 @@ import {
 import { UserTableRow } from './customer-table-row';
 import { UserTableToolbar } from './customer-table-toolbar';
 import { UserTableFiltersResult } from './customer-table-filters-result';
+import { Drawer } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -60,6 +63,7 @@ const TABLE_HEAD = [
 
 export function CustomerProfileTable() {
   const table = useTable();
+  const [open, setOpen] = useState(false);
 
   const router = useRouter();
 
@@ -122,7 +126,9 @@ export function CustomerProfileTable() {
     },
     [filters, table]
   );
-
+  const handleCloseDrawer = useCallback(() => {
+    setOpen(false);
+  }, []);
   return (
     <>
       <DashboardContent>
@@ -250,6 +256,7 @@ export function CustomerProfileTable() {
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
+                        openDetails={() => setOpen(true)}
                       />
                     ))}
 
@@ -274,6 +281,20 @@ export function CustomerProfileTable() {
             onRowsPerPageChange={table.onChangeRowsPerPage}
           />
         </Card>
+              <Drawer
+                open={open}
+                onClose={handleCloseDrawer}
+                anchor="right"
+                slotProps={{ backdrop: { invisible: true } }}
+                PaperProps={{ sx: { width: 320 } }}
+              >
+     <IconButton
+          onClick={handleCloseDrawer}
+          sx={{ top: 12, left: 12, zIndex: 9, position: 'absolute' }}
+        >
+          <Iconify icon="mingcute:close-line" />
+        </IconButton>
+              </Drawer>
       </DashboardContent>
 
       <ConfirmDialog

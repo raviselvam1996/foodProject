@@ -11,6 +11,7 @@ import {
   Chip,
   CardContent,
   FormControlLabel,
+  CircularProgress,
 } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -77,8 +78,7 @@ export function MenuDetails() {
   const [imgUrl, setImageUrl] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [menuName, setMenuName] = useState('');
-// const imageBaseUrl = import.meta.env.VITE_DASHBOARD_BASE_URL;
-const imageBaseUrl = 'https://api.turkish-kebab-pizza-house.co.uk/api/';
+  const imageBaseUrl = import.meta.env.VITE_DASHBOARD_BASE_URL;
   const [addMenu, { isLoading: statusLoad }] = useAddMenuMutation();
   const [editMenu, { isLoading: menuLoad }] = useEditMenuMutation();
   const {
@@ -299,6 +299,7 @@ const imageBaseUrl = 'https://api.turkish-kebab-pizza-house.co.uk/api/';
     reset(val);
     const img = imageBaseUrl + val?.image;
     setFile(img);
+    setImageUrl(img)
   };
   // Delete menu
   const deleteMenu = async () => {
@@ -372,6 +373,8 @@ const imageBaseUrl = 'https://api.turkish-kebab-pizza-house.co.uk/api/';
         itemReset();
         menuItem.onFalse();
         menuItemsGet(menuId);
+        setImageUrl(null);
+
       }
     } catch (error) {
       const errorMessage = handleApiError(error);
@@ -411,6 +414,7 @@ const imageBaseUrl = 'https://api.turkish-kebab-pizza-house.co.uk/api/';
     itemReset(val);
     const img = imageBaseUrl + val?.image;
     setFile(img);
+    setImageUrl(img)
   };
   // Menu item delete fun
   const deleteMenuItem = async () => {
@@ -451,7 +455,7 @@ const imageBaseUrl = 'https://api.turkish-kebab-pizza-house.co.uk/api/';
           ]}
           sx={{ gap: 4 }}
         />
-           <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={2}>
           <Upload value={file} onDrop={handleDropSingleFile} onDelete={() => setFile(null)} />
         </Stack>
       </form>
@@ -494,11 +498,13 @@ const imageBaseUrl = 'https://api.turkish-kebab-pizza-house.co.uk/api/';
   };
   // Get Addon Edit data
   const openEditAddonData = (val, id) => {
+    setAddOnId(id);
     setEditId(id);
     setIsEdit(true);
     addon.onTrue();
     addonReset(val);
     addonItemsGet(id);
+
   };
   // Addon delete fun
   const deleteAddon = async () => {
@@ -663,11 +669,12 @@ const imageBaseUrl = 'https://api.turkish-kebab-pizza-house.co.uk/api/';
     }
   };
 
-  const handleCardClick = (id,name) => {
+  const handleCardClick = (id, name) => {
     setSelectedCard(id); // Store the selected card ID
     menuItemsGet(id)
     setMenuName(name)
   };
+
 
   return (
     <>
@@ -686,405 +693,434 @@ const imageBaseUrl = 'https://api.turkish-kebab-pizza-house.co.uk/api/';
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3">
-        <Card className="col-span-1 p-2">
-          <div className="flex items-center  pb-2 mb-4">
-            <h2 className="text-xl font-bold text-gray-800">Menu</h2>
-          </div>
-
-          <div className="flex flex-col space-y-2">
-            {categoriesData?.data &&
-              categoriesData?.data?.length > 0 &&
-              categoriesData?.data?.map((item, index) => (
-
-                <Card
-                  key={index}
-                  className={`grid grid-cols-3 space-x-4 px-2 cursor-pointer transition-all duration-200 ${selectedCard === item.id ? "shadow-lg" : ""
-                    }`}
-                  onClick={() => handleCardClick(item.id,item.name)}
-                    >
-                  <div className="flex items-center gap-2 col-span-1">
-                    <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
-                      <img
-                        src={imageBaseUrl+ item.image}
-                        alt="Item"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-between col-span-2 pt-2">
-                    <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
-                      {item.name}
-                    </p>
-                 
-                       <div className="flex flex-col">
-                        <div className='flex justify-end'>
-                        <Switch
-                      checked={item.status === 'active'}
-                      onChange={(e) => handleChange(e, item.id)}
-                      inputProps={{ 'aria-label': 'controlled' }}
-                      size="small"
-                    />
-                        </div>
-                 
-                      <div className="flex items-center">
-                        <IconButton color="primary" onClick={() => openEditMenuData(item, item.id)}>
-                          <TbEdit className="cursor-pointer hover:text-red-500 transition" />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => {
-                            setDelId(item.id);
-                            menuDel.onTrue();
-                          }}
-                        >
-                          <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
-                        </IconButton>
-                      </div>
-                  </div>
-                  </div>
-
-               
-                </Card>
-              ))}
-      </div>
-    </Card >
-      <Card className="col-span-1 lg:col-span-2 p-3">
-        <div className="flex justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-gray-800">{menuName}</h2>
-
-          </div>
-          <div>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={() => {
-                setIsEdit(false);
-
-                menuItem.onTrue();
-              }}
-            >
-              Add Item
-            </Button>
-          </div>
-        </div>
-        <div>
-
-
-          {menuItems?.length > 0 ?
-          <div>{
-      menuItems.map((item, index) => (
-              <Accordion
-                key={item.id}
-                expanded={controlled === item.id}
-                onChange={handleChangeControlled(item.id)}
-              >
-                <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
-                  <div className="flex items-center justify-between w-full">
-                    {/* Left Side: Name */}
-                    <div className="flex items-center gap-2 col-span-1">
-                    <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
-                      <img
-                        src={imageBaseUrl + item.image}
-                        alt="Item"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
-                      {item.name}
-                    </p>
-                  </div>
-
-                    {/* Right Side: Switch and Icons */}
-                    <div className="flex items-center gap-6">
-                      <Switch
-                        checked={item.status === 'active'}
-                        onChange={(e) => {
-                          e.preventDefault(); // Prevent default behavior
-                          e.stopPropagation(); // Prevents the accordion from expanding
-                          handleItemChange(e, item.id);
-                        }}
-                        inputProps={{ 'aria-label': 'controlled' }}
-                        size="small"
-                      />
-                      <div className="flex items-center gap-3 text-xl text-red-700">
-                        <IconButton
-                          color="primary"
-                          onClick={() => openEditMenuItemData(item, item.id)}
-                        >
-                          <TbEdit className="cursor-pointer hover:text-red-500 transition" />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => {
-                            setDelId(item.id);
-                            menuItemDel.onTrue();
-                          }}
-                        >
-                          <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
-                        </IconButton>
-                      </div>
-                    </div>
-                  </div>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <div className="flex flex-col">
-                    {item?.add_ons?.length > 0 && (
-                      <>
-                        {item?.add_ons.map((addons, i) => (
-                          <Card className="p-3 mt-3" key={i}>
-                            <div className="grid grid-cols-2  md:grid-cols-4 gap-4 p-2">
-                              <TextField
-                                variant="outlined"
-                                readOnly
-                                fullWidth
-                                label="Add On Name"
-                                value={addons.name} // Manually setting the value
-                                size="small"
-                              />
-
-                              <FormControlLabel
-                                control={
-                                  <Switch
-                                    checked={addons.is_required}
-                                    inputProps={{ 'aria-label': 'Required' }}
-                                    size="small"
-                                    readOnly
-                                  />
-                                }
-                                label="Required"
-                              />
-                              <FormControlLabel
-                                control={
-                                  <Switch
-                                    checked={addons.is_multi_select}
-                                    inputProps={{ 'aria-label': 'Select Multiple' }}
-                                    size="small"
-                                    readOnly
-                                  />
-                                }
-                                label="Multiple"
-                              />
-
-                              {addons.is_multi_select && (
-                                <div className="flex justify-end w-full">
-                                  <TextField
-                                    sx={{ maxWidth: 100 }}
-                                    variant="outlined"
-                                    readOnly
-                                    fullWidth
-                                    label="Select Upto"
-                                    value={addons.select_upto || ''} // Manually setting the value
-                                    size="small"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex items-center justify-end gap-3 text-xl text-red-700">
-                              <IconButton
-                                color="primary"
-                                onClick={() => {
-                                  setMenuItemId(item.id);
-                                  openEditAddonData(addons, addons.id);
-                                }}
-                              >
-                                <TbEdit className="cursor-pointer hover:text-red-500 transition" />
-                              </IconButton>
-                              <IconButton
-                                color="error"
-                                onClick={() => {
-                                  setDelId(addons.id);
-                                  addOnDel.onTrue();
-                                }}
-                              >
-                                <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
-                              </IconButton>
-                            </div>
-                            {addons.items.length > 0 && (
-                              <div className="px-5">
-                                <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-                                  AddOn Items
-                                </Typography>
-                                <div className="flex items-center flex-wrap gap-4 mt-2">
-                                  {addons?.items?.map((itemss, j) => (
-                                    <div key={j}>
-                                      <Chip
-                                        variant="outlined"
-                                        size="normal"
-                                        // avatar={<Avatar>M</Avatar>}
-                                        label={<p>{`${itemss.name} |  ${itemss.price}`}</p>}
-                                        onDelete={() => {
-                                          setDelId(itemss.id);
-                                          addOnItemDel.onTrue();
-                                        }}
-                                        color="primary"
-                                      />
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </Card>
-                        ))}
-                      </>
-                    )}
-                  </div>{' '}
-                  <div className="flex justify-end">
-                    <div>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        onClick={() => {
-                          setMenuItemId(item.id);
-                          setAddOnData(item.add_ons);
-                          addon.onTrue();
-                          setIsEdit(false);
-                        }}
-                      >
-                        Add Add on
-                      </Button>
-                    </div>
-                  </div>
-                </AccordionDetails>
-              </Accordion>
-            ))}
-          </div>:
-          <div className='flex items-center justify-center mt-10'>
-          <p>No items added,Please add Menu items !</p>
-
-          </div>
-}
+      {
+        loadingCategories ?     
+        <div className='flex justify-center items-center mt-10'>
+        <CircularProgress color="primary" />
+      </div> :
+      <>
       
-        </div>
-      </Card>
-      </div >
-    {/* Menu Creation and Edit Model */ }
-    < ConfirmDialog
-  open = { menu.value }
-  onClose = {(event, reason) => {
-    if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
-      menu.onFalse();
-      reset({
-        name: '',
-        short_desc: '',
-      });
-      setIsEdit(false);
-      setImageUrl(null)
-      setFile(null)
+      {(categoriesData?.data &&
+       (categoriesData?.data?.length > 0)) ?
+      
+     
+         <div className="grid grid-cols-1 lg:grid-cols-3">
+           <Card className="col-span-1 p-2">
+             <div className="flex items-center  pb-2 mb-4">
+               <h2 className="text-xl font-bold text-gray-800">Menu</h2>
+             </div>
+   
+             <div className="flex flex-col space-y-2">
+               {categoriesData?.data &&
+                 categoriesData?.data?.length > 0 &&
+                 categoriesData?.data?.map((item, index) => (
+   
+                   <Card
+                     key={index}
+                     className={`grid grid-cols-3 space-x-4 px-2 cursor-pointer transition-all duration-200 shadow-xl ${selectedCard == item.id ? "border border-purple-500" : "bg-gray-200"
+                       }`}
+                     onClick={() => handleCardClick(item.id, item.name)}
+                   >
+                     <div className="flex items-center gap-2 col-span-1">
+                       <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
+                         <img
+                           src={imageBaseUrl + item.image}
+                           alt="Item"
+                           className="w-full h-full object-cover"
+                         />
+                       </div>
+                     </div>
+                     <div className="flex justify-between col-span-2 pt-2">
+                       <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
+                         {item.name}
+                       </p>
+   
+                       <div className="flex flex-col">
+                         <div className='flex justify-end'>
+                           <Switch
+                             checked={item.status === 'active'}
+                             onChange={(e) => handleChange(e, item.id)}
+                             inputProps={{ 'aria-label': 'controlled' }}
+                             size="small"
+                           />
+                         </div>
+   
+                         <div className="flex items-center">
+                           <IconButton color="primary" onClick={() => openEditMenuData(item, item.id)}>
+                             <TbEdit className="cursor-pointer hover:text-red-500 transition" />
+                           </IconButton>
+                           <IconButton
+                             color="error"
+                             onClick={() => {
+                               setDelId(item.id);
+                               menuDel.onTrue();
+                             }}
+                           >
+                             <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
+                           </IconButton>
+                         </div>
+                       </div>
+                     </div>
+   
+   
+                   </Card>
+                 ))}
+             </div>
+           </Card >
+           <Card className="col-span-1 lg:col-span-2 p-3">
+             <div className="flex justify-between">
+               <div>
+                 <h2 className="text-xl font-bold text-gray-800">{menuName}</h2>
+   
+               </div>
+               <div>
+                 <Button
+                   variant="contained"
+                   color="primary"
+                   size="small"
+                   onClick={() => {
+                     setIsEdit(false);
+   
+                     menuItem.onTrue();
+                   }}
+                 >
+                   Add Item
+                 </Button>
+               </div>
+             </div>
+             <div className='flex justify-center items-center'>
+   
+               {
+                 !itemLoad ?
+                   <>
+   
+                     {menuItems?.length > 0 ?
+                       <div>{
+                         menuItems.map((item, index) => (
+                           <Accordion
+                             key={item.id}
+                             expanded={controlled === item.id}
+                             onChange={handleChangeControlled(item.id)}
+                           >
+                             <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
+                               <div className="flex items-center justify-between w-full">
+                                 {/* Left Side: Name */}
+                                 <div className="flex items-center gap-2 col-span-1">
+                                   <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
+                                     <img
+                                       src={imageBaseUrl + item.image}
+                                       alt="Item"
+                                       className="w-full h-full object-cover"
+                                     />
+                                   </div>
+                                   <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
+                                     {item.name}
+                                   </p>
+                                 </div>
+   
+                                 {/* Right Side: Switch and Icons */}
+                                 <div className="flex items-center gap-6">
+                                   <Switch
+                                     checked={item.status === 'active'}
+                                     onChange={(e) => {
+                                       e.preventDefault(); // Prevent default behavior
+                                       e.stopPropagation(); // Prevents the accordion from expanding
+                                       handleItemChange(e, item.id);
+                                     }}
+                                     inputProps={{ 'aria-label': 'controlled' }}
+                                     size="small"
+                                   />
+                                   <div className="flex items-center gap-3 text-xl text-red-700">
+                                     <IconButton
+                                       color="primary"
+                                       onClick={() => openEditMenuItemData(item, item.id)}
+                                     >
+                                       <TbEdit className="cursor-pointer hover:text-red-500 transition" />
+                                     </IconButton>
+                                     <IconButton
+                                       color="error"
+                                       onClick={() => {
+                                         setDelId(item.id);
+                                         menuItemDel.onTrue();
+                                       }}
+                                     >
+                                       <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
+                                     </IconButton>
+                                   </div>
+                                 </div>
+                               </div>
+                             </AccordionSummary>
+                             <AccordionDetails>
+                               <div className="flex flex-col">
+                                 {item?.add_ons?.length > 0 && (
+                                   <>
+                                     {item?.add_ons.map((addons, i) => (
+                                       <Card className="p-3 mt-3" key={i}>
+                                         <div className="grid grid-cols-2  md:grid-cols-4 gap-4 p-2">
+                                           <TextField
+                                             variant="outlined"
+                                             readOnly
+                                             fullWidth
+                                             label="Add On Name"
+                                             value={addons.name} // Manually setting the value
+                                             size="small"
+                                           />
+   
+                                           <FormControlLabel
+                                             control={
+                                               <Switch
+                                                 checked={addons.is_required}
+                                                 inputProps={{ 'aria-label': 'Required' }}
+                                                 size="small"
+                                                 readOnly
+                                               />
+                                             }
+                                             label="Required"
+                                           />
+                                           <FormControlLabel
+                                             control={
+                                               <Switch
+                                                 checked={addons.is_multi_select}
+                                                 inputProps={{ 'aria-label': 'Select Multiple' }}
+                                                 size="small"
+                                                 readOnly
+                                               />
+                                             }
+                                             label="Multiple"
+                                           />
+   
+                                           {addons.is_multi_select && (
+                                             <div className="flex justify-end w-full">
+                                               <TextField
+                                                 sx={{ maxWidth: 100 }}
+                                                 variant="outlined"
+                                                 readOnly
+                                                 fullWidth
+                                                 label="Select Upto"
+                                                 value={addons.select_upto || ''} // Manually setting the value
+                                                 size="small"
+                                               />
+                                             </div>
+                                           )}
+                                         </div>
+                                         <div className="flex items-center justify-end gap-3 text-xl text-red-700">
+                                           <IconButton
+                                             color="primary"
+                                             onClick={() => {
+                                               setMenuItemId(item.id);
+                                               openEditAddonData(addons, addons.id);
+                                             }}
+                                           >
+                                             <TbEdit className="cursor-pointer hover:text-red-500 transition" />
+                                           </IconButton>
+                                           <IconButton
+                                             color="error"
+                                             onClick={() => {
+                                               setDelId(addons.id);
+                                               addOnDel.onTrue();
+                                             }}
+                                           >
+                                             <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
+                                           </IconButton>
+                                         </div>
+                                         {addons.items.length > 0 && (
+                                           <div className="px-5">
+                                             <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+                                               AddOn Items
+                                             </Typography>
+                                             <div className="flex items-center flex-wrap gap-4 mt-2">
+                                               {addons?.items?.map((itemss, j) => (
+                                                 <div key={j}>
+                                                   <Chip
+                                                     variant="outlined"
+                                                     size="normal"
+                                                     // avatar={<Avatar>M</Avatar>}
+                                                     label={<p>{`${itemss.name} |  ${itemss.price}`}</p>}
+                                                     onDelete={() => {
+                                                       setDelId(itemss.id);
+                                                       addOnItemDel.onTrue();
+                                                     }}
+                                                     color="primary"
+                                                   />
+                                                 </div>
+                                               ))}
+                                             </div>
+                                           </div>
+                                         )}
+                                       </Card>
+                                     ))}
+                                   </>
+                                 )}
+                               </div>{' '}
+                               <div className="flex justify-end">
+                                 <div>
+                                   <Button
+                                     variant="contained"
+                                     color="primary"
+                                     size="small"
+                                     onClick={() => {
+                                       setMenuItemId(item.id);
+                                       setAddOnData(item.add_ons);
+                                       addon.onTrue();
+                                       setIsEdit(false);
+                                     }}
+                                   >
+                                     Add Add on
+                                   </Button>
+                                 </div>
+                               </div>
+                             </AccordionDetails>
+                           </Accordion>
+                         ))}
+                       </div> :
+                       <div className='flex items-center justify-center mt-10'>
+                         <p>No items added,Please add Menu items !</p>
+   
+                       </div>
+                     }
+                   </>
+                   :
+                   <div className='flex justify-center items-center mt-10'>
+                     <CircularProgress color="primary" />
+                   </div>
+   
+               }
+   
+   
+             </div>
+           </Card>
+         </div >
+         :
+         <div className='flex items-center justify-center mt-10'>
+         <p>No Menu added,Please add Menu !</p>
 
-    }
-  }
-}
-title = { isEdit? 'Edit Menu': 'Add Menu' }
-content = { formContent }
-action = {
-          < Button onClick = { handleExternalSubmit } variant = "contained" color = "primary" >
-  Submit
+       </div>
+     }
+      </>
+      }
+      {/* Menu Creation and Edit Model */}
+      < ConfirmDialog
+        open={menu.value}
+        onClose={(event, reason) => {
+          if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+            menu.onFalse();
+            reset({
+              name: '',
+              short_desc: '',
+            });
+            setIsEdit(false);
+            setImageUrl(null)
+            setFile(null)
+          }
+        }
+        }
+        title={isEdit ? 'Edit Menu' : 'Add Menu'}
+        content={formContent}
+        action={
+          < Button onClick={handleExternalSubmit} variant="contained" color="primary" >
+            Submit
           </Button >
         }
       />
-{/* Menu delete model */ }
-<ConfirmDialog
-  open={menuDel.value}
-  onClose={menuDel.onFalse}
-  title="Delete Menu"
-  content="Are you sure want to delete this menu?"
-  action={
-    <Button onClick={deleteMenu} variant="contained" color="error">
-      Confirm
-    </Button>
-  }
-/>
-{/* Menu Item Creation and Edit Model */ }
-<ConfirmDialog
-  open={menuItem.value}
-  onClose={(event, reason) => {
-    if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
-      menuItem.onFalse();
-      itemReset({
-        name: '',
-        price: 0,
-        food_type: 'veg',
-      });
-      setIsEdit(false);
-      setImageUrl(null)
-      setFile(null)
-    }
-  }}
-  title={isEdit ? 'Edit Menu Item' : 'Add Menu Item'}
-  content={itemFormContent}
-  action={
-    <Button onClick={handleItemSubmit} variant="contained" color="primary">
-      Submit
-    </Button>
-  }
-/>
-{/* Menu Item delete model */ }
-<ConfirmDialog
-  open={menuItemDel.value}
-  onClose={menuItemDel.onFalse}
-  title="Delete Menu Item"
-  content="Are you sure want to delete this Menu Item?"
-  action={
-    <Button onClick={deleteMenuItem} variant="contained" color="error">
-      Confirm
-    </Button>
-  }
-/>
-{/* AddOn and Addon Item Creation and Edit Model */ }
-<ConfirmDialog
-  maxWidth="lg"
-  open={addon.value}
-  onClose={(event, reason) => {
-    if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
-      addon.onFalse();
-      addonReset({
-        name: '',
-        is_required: false,
-        is_multi_select: false,
-        select_upto: 1,
-      });
-      addonItemReset({
-        name: '',
-        price: 0,
-      });
-      setIsAddOn(true);
-      setIsEdit(false);
-      menuItemsGet(menuId);
-      setAddOnItems([]);
-    }
-  }}
-  title={isEdit ? 'Edit AddOn' : 'Create AddOn'}
-  content={addonFormContent}
-/>
-{/* Addon Delete Modal */ }
-<ConfirmDialog
-  open={addOnDel.value}
-  onClose={addOnDel.onFalse}
-  title="Delete AddOn"
-  content="Are you sure want to delete this AddOn?"
-  action={
-    <Button onClick={deleteAddon} variant="contained" color="error">
-      Confirm
-    </Button>
-  }
-/>
+      {/* Menu delete model */}
+      <ConfirmDialog
+        open={menuDel.value}
+        onClose={menuDel.onFalse}
+        title="Delete Menu"
+        content="Are you sure want to delete this menu?"
+        action={
+          <Button onClick={deleteMenu} variant="contained" color="error">
+            Confirm
+          </Button>
+        }
+      />
+      {/* Menu Item Creation and Edit Model */}
+      <ConfirmDialog
+        open={menuItem.value}
+        onClose={(event, reason) => {
+          if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+            menuItem.onFalse();
+            itemReset({
+              name: '',
+              price: 0,
+              food_type: 'veg',
+            });
+            setIsEdit(false);
+            setImageUrl(null)
+            setFile(null)
+          }
+        }}
+        title={isEdit ? 'Edit Menu Item' : 'Add Menu Item'}
+        content={itemFormContent}
+        action={
+          <Button onClick={handleItemSubmit} variant="contained" color="primary">
+            Submit
+          </Button>
+        }
+      />
+      {/* Menu Item delete model */}
+      <ConfirmDialog
+        open={menuItemDel.value}
+        onClose={menuItemDel.onFalse}
+        title="Delete Menu Item"
+        content="Are you sure want to delete this Menu Item?"
+        action={
+          <Button onClick={deleteMenuItem} variant="contained" color="error">
+            Confirm
+          </Button>
+        }
+      />
+      {/* AddOn and Addon Item Creation and Edit Model */}
+      <ConfirmDialog
+        maxWidth="lg"
+        open={addon.value}
+        onClose={(event, reason) => {
+          if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+            addon.onFalse();
+            addonReset({
+              name: '',
+              is_required: false,
+              is_multi_select: false,
+              select_upto: 1,
+            });
+            addonItemReset({
+              name: '',
+              price: 0,
+            });
+            setIsAddOn(true);
+            setIsEdit(false);
+            menuItemsGet(menuId);
+            setAddOnItems([]);
+          }
+        }}
+        title={isEdit ? 'Edit AddOn' : 'Create AddOn'}
+        content={addonFormContent}
+      />
+      {/* Addon Delete Modal */}
+      <ConfirmDialog
+        open={addOnDel.value}
+        onClose={addOnDel.onFalse}
+        title="Delete AddOn"
+        content="Are you sure want to delete this AddOn?"
+        action={
+          <Button onClick={deleteAddon} variant="contained" color="error">
+            Confirm
+          </Button>
+        }
+      />
 
-{/* Addon Item Delete Modal */ }
-<ConfirmDialog
-  open={addOnItemDel.value}
-  onClose={addOnItemDel.onFalse}
-  title="Delete AddOn Item"
-  content="Are you sure want to delete this AddOn Item?"
-  action={
-    <Button onClick={deleteAddonItem} variant="contained" color="error">
-      Confirm
-    </Button>
-  }
-/>
+      {/* Addon Item Delete Modal */}
+      <ConfirmDialog
+        open={addOnItemDel.value}
+        onClose={addOnItemDel.onFalse}
+        title="Delete AddOn Item"
+        content="Are you sure want to delete this AddOn Item?"
+        action={
+          <Button onClick={deleteAddonItem} variant="contained" color="error">
+            Confirm
+          </Button>
+        }
+      />
     </>
   );
 }
