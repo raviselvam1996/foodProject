@@ -23,11 +23,13 @@ import { HeaderBase } from '../core/header-base';
 import { _workspaces } from '../config-nav-workspace';
 import { LayoutSection } from '../core/layout-section';
 import { navData as dashboardNavData } from '../config-nav-dashboard';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function DashboardLayout({ sx, children, data }) {
   const theme = useTheme();
+  const { user } = useAuthContext(); // Get the logged-in user
 
   const mobileNavOpen = useBoolean();
 
@@ -37,7 +39,13 @@ export function DashboardLayout({ sx, children, data }) {
 
   const layoutQuery = 'lg';
 
-  const navData = data?.nav ?? dashboardNavData;
+  const navDatas= data?.nav ?? dashboardNavData;
+    // Filter menu items based on user role
+    const navData = navDatas.filter((section) => {
+      if (!section.roles) return true; // If no roles specified, show to everyone
+      return section.roles.includes(user?.role); // Only show if user's role matches
+    });
+  
 
   const isNavMini = settings.navLayout === 'mini';
 

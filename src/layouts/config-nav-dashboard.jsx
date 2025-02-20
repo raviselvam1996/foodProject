@@ -54,6 +54,7 @@ export const navData = [
    */
   {
     subheader: 'Menu Management',
+    roles: ['admin'], // Only admins can see this section
     items: [{ title: 'Menu', path: paths.dashboard.menu.root, icon: ICONS.user }],
   },
   {
@@ -63,6 +64,7 @@ export const navData = [
         title: 'Admin Tools'
         , path: paths.dashboard.admin.root
         , icon: ICONS.user ,
+        roles: ['admin'], // Admins and Order Employees can see this
               children: [
           { title: 'Admin Detail', path: paths.dashboard.admin.root },
           { title: 'Shop Detail', path: paths.dashboard.admin.shopDetail },
