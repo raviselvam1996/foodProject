@@ -739,8 +739,12 @@ export function MenuDetails() {
                          <div className='flex justify-end'>
                            <Switch
                              checked={item.status === 'active'}
-                             onChange={(e) => handleChange(e, item.id)}
-                             inputProps={{ 'aria-label': 'controlled' }}
+                             onChange={(e) => {
+                              e.stopPropagation(); // Prevents the click from reaching the Card's onClick
+                              handleChange(e, item.id);
+                            }}
+                            onClick={(e) => e.stopPropagation()} // Also stop propagation for onClick
+                            inputProps={{ 'aria-label': 'controlled' }}
                              size="small"
                            />
                          </div>

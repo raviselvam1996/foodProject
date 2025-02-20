@@ -7,6 +7,7 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 import { LoadingScreen } from 'src/components/loading-screen';
 
 import { AuthGuard } from 'src/auth/guard';
+import RoleGuard from 'src/auth/guard/role-guard';
 
 // ----------------------------------------------------------------------
 
@@ -170,6 +171,7 @@ export const dashboardRoutes = [
       { path: 'admin', element: <AdminPage /> },
       {
         path: 'admin',
+        element: <RoleGuard allowedRoles={['admin']} />, // Only admins can access
         children: [
           { element: <AdminPage />, index: true },
           { path: 'shopDetail', element: <ShopDetail /> },
