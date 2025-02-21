@@ -22,58 +22,58 @@ export const adminApi = createApi({
       }),
     }),
     infoUpdate: builder.mutation({
-        query: (data) => ({
-          url: 'admin/shop/update',
-          method: 'POST',
-          body: data,
-        }),
+      query: (data) => ({
+        url: 'admin/shop/update',
+        method: 'POST',
+        body: data,
       }),
-      timingUpdate: builder.mutation({
-        query: (data) => ({
-          url: 'admin/shopTimings/update',
-          method: 'POST',
-          body: data,
-        }),
+    }),
+    timingUpdate: builder.mutation({
+      query: (data) => ({
+        url: 'admin/shopTimings/update',
+        method: 'POST',
+        body: data,
       }),
+    }),
 
-      // For Employee profile
-      getEmployee: builder.mutation({
-        query: () => ({
-          url: 'admin/employee',
-          method: 'GET',
-        }),
+    // For Employee profile
+    getEmployee: builder.mutation({
+      query: () => ({
+        url: 'admin/employee',
+        method: 'GET',
       }),
-      getPermission: builder.mutation({
-        query: () => ({
-          url: 'admin/employee/permissions',
-          method: 'GET',
-        }),
+    }),
+    addEmployee: builder.mutation({
+      query: (data) => ({
+        url: 'admin/employee/add',
+        method: 'POST',
+        body: data,
       }),
-      addEmployee: builder.mutation({
-        query: (data) => ({
-          url: 'admin/employee/add',
-          method: 'POST',
-          body: data,
-        }),
+    }),
+    editEmployee: builder.mutation({
+      query: (data) => ({
+        url: 'admin/employee/update',
+        method: 'POST',
+        body: data,
       }),
-      editEmployee: builder.mutation({ 
-        query: (data) => ({
-          url: 'admin/employee/update',
-          method: 'POST',
-          body: data,
-        }),
+    }),
+    delEmployee: builder.mutation({
+      query: (data) => ({
+        url: 'admin/employee/del',
+        method: 'POST',
+        body: data,
       }),
-      delEmployee: builder.mutation({
-        query: (data) => ({
-          url: 'admin/employee/del',
-          method: 'POST',
-          body: data,
-        }),
+    }),
+    employeeStatusChange: builder.mutation({
+      query: (data) => ({
+        url: 'admin/employee/change_status',
+        method: 'POST',
+        body: data,
       }),
-
+    }),
 
   }),
 });
 
-export const { useShopSettingsQuery, usePolicyUpdateMutation,useInfoUpdateMutation,useTimingUpdateMutation,useGetEmployeeMutation,useAddEmployeeMutation,useEditEmployeeMutation,useDelEmployeeMutation,useGetPermissionMutation } =
-adminApi;
+export const { useShopSettingsQuery, usePolicyUpdateMutation, useInfoUpdateMutation, useTimingUpdateMutation, useGetEmployeeMutation, useAddEmployeeMutation, useEditEmployeeMutation, useDelEmployeeMutation, useEmployeeStatusChangeMutation } =
+  adminApi;

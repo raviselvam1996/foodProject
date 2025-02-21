@@ -46,8 +46,9 @@ import { EmployeeSchema } from '../admin-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { RHFTextField } from 'src/components/hook-form';
-import { useAddEmployeeMutation, useDelEmployeeMutation, useEditEmployeeMutation, useGetEmployeeMutation, useGetPermissionMutation } from 'src/services/admin';
+import { useAddEmployeeMutation, useDelEmployeeMutation, useEditEmployeeMutation, useEmployeeStatusChangeMutation, useGetEmployeeMutation } from 'src/services/admin';
 import { handleApiError } from 'src/utils/errorHandler';
+import { label } from 'yet-another-react-lightbox';
 
 // ----------------------------------------------------------------------
 
@@ -80,7 +81,7 @@ export function EmployeeProfileTable() {
   const [editEmployee] = useEditEmployeeMutation();
   const [delEmployee] = useDelEmployeeMutation();
   const [getEmployee] = useGetEmployeeMutation();
-  const [getPermission] = useGetPermissionMutation();
+  const [employeeStatusChange] = useEmployeeStatusChangeMutation();
 
   const [tableData, setTableData] = useState([]);
 
@@ -198,31 +199,44 @@ export function EmployeeProfileTable() {
       if (response.status) {
         toast.success(response.message);
         setTableData(response.data || [])
+        const headData = response?.title.map((item, index) => {
+          return {
+            id: index,
+            label: item
+          }
+        })
+        setHead(headData)
+
       }
     } catch (error) {
       const errorMessage = handleApiError(error);
       toast.error(errorMessage)
     }
   };
-    // Addon Item creation and Edit fun
-    const getEmployeePermission = async () => {
-      try {
-        // Create FormData instance
-        const response = await getPermission().unwrap();
-  
-        if (response.status) {
-          toast.success(response.message);
-          const datas = [...head,response.data] 
-          setHead(datas)
-        }
-      } catch (error) {
-        const errorMessage = handleApiError(error);
-        toast.error(errorMessage)
+  // Addon Item creation and Edit fun
+  const employeeStatusChanging = async (value, id, empId) => {
+    try {
+      const status = value ? 1 : 0
+      const payload = {
+        emp_id: empId,
+        pid: id,
+        status: status
       }
-    };
+      // Create FormData instance
+      const response = await employeeStatusChange(payload).unwrap();
+
+      if (response.status) {
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage)
+    }
+  };
   useEffect(() => {
     getEmployeeFun()
-    getEmployeePermission()
   }, [])
 
   // Form for the AddOn
@@ -230,7 +244,7 @@ export function EmployeeProfileTable() {
     resolver: zodResolver(EmployeeSchema),
     defaultValues: {
       email: '',
-      phone: '',
+      phone_number: '',
       password: '',
       name: '',
     },
@@ -248,7 +262,7 @@ export function EmployeeProfileTable() {
       <form onSubmit={employeeHandleSubmit(employeeSubmit)} noValidate className="p-3 flex flex-col gap-4">
         <RHFTextField name="name" label="Employee Name" size="small" />
         <RHFTextField name="email" label="Email Address" size="small" type='email' />
-        <RHFTextField name="phone" label="Phone Number" size="small" />
+        <RHFTextField name="phone_number" label="Phone Number" size="small" />
         <RHFTextField name="password" label="Password" size="small" />
 
       </form>
@@ -408,6 +422,7 @@ export function EmployeeProfileTable() {
                           employeeDel.onTrue();
                         }}
                         onEditRow={() => openEditData(row, row.id)}
+                        employeeStatusChanging={employeeStatusChanging}
                       />
                     ))}
 
@@ -465,7 +480,7 @@ export function EmployeeProfileTable() {
             employeeAdd.onFalse();
             employeeReset({
               name: '',
-              phone: '',
+              phone_number: '',
               password: '',
               email: '',
             });

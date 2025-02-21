@@ -32,7 +32,7 @@ export const EmployeeSchema = z.object({
         .string()
         .min(1, { message: 'Email is required!' })
         .email({ message: 'Email must be a valid email address!' }),
-        phone: z
+        phone_number: z
         .string()
         .min(10, { message: 'Phone number must be at least 10 digits!' }) // Adjust length as needed
         .max(15, { message: 'Phone number cannot exceed 15 digits!' }) // Prevent overly long numbers
@@ -40,7 +40,7 @@ export const EmployeeSchema = z.object({
 
         password: z
         .string()
-        .min(6, { message: 'Password must be at least 6 digits!' }), // Adjust length as needed
+        .optional(), // Adjust length as needed
 
 
     name: z.string().min(1, { message: 'required!' }),

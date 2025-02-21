@@ -6,6 +6,7 @@ import { HiUserGroup } from "react-icons/hi";
 import { MdFeedback } from "react-icons/md";
 import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
+import { AdminListView } from './admin-list-view';
 
 const AdminDetails = () => {
   const dar = 'sdfjhdsjkf';
@@ -14,6 +15,10 @@ const AdminDetails = () => {
 
   return (
     <Grid container spacing={6}>
+          <Grid item xs={12} sm={12}>
+          <AdminListView/>
+
+          </Grid>
       <Grid item xs={12} sm={4}>
         <Card>
           <CardHeader
