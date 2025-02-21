@@ -2,7 +2,7 @@ import { fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 const BaseQueryInstance = fetchBaseQuery({
   // baseUrl: 'http://localhost:3000/api/',
-  // baseUrl: 'http://192.168.1.45:3000/api/',
+  // baseUrl: 'http://192.168.1.248:3000/api/',
   baseUrl: `${import.meta.env.VITE_DASHBOARD_BASE_URL}/api/`,
   // baseUrl: `https://api.turkish-kebab-pizza-house.co.uk/api/`,
   prepareHeaders: (headers, { getState }) => {
