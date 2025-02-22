@@ -50,7 +50,7 @@ const SwitchComponent = ({ initialChecked, onToggle }) => {
     </div>
   );
 };
-export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, employeeStatusChanging }) {
+export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, employeeStatusChanging,employeeRollChanging }) {
   const confirm = useBoolean();
 
   const popover = usePopover();
@@ -142,11 +142,11 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
 
           <MenuItem
             onClick={() => {
-              onEditRow();
+              employeeRollChanging(row.id)
               popover.onClose();
             }}
           >
-            <Iconify icon="solar:pen-bold" />
+            <Iconify icon="solar:user-bold" />
             Setus Admin
           </MenuItem>
           <MenuItem

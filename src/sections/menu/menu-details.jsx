@@ -256,7 +256,10 @@ export function MenuDetails() {
         toast.error('Please upload a image');
         return
       }
-      payload.image = imgUrl;
+
+// Remove the base URL
+const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk", "");
+      payload.image = modifiedUrl;
       let response;
       if (isEdit) {
         payload.id = editId; // Append the image file
@@ -386,7 +389,8 @@ export function MenuDetails() {
         toast.error('Please upload a image');
         return
       }
-      formData.image = imgUrl;
+      const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk", "");
+      formData.image = modifiedUrl;
       let response;
       if (isEdit) {
         formData.id = editId;

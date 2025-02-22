@@ -19,7 +19,7 @@ export function CustomerProfile() {
         heading="Customer Profile"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Employee Profile', href: paths.dashboard.tour.root },
+          { name: 'Customer Profile', href: paths.dashboard.tour.root },
           // { name: 'New tour' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
