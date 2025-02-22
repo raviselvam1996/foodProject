@@ -46,31 +46,16 @@ import { EmployeeSchema } from '../admin-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { RHFTextField } from 'src/components/hook-form';
-import { useAddEmployeeMutation, useDelEmployeeMutation, useEditEmployeeMutation, useEmployeeStatusChangeMutation, useGetEmployeeMutation } from 'src/services/admin';
+import { useAddEmployeeMutation, useDelEmployeeMutation, useEditEmployeeMutation, useEmployeeRollChangeMutation, useEmployeeStatusChangeMutation, useGetEmployeeMutation } from 'src/services/admin';
 import { handleApiError } from 'src/utils/errorHandler';
-import { label } from 'yet-another-react-lightbox';
 
-// ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
-
-const TABLE_HEAD = [
-  { id: 'name', label: 'Employee Details' },
-  { id: 'phoneNumber', label: 'Menu Manage', width: 150 },
-  { id: 'company', label: 'Delivery Manage ', width: 150 },
-  { id: 'role', label: 'Order Manage ', width: 150 },
-  // { id: 'status', label: 'Status', width: 100 },
-  { id: '', width: 88 },
-];
 
 // ----------------------------------------------------------------------
 
 export function EmployeeProfileTable() {
   const table = useTable();
 
-  const router = useRouter();
 
-  const confirm = useBoolean();
   const [editId, setEditId] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [delId, setDelId] = useState(null);
@@ -82,6 +67,7 @@ export function EmployeeProfileTable() {
   const [delEmployee] = useDelEmployeeMutation();
   const [getEmployee] = useGetEmployeeMutation();
   const [employeeStatusChange] = useEmployeeStatusChangeMutation();
+  const [employeeRollChange] = useEmployeeRollChangeMutation();
 
   const [tableData, setTableData] = useState([]);
 
@@ -93,53 +79,15 @@ export function EmployeeProfileTable() {
     filters: filters.state,
   });
 
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
     !!filters.state.name || filters.state.role.length > 0 || filters.state.status !== 'all';
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
 
-      toast.success('Delete success!');
 
-      setTableData(deleteRow);
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.user.edit(id));
-    },
-    [router]
-  );
-
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      table.onResetPage();
-      filters.setState({ status: newValue });
-    },
-    [filters, table]
-  );
   const employeeAdd = useBoolean();
   const employeeDel = useBoolean();
   // Addon Item creation and Edit fun
@@ -157,6 +105,12 @@ export function EmployeeProfileTable() {
       }
       if (response.status) {
         toast.success(response.message);
+        employeeReset({
+          name: '',
+          phone_number: '',
+          password: '',
+          email: '',
+        });
         getEmployeeFun();
         employeeAdd.onFalse()
       } else {
@@ -199,7 +153,7 @@ export function EmployeeProfileTable() {
       if (response.status) {
         toast.success(response.message);
         setTableData(response.data || [])
-        const headData = response?.title.map((item, index) => {
+        const headData = response?.title?.map((item, index) => {
           return {
             id: index,
             label: item
@@ -235,6 +189,25 @@ export function EmployeeProfileTable() {
       toast.error(errorMessage)
     }
   };
+    // Employee  Roll change fun
+    const employeeRollChanging = async (id) => {
+      try {
+        const payload = {
+        id
+        }
+        // Create FormData instance
+        const response = await employeeRollChange(payload).unwrap();  
+        if (response.status) {
+          toast.success(response.message);
+          getEmployeeFun()
+        } else {
+          toast.error(response.message);
+        }
+      } catch (error) {
+        const errorMessage = handleApiError(error);
+        toast.error(errorMessage)
+      }
+    };
   useEffect(() => {
     getEmployeeFun()
   }, [])
@@ -279,7 +252,6 @@ export function EmployeeProfileTable() {
   };
   return (
     <>
-      <DashboardContent>
         <div className="flex mb-3">
           <div>
             <Button
@@ -393,7 +365,7 @@ export function EmployeeProfileTable() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={head}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -423,6 +395,7 @@ export function EmployeeProfileTable() {
                         }}
                         onEditRow={() => openEditData(row, row.id)}
                         employeeStatusChanging={employeeStatusChanging}
+                        employeeRollChanging={employeeRollChanging}
                       />
                     ))}
 
@@ -447,30 +420,8 @@ export function EmployeeProfileTable() {
             onRowsPerPageChange={table.onChangeRowsPerPage}
           />
         </Card>
-      </DashboardContent>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
+ 
 
       {/* Menu Creation and Edit Model */}
       < ConfirmDialog

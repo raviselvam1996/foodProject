@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 // import Tab from '@mui/material/Tab';
@@ -19,7 +19,7 @@ import { useSetState } from 'src/hooks/use-set-state';
 
 // import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
-import {  _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
+import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
 
 // import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
@@ -39,38 +39,42 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { UserTableRow } from './customer-table-row';
-import { UserTableToolbar } from './customer-table-toolbar';
-import { UserTableFiltersResult } from './customer-table-filters-result';
-import { Drawer } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
-import { Iconify } from 'src/components/iconify';
-import CustomerProfileCard from './customer-profile-card';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormProvider, useForm } from 'react-hook-form';
+import { RHFTextField } from 'src/components/hook-form';
+import {useAddAdminMutation, useDelAdminMutation, useEditAdminMutation, useGetAdminMutation,useAdminRollChangeMutation  } from 'src/services/admin';
+import { handleApiError } from 'src/utils/errorHandler';
+import { AdminTableRow } from './admin-table-row';
+import { AdminTableFiltersResult } from './admin-table-filters-result';
+import { AdminTableToolbar } from './admin-table-toolbar';
+import { EmployeeSchema } from './admin-schema';
 
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
-
 const TABLE_HEAD = [
-  { id: 'name', label: 'Employee Details' },
-  { id: 'phoneNumber', label: 'Phone Number', width: 150 },
-  { id: 'company', label: 'Ratings ', width: 150 },
-  { id: 'role', label: 'Details ', width: 150 },
-  // { id: 'status', label: 'Status', width: 100 },
+  { id: 'name', label: 'Name' },
+  { id: 'phoneNumber', label: 'Phone number', width: 180 },
+  { id: 'status', label: 'Status', width: 220 },
   { id: '', width: 88 },
 ];
 
-// ----------------------------------------------------------------------
-
-export function CustomerProfileTable() {
+export function AdminListView() {
   const table = useTable();
-  const [open, setOpen] = useState(false);
 
-  const router = useRouter();
 
-  const confirm = useBoolean();
+  const [editId, setEditId] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [delId, setDelId] = useState(null);
+  const [head, setHead] = useState([
+    { id: 'name', label: 'Employee Details' }]);
 
-  const [tableData, setTableData] = useState(_userList);
+
+    const [addAdmin] = useAddAdminMutation();
+    const [editAdmin] = useEditAdminMutation();
+    const [delAdmin] = useDelAdminMutation();
+    const [getAdmin] = useGetAdminMutation();
+    const [adminRollChange] = useAdminRollChangeMutation();
+
+  const [tableData, setTableData] = useState([]);
 
   const filters = useSetState({ name: '', role: [], status: 'all' });
 
@@ -80,59 +84,173 @@ export function CustomerProfileTable() {
     filters: filters.state,
   });
 
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
     !!filters.state.name || filters.state.role.length > 0 || filters.state.status !== 'all';
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
 
-      toast.success('Delete success!');
 
-      setTableData(deleteRow);
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
+  const employeeAdd = useBoolean();
+  const employeeDel = useBoolean();
+  // Addon Item creation and Edit fun
+  const employeeSubmit = async (data) => {
+    try {
+      // Create FormData instance
+      const formData = data;
+      let response;
+      if (isEdit) {
+        formData.id = editId
+        response = await editAdmin(formData).unwrap();
+      } else {
+        response = await addAdmin(formData).unwrap();
+        getEmployeeFun();
+      }
+      if (response.status) {
+        toast.success(response.message);
+        employeeReset({
+          name: '',
+          phone_number: '',
+          password: '',
+          email: '',
+        });
+        getEmployeeFun();
+        employeeAdd.onFalse()
+      } else {
+        toast.success(response.message);
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage)
+    }
+  };
+  // Addon Item creation and Edit fun
+  const delFun = async (id) => {
+    try {
+      // Create FormData instance
+      const formData = {
+        id: delId
+      };
+      const response = await delAdmin(formData).unwrap();
+
+      if (response.status) {
+        toast.success(response.message);
+        employeeDel.onFalse()
+        getEmployeeFun();
+
+      } else {
+        toast.success(response.message);
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage)
+    }
+  };
+  // Addon Item creation and Edit fun
+  const getEmployeeFun = async () => {
+    try {
+      // Create FormData instance
+      const response = await getAdmin().unwrap();
+
+      if (response.status) {
+        toast.success(response.message);
+        setTableData(response.data || [])
+        const headData = response?.title?.map((item, index) => {
+          return {
+            id: index,
+            label: item
+          }
+        })
+        setHead(headData)
+
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage)
+    }
+  };
+
+    // Employee  Roll change fun
+    const employeeRollChanging = async (id) => {
+      try {
+        const payload = {
+        id
+        }
+        // Create FormData instance
+        const response = await adminRollChange(payload).unwrap();  
+        if (response.status) {
+          toast.success(response.message);
+          getEmployeeFun()
+        } else {
+          toast.error(response.message);
+        }
+      } catch (error) {
+        const errorMessage = handleApiError(error);
+        toast.error(errorMessage)
+      }
+    };
+  useEffect(() => {
+    getEmployeeFun()
+  }, [])
+
+  // Form for the AddOn
+  const employeeMethods = useForm({
+    resolver: zodResolver(EmployeeSchema),
+    defaultValues: {
+      email: '',
+      phone_number: '',
+      password: '',
+      name: '',
     },
-    [dataInPage.length, table, tableData]
+  });
+  const {
+    handleSubmit: employeeHandleSubmit,
+    watch: employeeWatch,
+    reset: employeeReset,
+    formState: { errors: employeeError },
+  } = employeeMethods;
+
+  // Form content for the Menu creation and edit
+  const formContent = (
+    <FormProvider {...employeeMethods}>
+      <form onSubmit={employeeHandleSubmit(employeeSubmit)} noValidate className="p-3 flex flex-col gap-4">
+        <RHFTextField name="name" label="Name" size="small" />
+        <RHFTextField name="email" label="Email Address" size="small" type='email' />
+        <RHFTextField name="phone_number" label="Phone Number" size="small" />
+        <RHFTextField name="password" label="Password" size="small" />
+
+      </form>
+    </FormProvider>
   );
+  // Menu Submit Fun
+  const handleExternalSubmit = employeeHandleSubmit(employeeSubmit);
+  const openEditData = (val, id) => {
+    setEditId(id);
+    setIsEdit(true);
+    employeeAdd.onTrue();
+    employeeReset(val);
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.user.edit(id));
-    },
-    [router]
-  );
-
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      table.onResetPage();
-      filters.setState({ status: newValue });
-    },
-    [filters, table]
-  );
-  const handleCloseDrawer = useCallback(() => {
-    setOpen(false);
-  }, []);
+  };
   return (
     <>
-      <DashboardContent>
+        <div className="flex mb-3">
+          <div>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => {
+                setIsEdit(false);
+                employeeAdd.onTrue();
+              }}
+            >
+              Add Admin
+            </Button>
+          </div>
+        </div>
         {/* <CustomBreadcrumbs
           heading="List"
           links={[
@@ -191,14 +309,14 @@ export function CustomerProfileTable() {
             ))}
           </Tabs> */}
 
-          <UserTableToolbar
+          <AdminTableToolbar
             filters={filters}
             onResetPage={table.onResetPage}
             options={{ roles: _roles }}
           />
 
           {canReset && (
-            <UserTableFiltersResult
+            <AdminTableFiltersResult
               filters={filters}
               totalResults={dataFiltered.length}
               onResetPage={table.onResetPage}
@@ -235,12 +353,12 @@ export function CustomerProfileTable() {
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  // onSelectAllRows={(checked) =>
-                  //   table.onSelectAllRows(
-                  //     checked,
-                  //     dataFiltered.map((row) => row.id)
-                  //   )
-                  // }
+                // onSelectAllRows={(checked) =>
+                //   table.onSelectAllRows(
+                //     checked,
+                //     dataFiltered.map((row) => row.id)
+                //   )
+                // }
                 />
 
                 <TableBody>
@@ -250,14 +368,17 @@ export function CustomerProfileTable() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <UserTableRow
+                      <AdminTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                        openDetails={() => setOpen(true)}
+                        onDeleteRow={() => {
+                          setDelId(row.id);
+                          employeeDel.onTrue();
+                        }}
+                        onEditRow={() => openEditData(row, row.id)}
+                        employeeRollChanging={employeeRollChanging}
                       />
                     ))}
 
@@ -282,42 +403,44 @@ export function CustomerProfileTable() {
             onRowsPerPageChange={table.onChangeRowsPerPage}
           />
         </Card>
-              <Drawer
-                open={open}
-                onClose={handleCloseDrawer}
-                anchor="right"
-                slotProps={{ backdrop: { invisible: true } }}
-                PaperProps={{ sx: { width: 400 } }}
-              >
-     <IconButton
-          onClick={handleCloseDrawer}
-          sx={{ top: 12, right:12, zIndex: 9, position: 'absolute' }}
-        >
-          <Iconify icon="mingcute:close-line" />
-        </IconButton>
-        <CustomerProfileCard/>
-              </Drawer>
-      </DashboardContent>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
+ 
+
+      {/* Menu Creation and Edit Model */}
+      < ConfirmDialog
+        open={employeeAdd.value}
+        onClose={(event, reason) => {
+          if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+            employeeAdd.onFalse();
+            employeeReset({
+              name: '',
+              phone_number: '',
+              password: '',
+              email: '',
+            });
+            setIsEdit(false);
+          }
         }
+
+        }
+        title={isEdit ? 'Edit Admin' : 'Add Admin'}
+
+        content={formContent}
         action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
+          < Button onClick={handleExternalSubmit} variant="contained" color="primary" >
+            Submit
+          </Button >
+        }
+      />
+      {/* Addon Item Delete Modal */}
+      <ConfirmDialog
+        open={employeeDel.value}
+        onClose={employeeDel.onFalse}
+        title="Delete Employee"
+        content="Are you sure want to delete this Admin?"
+        action={
+          <Button onClick={delFun} variant="contained" color="error">
+            Confirm
           </Button>
         }
       />

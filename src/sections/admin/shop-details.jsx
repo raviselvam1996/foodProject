@@ -96,10 +96,7 @@ if(shopData?.shopTimimngs?.length > 0){
     updatedTimes[index][type] = newTime;
     setTimeValues(updatedTimes);
   };
-  const onSubmit = (data) => {
-    console.log(data);
 
-  }
    // Addon Item creation and Edit fun
    const shopSubmit = async (data) => {
     try {
@@ -109,8 +106,10 @@ if(shopData?.shopTimimngs?.length > 0){
 
       if (response.status) {
         toast.success(response.message);
+      }else{
+        toast.error(response.message);
       }
-    } catch (error) {
+      } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
       toast.error(errorMessage)    }
@@ -125,8 +124,10 @@ if(shopData?.shopTimimngs?.length > 0){
 
       if (response.status) {
         toast.success(response.message);
+      }else{
+        toast.error(response.message);
       }
-    } catch (error) {
+        } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
       toast.error(errorMessage)    }
@@ -140,6 +141,8 @@ if(shopData?.shopTimimngs?.length > 0){
   
         if (response.status) {
           toast.success(response.message);
+        }else{
+          toast.error(response.message);
         }
       } catch (error) {
         const errorMessage = handleApiError(error);
