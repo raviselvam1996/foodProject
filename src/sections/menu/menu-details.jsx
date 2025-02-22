@@ -1070,6 +1070,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
             setIsEdit(false);
             setImageUrl(null)
             setFile(null)
+            setImageUrl(null)
           }
         }
         }
