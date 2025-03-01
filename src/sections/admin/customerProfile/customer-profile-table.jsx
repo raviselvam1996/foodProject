@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 // import Tab from '@mui/material/Tab';
@@ -46,15 +46,17 @@ import { Drawer } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import { Iconify } from 'src/components/iconify';
 import CustomerProfileCard from './customer-profile-card';
+import { useCustomerStatusChangeMutation, useGetCustomerDetailMutation, useGetCustommerMutation } from 'src/services/admin';
+import { handleApiError } from 'src/utils/errorHandler';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Employee Details' },
+  { id: 'name', label: 'Customer Details' },
   { id: 'phoneNumber', label: 'Phone Number', width: 150 },
-  { id: 'company', label: 'Ratings ', width: 150 },
+  { id: 'status', label: 'Status', width: 150 },
   { id: 'role', label: 'Details ', width: 150 },
   // { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
@@ -67,10 +69,15 @@ export function CustomerProfileTable() {
   const [open, setOpen] = useState(false);
 
   const router = useRouter();
+  const [getCustommer] = useGetCustommerMutation();
+    const [getCustomerDetail] = useGetCustomerDetailMutation();
+    const [customerStatusChange] = useCustomerStatusChangeMutation();
+  
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_userList);
+  const [tableData, setTableData] = useState([]);
+  const [customerData, setCustomerData] = useState([]);
 
   const filters = useSetState({ name: '', role: [], status: 'all' });
 
@@ -130,6 +137,66 @@ export function CustomerProfileTable() {
   const handleCloseDrawer = useCallback(() => {
     setOpen(false);
   }, []);
+    // Addon Item creation and Edit fun
+    const getCustomerFun = async () => {
+      try {
+        // Create FormData instance
+        const response = await getCustommer().unwrap();
+  
+        if (response.status) {
+          toast.success(response.message);
+          setTableData(response.data || [])
+   
+  
+        }
+      } catch (error) {
+        const errorMessage = handleApiError(error);
+        toast.error(errorMessage)
+      }
+    };
+        // Addon Item creation and Edit fun
+        const getCustomerDetails = async (id) => {
+          try {
+            const payload = {
+              id  
+            }
+             const response = await getCustomerDetail(payload).unwrap();
+      
+            if (response.status) {
+              toast.success(response.message);
+              setCustomerData(response.data || [])     
+              setOpen(true)
+
+            }
+          } catch (error) {
+            const errorMessage = handleApiError(error);
+            toast.error(errorMessage)
+          }
+        };
+          // Addon Item creation and Edit fun
+  const customerStatusChanging = async (value, id) => {
+    try {
+      const status = value ? 'active' : 'inactive'
+      const payload = {
+         id,
+        status: status
+      }
+      // Create FormData instance
+      const response = await customerStatusChange(payload).unwrap();
+
+      if (response.status) {
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage)
+    }
+  };
+      useEffect(() => {
+        getCustomerFun()
+      }, [])
   return (
     <>
       <DashboardContent>
@@ -257,7 +324,10 @@ export function CustomerProfileTable() {
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
-                        openDetails={() => setOpen(true)}
+                        openDetails={() =>{ 
+                          getCustomerDetails(row.id)
+                        }}
+                        customerStatusChanging={customerStatusChanging}
                       />
                     ))}
 
@@ -295,7 +365,7 @@ export function CustomerProfileTable() {
         >
           <Iconify icon="mingcute:close-line" />
         </IconButton>
-        <CustomerProfileCard/>
+        <CustomerProfileCard customerData={customerData}/>
               </Drawer>
       </DashboardContent>
 
