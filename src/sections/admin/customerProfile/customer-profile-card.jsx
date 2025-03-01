@@ -15,7 +15,7 @@ import { EmailInboxIcon } from "src/assets/icons";
 import { TbPhoneIncoming } from "react-icons/tb";
 
 
-const CustomerProfileCard = () => {
+const CustomerProfileCard = ({customerData}) => {
   return (
 <Card sx={{ maxWidth: 500, p: 2, boxShadow: 3, borderRadius: 2, maxHeight: "100vh", overflowY: "auto" }}>
 {/* Header */}
@@ -29,7 +29,7 @@ const CustomerProfileCard = () => {
         <Avatar sx={{ width: 48, height: 48, bgcolor: "gray" }} />
         <Box>
           <Typography variant="subtitle1" fontWeight="bold">
-            Alice Smith
+              {customerData.name}
           </Typography>
           <Typography
             variant="caption"
@@ -38,11 +38,11 @@ const CustomerProfileCard = () => {
             ● Last Order Yesterday
           </Typography>
           <Stack direction="row" alignItems="center" spacing={1} mt={1}>
-            <Typography variant="body2">alice.smith@mail.com</Typography>
+            <Typography variant="body2">{customerData.email}</Typography>
           </Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
             <TbPhoneIncoming fontSize="small" color="action" />
-            <Typography variant="body2">+44 117 2345678</Typography>
+            <Typography variant="body2">{customerData.mobile}</Typography>
           </Stack>
         </Box>
       </Stack>
@@ -52,7 +52,7 @@ const CustomerProfileCard = () => {
         <Typography variant="subtitle2" fontWeight="bold">
           Customer Address Details
         </Typography>
-        <AddressList />
+        <AddressList addressData={customerData?.address}/>
       </Box>
 
       {/* Orders & Feedback */}
@@ -72,7 +72,7 @@ const CustomerProfileCard = () => {
 };
 
 // Address Component
-const AddressList = () => {
+const AddressList = ({addressData}) => {
   const addresses = [
     { type: "Home (Primary Address)", address: "45 High Street, Cambridge, CB1 1JD" },
     { type: "Grandma’s Place", address: "24 High Street, Cambridge, CB1 1JD" },
@@ -81,13 +81,13 @@ const AddressList = () => {
 
   return (
     <Stack spacing={1} mt={1}>
-      {addresses.map((item, index) => (
+      {addressData.map((item, index) => (
                 <Card key={index} variant="outlined">
         <Paper key={index} sx={{ p: 1.5, borderRadius: 1 }}>
           <Typography variant="caption" fontWeight="bold">
-            {item.type}
+          Home (Primary Address)
           </Typography>
-          <Typography variant="body2">{item.address}</Typography>
+          <Typography variant="body2">{ item.address+','+item.city+','+item.country+'-'+item.pincode }</Typography>
         </Paper>
         </Card>
       ))}

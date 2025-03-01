@@ -121,9 +121,31 @@ export const adminApi = createApi({
         body: data,
       }),
     }),
+   // For Customer profile
+   getCustommer: builder.mutation({
+    query: () => ({
+      url: 'admin/client_list',
+      method: 'GET',
+    }),
+  }),
+  getCustomerDetail: builder.mutation({
+    query: (data) => ({
+      url: 'admin/client/details',
+      method: 'POST',
+      body: data,
+    }),
+  }),
+  customerStatusChange: builder.mutation({
+    query: (data) => ({
+      url: 'admin/client/update_status',
+      method: 'POST',
+      body: data,
+    }),
+  }),
+
 
   }),
 });
 
-export const { useShopSettingsQuery, usePolicyUpdateMutation, useInfoUpdateMutation, useTimingUpdateMutation, useGetEmployeeMutation, useAddEmployeeMutation, useEditEmployeeMutation, useDelEmployeeMutation, useEmployeeStatusChangeMutation,useEmployeeRollChangeMutation,useGetAdminMutation ,useAddAdminMutation, useEditAdminMutation, useDelAdminMutation,useAdminRollChangeMutation} =
+export const { useShopSettingsQuery, usePolicyUpdateMutation, useInfoUpdateMutation, useTimingUpdateMutation, useGetEmployeeMutation, useAddEmployeeMutation, useEditEmployeeMutation, useDelEmployeeMutation, useEmployeeStatusChangeMutation,useEmployeeRollChangeMutation,useGetAdminMutation ,useAddAdminMutation, useEditAdminMutation, useDelAdminMutation,useAdminRollChangeMutation,useGetCustommerMutation,useGetCustomerDetailMutation,useCustomerStatusChangeMutation} =
   adminApi;

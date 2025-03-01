@@ -127,8 +127,14 @@ export const menuProductApi = createApi({
         body: data,
       }),
     }),
+    getAddonItemsSuggest: builder.mutation({
+      query: () => ({
+        url: 'admin/menu/add_on/suggest',
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
-export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation,useEditMenuMutation,useItemEditMutation,useDelMenuItemMutation,useAddonUpdateMutation,useDelAddOnMutation,useGetAddonItemsMutation,useMenuItemStatusChangeMutation,useImageUploadMutation,useDelAddOnItemMutation } =
+export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation,useEditMenuMutation,useItemEditMutation,useDelMenuItemMutation,useAddonUpdateMutation,useDelAddOnMutation,useGetAddonItemsMutation,useMenuItemStatusChangeMutation,useImageUploadMutation,useDelAddOnItemMutation ,useGetAddonItemsSuggestMutation} =
   menuProductApi;

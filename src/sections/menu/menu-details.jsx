@@ -12,6 +12,7 @@ import {
   CardContent,
   FormControlLabel,
   CircularProgress,
+  Autocomplete,
 } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -34,6 +35,7 @@ import {
   useMenuItemStatusChangeMutation,
   useImageUploadMutation,
   useDelAddOnItemMutation,
+  useGetAddonItemsSuggestMutation,
 } from 'src/services/menu';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -50,7 +52,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import { Iconify } from 'src/components/iconify';
 import { schema, itemSchema, addonSchema, addonItemSchema } from './menu-schema';
-import { handleApiError } from "../../utils/errorHandler";
+import { handleApiError } from '../../utils/errorHandler';
 
 // ----------------------------------------------------------------------
 const SwitchComponent = ({ initialChecked, onToggle }) => {
@@ -74,7 +76,7 @@ const SwitchComponent = ({ initialChecked, onToggle }) => {
         checked={checked}
         onChange={handleChange}
         onClick={(e) => e.stopPropagation()}
-        inputProps={{ "aria-label": "controlled" }}
+        inputProps={{ 'aria-label': 'controlled' }}
         size="small"
       />
     </div>
@@ -101,6 +103,7 @@ export function MenuDetails() {
   const [addOnData, setAddOnData] = useState([]);
   const [isAddOn, setIsAddOn] = useState(true);
   const [addOnItems, setAddOnItems] = useState([]);
+  const [addOnItemsSuggest, setAddOnItemsSuggest] = useState([]);
   const [imgUrl, setImageUrl] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [menuName, setMenuName] = useState('');
@@ -125,6 +128,7 @@ export function MenuDetails() {
   const [delMenuItem, { isLoading: itemDelLoad }] = useDelMenuItemMutation();
   const [addonItemCreate, { isLoading: AddonitemAddLoad }] = useAddonItemCreateMutation();
   const [getAddonItems] = useGetAddonItemsMutation();
+  const [getAddonItemsSuggest] = useGetAddonItemsSuggestMutation();
   const [imageUpload] = useImageUploadMutation();
   const [delAddOnItem, { isLoading: addonItemDelLoad }] = useDelAddOnItemMutation();
 
@@ -208,7 +212,7 @@ export function MenuDetails() {
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
 
@@ -229,7 +233,7 @@ export function MenuDetails() {
       } catch (error) {
         const errorMessage = handleApiError(error);
         console.error(errorMessage);
-        toast.error(errorMessage)
+        toast.error(errorMessage);
       }
     },
     [imageUpload]
@@ -254,11 +258,11 @@ export function MenuDetails() {
       const payload = data;
       if (!imgUrl) {
         toast.error('Please upload a image');
-        return
+        return;
       }
 
-// Remove the base URL
-const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk", "");
+      // Remove the base URL
+      const modifiedUrl = imgUrl.replace('https://api.turkish-kebab-pizza-house.co.uk', '');
       payload.image = modifiedUrl;
       let response;
       if (isEdit) {
@@ -269,7 +273,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
       }
       if (response.status) {
         toast.success(response.message);
-        setImageUrl(null)
+        setImageUrl(null);
         setFile(null);
         reset();
         refetch();
@@ -280,7 +284,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
   // Form content for the Menu creation and edit
@@ -313,7 +317,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
   // Menu status change
@@ -329,7 +333,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     reset(val);
     const img = imageBaseUrl + val?.image;
     setFile(img);
-    setImageUrl(img)
+    setImageUrl(img);
   };
   // Delete menu
   const deleteMenu = async () => {
@@ -346,7 +350,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
 
@@ -365,7 +369,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
       } catch (error) {
         const errorMessage = handleApiError(error);
         console.error(errorMessage);
-        toast.error(errorMessage)
+        toast.error(errorMessage);
       }
     },
     [getMenuItems] // ✅ Include `getMenuItems` as a dependency
@@ -376,7 +380,6 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
       const { id, name } = categoriesData.data[0]; // Destructure here
       menuItemsGet(id);
       setMenuName(name);
-
     }
   }, [categoriesData, menuItemsGet]); // ✅ Include `menuItemsGet` so it updates properly
 
@@ -388,9 +391,9 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
       formData.menu_id = menuId;
       if (!imgUrl) {
         toast.error('Please upload a image');
-        return
+        return;
       }
-      const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk", "");
+      const modifiedUrl = imgUrl.replace('https://api.turkish-kebab-pizza-house.co.uk', '');
       formData.image = modifiedUrl;
       let response;
       if (isEdit) {
@@ -404,13 +407,13 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
         itemReset();
         menuItem.onFalse();
         menuItemsGet(menuId);
-        setImageUrl(null)
-        setFile(null)
+        setImageUrl(null);
+        setFile(null);
       }
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
 
@@ -429,7 +432,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
   // Menu status change
@@ -445,7 +448,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     itemReset(val);
     const img = imageBaseUrl + val?.image;
     setFile(img);
-    setImageUrl(img)
+    setImageUrl(img);
   };
   // Menu item delete fun
   const deleteMenuItem = async () => {
@@ -464,7 +467,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
 
@@ -524,7 +527,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
   // Get Addon Edit data
@@ -535,7 +538,6 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     addon.onTrue();
     addonReset(val);
     addonItemsGet(id);
-
   };
   // Addon delete fun
   const deleteAddon = async () => {
@@ -552,7 +554,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
   // Addon Item creation and Edit fun
@@ -560,7 +562,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     console.log(data);
     try {
       // Create FormData instance
-      const formData = data;
+      const formData = {...data};
       formData.addon_id = addOnId;
       let response;
       if (isEdit) {
@@ -577,10 +579,9 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
-
   // Addon Item delete fun
   const deleteAddonItem = async () => {
     try {
@@ -598,7 +599,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
   // Addon and Addon item Form content
@@ -657,13 +658,34 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
           </form>
         </FormProvider>
       )}
-      {addOnItems?.length > 0 && (
-        <Card className="p-2">
-          <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-            Addon items
-          </Typography>
-          <CardContent className="flex items-center flex-wrap gap-4">
-            {addOnItems.map((addonItem, j) => (
+
+      <Card className="p-2">
+        <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+          Addon items
+        </Typography>
+
+        <CardContent className="flex items-center flex-wrap gap-4">
+          {addOnItemsSuggest.length > 0 && addOnItems?.length > 0 && (
+            <Autocomplete
+              options={addOnItemsSuggest}
+              getOptionLabel={(option) => option.name + ' | '+ option.price}
+              renderInput={(params) => <TextField {...params} label="Previous AddOnItems" margin="none" />}
+              renderOption={(props, option,index) => (
+                <li {...props} key={index}>
+                  {option.name + ' | '+ option.price}
+                </li>
+              )}
+              onChange={(event, value) => {
+                if(value){
+                  addonItemSubmit(value);
+                }
+              }}
+              size="small"
+              sx={{ width: 300 }}
+            />
+          )}
+          {addOnItems?.length > 0 &&
+            addOnItems.map((addonItem, j) => (
               <div key={j}>
                 <Chip
                   variant="outlined"
@@ -678,9 +700,8 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
                 />
               </div>
             ))}
-          </CardContent>
-        </Card>
-      )}
+        </CardContent>
+      </Card>
     </>
   );
 
@@ -696,16 +717,32 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
     } catch (error) {
       const errorMessage = handleApiError(error);
       console.error(errorMessage);
-      toast.error(errorMessage)
+      toast.error(errorMessage);
     }
   };
-
+  const addonItemsSuggestGet = async () => {
+    try {    
+      const response = await getAddonItemsSuggest().unwrap();
+      if (response.status) {
+        setAddOnItemsSuggest(response.message);
+      }else{
+        setAddOnItemsSuggest([])
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage);
+    }
+  };
+useEffect(() => {
+  addonItemsSuggestGet();
+ }, []);
   const handleCardClick = (id, name) => {
     setSelectedCard(id); // Store the selected card ID
     if (menuId != id) {
-      menuItemsGet(id)
+      menuItemsGet(id);
     }
-    setMenuName(name)
+    setMenuName(name);
   };
 
   const handleToggle = (newState, id) => {
@@ -732,299 +769,305 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
           </Button>
         </div>
       </div>
-      {
-        loadingCategories ?
-          <div className='flex justify-center items-center mt-10'>
-            <CircularProgress color="primary" />
-          </div> :
-          <>
+      {loadingCategories ? (
+        <div className="flex justify-center items-center mt-10">
+          <CircularProgress color="primary" />
+        </div>
+      ) : (
+        <>
+          {categoriesData?.data && categoriesData?.data?.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-3">
+              <Card className="col-span-1 p-2">
+                <div className="flex items-center  pb-2 mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">Menu</h2>
+                </div>
 
-            {(categoriesData?.data &&
-              (categoriesData?.data?.length > 0)) ?
-
-
-              <div className="grid grid-cols-1 lg:grid-cols-3">
-                <Card className="col-span-1 p-2">
-                  <div className="flex items-center  pb-2 mb-4">
-                    <h2 className="text-xl font-bold text-gray-800">Menu</h2>
-                  </div>
-
-                  <div className="flex flex-col space-y-2">
-                    {categoriesData?.data &&
-                      categoriesData?.data?.length > 0 &&
-                      categoriesData?.data?.map((item, index) => (
-
-                        <Card
-                          key={index}
-                          className={`grid grid-cols-3 space-x-4 px-2 cursor-pointer transition-all duration-200 shadow-xl ${selectedCard == item.id ? "border border-purple-500" : "bg-gray-200"
-                            }`}
-                          onClick={() => handleCardClick(item.id, item.name)}
-                        >
-                          <div className="flex items-center gap-2 col-span-1">
-                            <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
-                              <img
-                                src={imageBaseUrl + item.image}
-                                alt="Item"
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          </div>
-                          <div className="flex justify-between col-span-2 pt-2">
-                            <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
-                              {item.name}
-                            </p>
-
-                            <div className="flex flex-col">
-                              <div className='flex justify-end'>
-                                <SwitchComponent
-                                  initialChecked={item.status === "active"}
-                                  onToggle={(e) => {
-
-                                    handleToggle(e, item.id)
-                                  }
-                                  }
-                                />
-                              </div>
-
-                              <div className="flex items-center">
-                                <IconButton color="primary" onClick={(e) => {
-                                  e.preventDefault(); // Prevent default behavior
-                                  e.stopPropagation(); // Prevents the accordion from expanding
-                                  openEditMenuData(item, item.id)
-                                }}>
-                                  <TbEdit className="cursor-pointer hover:text-red-500 transition" />
-                                </IconButton>
-                                <IconButton
-                                  color="error"
-                                  onClick={(e) => {
-                                    e.preventDefault(); // Prevent default behavior
-                                    e.stopPropagation(); // Prevents the accordion from expanding
-                                    setDelId(item.id);
-                                    menuDel.onTrue();
-                                  }}
-                                >
-                                  <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
-                                </IconButton>
-                              </div>
-                            </div>
-                          </div>
-
-
-                        </Card>
-                      ))}
-                  </div>
-                </Card >
-                <Card className="col-span-1 lg:col-span-2 p-3">
-                  <div className="flex justify-between">
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-800">{menuName}</h2>
-
-                    </div>
-                    <div>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        onClick={() => {
-                          setIsEdit(false);
-
-                          menuItem.onTrue();
-                        }}
+                <div className="flex flex-col space-y-2">
+                  {categoriesData?.data &&
+                    categoriesData?.data?.length > 0 &&
+                    categoriesData?.data?.map((item, index) => (
+                      <Card
+                        key={index}
+                        className={`grid grid-cols-3 space-x-4 px-2 cursor-pointer transition-all duration-200 shadow-xl ${
+                          selectedCard == item.id ? 'border border-purple-500' : 'bg-gray-200'
+                        }`}
+                        onClick={() => handleCardClick(item.id, item.name)}
                       >
-                        Add Item
-                      </Button>
-                    </div>
-                  </div>
-                  <div className='flex flex-col w-full items-center'>
-  {
-    !itemLoad ? (
-      <>
-        {menuItems?.length > 0 ? (
-          <div className="w-full">
-            {menuItems.map((item, index) => (
-              <Accordion
-                key={item.id}
-                expanded={controlled === item.id}
-                onChange={handleChangeControlled(item.id)}
-              >
-                <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
-                  <div className="flex items-center justify-between w-full">
-                    {/* Left Side: Name */}
-                    <div className="flex items-center gap-2">
-                      <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
-                        <img
-                          src={imageBaseUrl + item.image}
-                          alt="Item"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <p className="text-gray-700 break-words whitespace-normal max-w-[100px] md:max-w-[250px]">
-                        {item.name}
-                      </p>
-                    </div>
+                        <div className="flex items-center gap-2 col-span-1">
+                          <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
+                            <img
+                              src={imageBaseUrl + item.image}
+                              alt="Item"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex justify-between col-span-2 pt-2">
+                          <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
+                            {item.name}
+                          </p>
 
-                    {/* Right Side: Switch and Icons */}
-                    <div className="flex items-center gap-6">
-                      <SwitchComponent
-                        initialChecked={item.status === "active"}
-                        onToggle={(e) => handleItemToggle(e, item.id)}
-                      />
-                      <div className="flex items-center gap-3 text-xl text-red-700">
-                        <IconButton
-                          color="primary"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            openEditMenuItemData(item, item.id);
-                          }}
-                        >
-                          <TbEdit className="cursor-pointer hover:text-red-500 transition" />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setDelId(item.id);
-                            menuItemDel.onTrue();
-                          }}
-                        >
-                          <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
-                        </IconButton>
-                      </div>
-                    </div>
-                  </div>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <div className="flex flex-col">
-                    {item?.add_ons?.length > 0 && (
-                      <>
-                        {item?.add_ons.map((addons, i) => (
-                          <Card className="p-3 mt-3" key={i}>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-2">
-                              <TextField
-                                variant="outlined"
-                                readOnly
-                                fullWidth
-                                label="Add On Name"
-                                value={addons.name}
-                                size="small"
+                          <div className="flex flex-col">
+                            <div className="flex justify-end">
+                              <SwitchComponent
+                                initialChecked={item.status === 'active'}
+                                onToggle={(e) => {
+                                  handleToggle(e, item.id);
+                                }}
                               />
-                              <FormControlLabel
-                                control={<Switch checked={addons.is_required} size="small" readOnly />}
-                                label="Required"
-                              />
-                              <FormControlLabel
-                                control={<Switch checked={addons.is_multi_select} size="small" readOnly />}
-                                label="Multiple"
-                              />
-                              {addons.is_multi_select && (
-                                <div className="flex justify-end w-full">
-                                  <TextField
-                                    sx={{ maxWidth: 100 }}
-                                    variant="outlined"
-                                    readOnly
-                                    fullWidth
-                                    label="Select Upto"
-                                    value={addons.select_upto || ''}
-                                    size="small"
-                                  />
-                                </div>
-                              )}
                             </div>
-                            <div className="flex items-center justify-end gap-3 text-xl text-red-700">
+
+                            <div className="flex items-center">
                               <IconButton
                                 color="primary"
-                                onClick={() => {
-                                  setMenuItemId(item.id);
-                                  openEditAddonData(addons, addons.id);
+                                onClick={(e) => {
+                                  e.preventDefault(); // Prevent default behavior
+                                  e.stopPropagation(); // Prevents the accordion from expanding
+                                  openEditMenuData(item, item.id);
                                 }}
                               >
                                 <TbEdit className="cursor-pointer hover:text-red-500 transition" />
                               </IconButton>
                               <IconButton
                                 color="error"
-                                onClick={() => {
-                                  setDelId(addons.id);
-                                  addOnDel.onTrue();
+                                onClick={(e) => {
+                                  e.preventDefault(); // Prevent default behavior
+                                  e.stopPropagation(); // Prevents the accordion from expanding
+                                  setDelId(item.id);
+                                  menuDel.onTrue();
                                 }}
                               >
                                 <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
                               </IconButton>
                             </div>
-                            {addons.items.length > 0 && (
-                              <div className="px-5">
-                                <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-                                  AddOn Items
-                                </Typography>
-                                <div className="flex items-center flex-wrap gap-4 mt-2">
-                                  {addons?.items?.map((itemss, j) => (
-                                    <div key={j}>
-                                      <Chip
-                                        variant="outlined"
-                                        size="normal"
-                                        label={<p>{`${itemss.name} |  ${itemss.price}`}</p>}
-                                        onDelete={() => {
-                                          setDelId(itemss.id);
-                                          addOnItemDel.onTrue();
-                                        }}
-                                        color="primary"
-                                      />
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </Card>
-                        ))}
-                      </>
-                    )}
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                </div>
+              </Card>
+              <Card className="col-span-1 lg:col-span-2 p-3">
+                <div className="flex justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-800">{menuName}</h2>
                   </div>
-                  <div className="flex justify-end">
+                  <div>
                     <Button
                       variant="contained"
                       color="primary"
                       size="small"
                       onClick={() => {
-                        setMenuItemId(item.id);
-                        setAddOnData(item.add_ons);
-                        addon.onTrue();
                         setIsEdit(false);
+
+                        menuItem.onTrue();
                       }}
                     >
-                      Add Add on
+                      Add Item
                     </Button>
                   </div>
-                </AccordionDetails>
-              </Accordion>
-            ))}
-          </div>
-        ) : (
-          <div className='flex items-center justify-center mt-10'>
-            <p>No items added, Please add Menu items!</p>
-          </div>
-        )}
-      </>
-    ) : (
-      <div className='flex justify-center items-center mt-10'>
-        <CircularProgress color="primary" />
-      </div>
-    )
-  }
-</div>
+                </div>
+                <div className="flex flex-col w-full items-center">
+                  {!itemLoad ? (
+                    <>
+                      {menuItems?.length > 0 ? (
+                        <div className="w-full">
+                          {menuItems.map((item, index) => (
+                            <Accordion
+                              key={item.id}
+                              expanded={controlled === item.id}
+                              onChange={handleChangeControlled(item.id)}
+                            >
+                              <AccordionSummary
+                                expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+                              >
+                                <div className="flex items-center justify-between w-full">
+                                  {/* Left Side: Name */}
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
+                                      <img
+                                        src={imageBaseUrl + item.image}
+                                        alt="Item"
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                    <p className="text-gray-700 break-words whitespace-normal max-w-[100px] md:max-w-[250px]">
+                                      {item.name}
+                                    </p>
+                                  </div>
 
-                </Card>
-              </div >
-              :
-              <div className='flex items-center justify-center mt-10'>
-                <p>No Menu added,Please add Menu !</p>
-
-              </div>
-            }
-          </>
-      }
+                                  {/* Right Side: Switch and Icons */}
+                                  <div className="flex items-center gap-6">
+                                    <SwitchComponent
+                                      initialChecked={item.status === 'active'}
+                                      onToggle={(e) => handleItemToggle(e, item.id)}
+                                    />
+                                    <div className="flex items-center gap-3 text-xl text-red-700">
+                                      <IconButton
+                                        color="primary"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          openEditMenuItemData(item, item.id);
+                                        }}
+                                      >
+                                        <TbEdit className="cursor-pointer hover:text-red-500 transition" />
+                                      </IconButton>
+                                      <IconButton
+                                        color="error"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setDelId(item.id);
+                                          menuItemDel.onTrue();
+                                        }}
+                                      >
+                                        <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
+                                      </IconButton>
+                                    </div>
+                                  </div>
+                                </div>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                <div className="flex flex-col">
+                                  {item?.add_ons?.length > 0 && (
+                                    <>
+                                      {item?.add_ons.map((addons, i) => (
+                                        <Card className="p-3 mt-3" key={i}>
+                                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-2">
+                                            <TextField
+                                              variant="outlined"
+                                              readOnly
+                                              fullWidth
+                                              label="Add On Name"
+                                              value={addons.name}
+                                              size="small"
+                                            />
+                                            <FormControlLabel
+                                              control={
+                                                <Switch
+                                                  checked={addons.is_required}
+                                                  size="small"
+                                                  readOnly
+                                                />
+                                              }
+                                              label="Required"
+                                            />
+                                            <FormControlLabel
+                                              control={
+                                                <Switch
+                                                  checked={addons.is_multi_select}
+                                                  size="small"
+                                                  readOnly
+                                                />
+                                              }
+                                              label="Multiple"
+                                            />
+                                            {addons.is_multi_select && (
+                                              <div className="flex justify-end w-full">
+                                                <TextField
+                                                  sx={{ maxWidth: 100 }}
+                                                  variant="outlined"
+                                                  readOnly
+                                                  fullWidth
+                                                  label="Select Upto"
+                                                  value={addons.select_upto || ''}
+                                                  size="small"
+                                                />
+                                              </div>
+                                            )}
+                                          </div>
+                                          <div className="flex items-center justify-end gap-3 text-xl text-red-700">
+                                            <IconButton
+                                              color="primary"
+                                              onClick={() => {
+                                                setMenuItemId(item.id);
+                                                openEditAddonData(addons, addons.id);
+                                              }}
+                                            >
+                                              <TbEdit className="cursor-pointer hover:text-red-500 transition" />
+                                            </IconButton>
+                                            <IconButton
+                                              color="error"
+                                              onClick={() => {
+                                                setDelId(addons.id);
+                                                addOnDel.onTrue();
+                                              }}
+                                            >
+                                              <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
+                                            </IconButton>
+                                          </div>
+                                          {addons.items.length > 0 && (
+                                            <div className="px-5">
+                                              <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+                                                AddOn Items
+                                              </Typography>
+                                              <div className="flex items-center flex-wrap gap-4 mt-2">
+                                                {addons?.items?.map((itemss, j) => (
+                                                  <div key={j}>
+                                                    <Chip
+                                                      variant="outlined"
+                                                      size="normal"
+                                                      label={
+                                                        <p>{`${itemss.name} |  ${itemss.price}`}</p>
+                                                      }
+                                                      onDelete={() => {
+                                                        setDelId(itemss.id);
+                                                        addOnItemDel.onTrue();
+                                                      }}
+                                                      color="primary"
+                                                    />
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </Card>
+                                      ))}
+                                    </>
+                                  )}
+                                </div>
+                                <div className="flex justify-end">
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    onClick={() => {
+                                      setMenuItemId(item.id);
+                                      setAddOnData(item.add_ons);
+                                      addon.onTrue();
+                                      setIsEdit(false);
+                                    }}
+                                  >
+                                    Add Add on
+                                  </Button>
+                                </div>
+                              </AccordionDetails>
+                            </Accordion>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center mt-10">
+                          <p>No items added, Please add Menu items!</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex justify-center items-center mt-10">
+                      <CircularProgress color="primary" />
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center mt-10">
+              <p>No Menu added,Please add Menu !</p>
+            </div>
+          )}
+        </>
+      )}
       {/* Menu Creation and Edit Model */}
-      < ConfirmDialog
+      <ConfirmDialog
         open={menu.value}
         onClose={(event, reason) => {
           if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
@@ -1034,17 +1077,16 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
               short_desc: '',
             });
             setIsEdit(false);
-            setImageUrl(null)
-            setFile(null)
+            setImageUrl(null);
+            setFile(null);
           }
-        }
-        }
+        }}
         title={isEdit ? 'Edit Menu' : 'Add Menu'}
         content={formContent}
         action={
-          < Button onClick={handleExternalSubmit} variant="contained" color="primary" >
+          <Button onClick={handleExternalSubmit} variant="contained" color="primary">
             Submit
-          </Button >
+          </Button>
         }
       />
       {/* Menu delete model */}
@@ -1071,8 +1113,8 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
               food_type: 'veg',
             });
             setIsEdit(false);
-            setImageUrl(null)
-            setFile(null)
+            setImageUrl(null);
+            setFile(null);
           }
         }}
         title={isEdit ? 'Edit Menu Item' : 'Add Menu Item'}
@@ -1116,6 +1158,7 @@ const modifiedUrl = imgUrl.replace("https://api.turkish-kebab-pizza-house.co.uk"
             setIsEdit(false);
             // menuItemsGet(menuId);
             setAddOnItems([]);
+            addonItemsSuggestGet()
           }
         }}
         title={isEdit ? 'Edit AddOn' : 'Create AddOn'}

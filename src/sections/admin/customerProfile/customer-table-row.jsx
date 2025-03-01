@@ -17,12 +17,40 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { Switch } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 // import { UserQuickEditForm } from './user-quick-edit-form';
 
 // ----------------------------------------------------------------------
+const SwitchComponent = ({ initialChecked, onToggle }) => {
+  const [checked, setChecked] = useState(initialChecked);
 
-export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow ,openDetails}) {
+  useEffect(() => {
+    setChecked(initialChecked);
+  }, [initialChecked]); // Update when initialChecked changes
+
+  const handleChange = (e) => {
+    e.stopPropagation();
+    setChecked(e.target.checked);
+    if (onToggle) {
+      onToggle(e.target.checked);
+    }
+  };
+
+  return (
+    <div className="flex justify-end">
+      <Switch
+        checked={checked}
+        onChange={handleChange}
+        onClick={(e) => e.stopPropagation()}
+        inputProps={{ "aria-label": "controlled" }}
+        size="small"
+      />
+    </div>
+  );
+};
+export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow ,openDetails,customerStatusChanging}) {
   const confirm = useBoolean();
 
   const popover = usePopover();
@@ -51,12 +79,21 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
           </Stack>
         </TableCell>
 
-          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.phoneNumber}</TableCell>
+          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.mobile}</TableCell>
   
+    <TableCell sx={{ whiteSpace: 'nowrap' }} >
+                <div className='flex justify-center'>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                  <p>4.5</p>        
-        </TableCell>
+                  <SwitchComponent
+                    initialChecked={row.status == 'active'}
+                    onToggle={(e) => {
+                      customerStatusChanging(e,row.id)
+                    }
+                    }
+                  />
+                </div>
+              </TableCell>
+ 
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
        <Button variant="contained" size='small'
