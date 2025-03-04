@@ -602,6 +602,7 @@ export function MenuDetails() {
       const response = await delAddOnItem(payload).unwrap();
       if (response.status) {
         toast.success(response.message);
+        addonItemsGet(addOnId);
         addOnItemDel.onFalse();
         setTimeout(() => {
           menuItemsGet(menuId);
