@@ -41,5 +41,8 @@ export const addonSchema = z
 //   Addon Item schema
   export const addonItemSchema = z.object({
   name: z.string().min(1, { message: 'required!' }),
-  price: z.number().optional(),
+  price: z.union([
+    z.number(),
+    z.string()
+  ]).optional()
 });

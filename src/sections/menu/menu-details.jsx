@@ -564,6 +564,7 @@ export function MenuDetails() {
       // Create FormData instance
       const formData = {...data};
       formData.addon_id = addOnId;
+      formData.price = formData.price || 0;
       let response;
       if (isEdit) {
         response = await addonItemCreate(formData).unwrap();
