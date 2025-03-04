@@ -388,6 +388,9 @@ export function MenuDetails() {
     try {
       // Create FormData instance
       const formData = data;
+      const priceValue = formData.price || 0;
+      formData.price = Number(priceValue);
+
       formData.menu_id = menuId;
       if (!imgUrl) {
         toast.error('Please upload a image');
@@ -404,7 +407,13 @@ export function MenuDetails() {
       }
       if (response.status) {
         toast.success(response.message);
-        itemReset();
+        itemReset(
+        { 
+           name: '',
+          price: 0,
+          food_type: 'veg', // Default empty selection
+        }
+        );
         menuItem.onFalse();
         menuItemsGet(menuId);
         setImageUrl(null);
@@ -564,7 +573,8 @@ export function MenuDetails() {
       // Create FormData instance
       const formData = {...data};
       formData.addon_id = addOnId;
-      formData.price = formData.price || 0;
+      const priceValue = formData.price || 0;
+      formData.price = Number(priceValue);
       let response;
       if (isEdit) {
         response = await addonItemCreate(formData).unwrap();
