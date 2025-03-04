@@ -11,7 +11,10 @@ export const schema = z.object({
 // Menu item Schema
 export const itemSchema = z.object({
     name: z.string().min(1, { message: 'required!' }),
-    price: z.number().min(1, { message: 'required!' }),
+    price:z.union([
+      z.number(),
+      z.string()
+    ]).nullable().refine(val => (val !== null && val != ''), { message: 'Required' }),
 
   food_type: z.string(),
 });
@@ -38,5 +41,5 @@ export const addonSchema = z
 //   Addon Item schema
   export const addonItemSchema = z.object({
   name: z.string().min(1, { message: 'required!' }),
-  price: z.number().min(1, { message: 'required!' }),
+  price: z.number().optional(),
 });

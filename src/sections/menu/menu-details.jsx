@@ -665,7 +665,7 @@ export function MenuDetails() {
         </Typography>
 
         <CardContent className="flex items-center flex-wrap gap-4">
-          {addOnItemsSuggest.length > 0 && addOnItems?.length > 0 && (
+          {addOnItemsSuggest.length > 0 && (!isAddOn || isEdit) && (
             <Autocomplete
               options={addOnItemsSuggest}
               getOptionLabel={(option) => option.name + ' | '+ option.price}
@@ -788,7 +788,7 @@ useEffect(() => {
                     categoriesData?.data?.map((item, index) => (
                       <Card
                         key={index}
-                        className={`grid grid-cols-3 space-x-4 px-2 cursor-pointer transition-all duration-200 shadow-xl ${
+                        className={`grid grid-cols-4 space-x-4 px-2 cursor-pointer transition-all duration-200 shadow-xl p-2 ${
                           selectedCard == item.id ? 'border border-purple-500' : 'bg-gray-200'
                         }`}
                         onClick={() => handleCardClick(item.id, item.name)}
@@ -802,10 +802,23 @@ useEffect(() => {
                             />
                           </div>
                         </div>
-                        <div className="flex justify-between col-span-2 pt-2">
-                          <p className="text-gray-700 break-words whitespace-normal max-w-[100px]">
+                        <div className="flex justify-between col-span-3 pt-2">
+                          <div>
+                          <p className="text-gray-700 break-words whitespace-normal max-w-[120px]">
                             {item.name}
                           </p>
+                          <div className="max-w-[180px]">
+                            <p
+                              className="text-gray-700 text-sm mt-1 line-clamp-2"
+                              title={item.short_desc}
+                            >
+                              {item.short_desc}
+                            </p>
+                          </div>
+
+
+                          </div>
+                       
 
                           <div className="flex flex-col">
                             <div className="flex justify-end">
