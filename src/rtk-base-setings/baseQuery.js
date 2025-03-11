@@ -2,7 +2,7 @@ import { fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 const BaseQueryInstance = fetchBaseQuery({
   // baseUrl: 'http://localhost:3000/api/',
-  // baseUrl: 'http://192.168.1.246:3000/api/',
+  // baseUrl: 'http://192.168.115.42:3000/api/',
   baseUrl: `${import.meta.env.VITE_DASHBOARD_BASE_URL}/api/`,
   // baseUrl: `https://api.turkish-kebab-pizza-house.co.uk/api/`,
   prepareHeaders: (headers, { getState }) => {
@@ -10,7 +10,8 @@ const BaseQueryInstance = fetchBaseQuery({
 
     // headers.set('Content-Type', 'application/x-www-form-urlencoded');
         // Get token from Redux state
-      const accessToken = sessionStorage.getItem('jwt_access_token');
+      // const accessToken = sessionStorage.getItem('jwt_access_token');
+      const accessToken = localStorage.getItem('jwt_access_token');
 
         if (accessToken) {
           headers.set("Authorization", `Bearer ${accessToken}`);

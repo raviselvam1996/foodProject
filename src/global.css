@@ -90,3 +90,28 @@ input[type='number']::-webkit-inner-spin-button {
   margin: 0;
   -webkit-appearance: none;
 }
+
+/* Hide Scrollbar */
+.custom-scroll {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #ccc transparent; /* Slim Scrollbar */
+}
+
+/* For Webkit Browsers (Chrome, Safari) */
+.custom-scroll::-webkit-scrollbar {
+  width: 4px; /* Slim Scrollbar */
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent; /* Hide Track */
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: #aaa; /* Scrollbar color */
+  border-radius: 4px;
+}
+
+/* Hide Scrollbar Completely */
+.custom-scroll::-webkit-scrollbar {
+  display: none;
+}

@@ -43,7 +43,7 @@ export function DashboardLayout({ sx, children, data }) {
     // Filter menu items based on user role
     const navData = navDatas.filter((section) => {
       if (!section.roles) return true; // If no roles specified, show to everyone
-      return section.roles.includes(user?.role); // Only show if user's role matches
+      return user?.permissions.includes(section.roles); // Only show if user's role matches
     });
   
 

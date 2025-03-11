@@ -54,22 +54,37 @@ export const navData = [
    */
   {
     subheader: 'Menu Management',
-    roles: ['admin'], // Only admins can see this section
+    roles: 'menu', // Only admins can see this section
     items: [{ title: 'Menu', path: paths.dashboard.menu.root, icon: ICONS.user }],
   },
   {
     subheader: 'Super Admmin Settings',
+    roles: 'admin', // Admins and Order Employees can see this
     items: [
       { 
         title: 'Admin Tools'
         , path: paths.dashboard.admin.root
         , icon: ICONS.user ,
-        roles: ['admin'], // Admins and Order Employees can see this
               children: [
           { title: 'Admin Detail', path: paths.dashboard.admin.root },
           { title: 'Shop Detail', path: paths.dashboard.admin.shopDetail },
           { title: 'Employee Profile', path: paths.dashboard.admin.employeeProfile },
           { title: 'Cutomer Profile', path: paths.dashboard.admin.customerProfile },
+   
+        ],
+      }],
+  },
+  {
+    subheader: 'Order Mange',
+    roles: 'order', // Admins and Order Employees can see this
+    items: [
+      { 
+        title: 'Orders'
+        , path: paths.dashboard.orders.root
+        , icon: ICONS.user ,
+              children: [
+          { title: 'Order Detail', path: paths.dashboard.orders.root },
+    
    
         ],
       }],

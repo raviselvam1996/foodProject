@@ -53,6 +53,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import { Iconify } from 'src/components/iconify';
 import { schema, itemSchema, addonSchema, addonItemSchema } from './menu-schema';
 import { handleApiError } from '../../utils/errorHandler';
+import { formatPrice } from 'src/utils/amountChange';
 
 // ----------------------------------------------------------------------
 const SwitchComponent = ({ initialChecked, onToggle }) => {
@@ -1033,7 +1034,7 @@ useEffect(() => {
                                                       variant="outlined"
                                                       size="normal"
                                                       label={
-                                                        <p>{`${itemss.name} |  ${itemss.price}`}</p>
+                                                        <p>{`${itemss.name} |  ${formatPrice(itemss.price)}`}</p>
                                                       }
                                                       onDelete={() => {
                                                         setDelId(itemss.id);

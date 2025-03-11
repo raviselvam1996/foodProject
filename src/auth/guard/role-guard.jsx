@@ -10,7 +10,7 @@ console.log(user || {});
     return <Navigate to="/login" replace />; // Redirect to login if not authenticated
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  if (!user?.permissions.includes(allowedRoles)) { 
     return <Navigate to="/403" replace />; // Redirect to 403 Forbidden page if role not allowed
   }
 
