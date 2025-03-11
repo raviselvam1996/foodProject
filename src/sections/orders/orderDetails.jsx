@@ -72,7 +72,7 @@ const OrderDetails = () => {
 
       <Grid container spacing={2}>
         {/* Left Side - Orders List */}
-        <Grid item xs={5} sx={{ height: "80vh", overflowY: "auto", pr: 1 }} className="custom-scroll">
+        <Grid item xs={5} sx={{ height: "100vh", overflowY: "auto", pr: 1,pb:1 }} className="custom-scroll">
 
   {orders.map((order) => (
     <Card
@@ -87,26 +87,26 @@ const OrderDetails = () => {
       >
       {/* Customer and Order ID */}
       <Box display="flex" justifyContent="space-between">
-        <Typography variant="subtitle1">
+        <Typography variant="subtitle1" fontSize={14}>
           {order.customer}
         </Typography>
-        <Typography variant="subtitle1" color="red">
+        <Typography variant="subtitle1" color="red" fontSize={14}>
           ORD ID - {order.id}
         </Typography>
       </Box>
 
       {/* Time and Remaining Time */}
-      <Typography color="error">
+      <Typography color="error" fontSize={14} sx={{ mb: 1 ,mt:1}}>
         Today {order.time} ({order.remainingTime})
       </Typography>
 
       {/* Items List - Left Item Name, Right Price */}
       {order.items.map((item, index) => (
-        <Box key={index} display="flex" justifyContent="space-between">
-          <Typography>
+        <Box key={index} display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
+          <Typography fontSize={14}>
             {item.quantity} X {item.name}
           </Typography>
-          <Typography fontWeight="bold">{formatPrice(item.price)}</Typography>
+          <Typography fontWeight="bold" fontSize={14}>{formatPrice(item.price)}</Typography>
         </Box>
       ))}
 
@@ -131,6 +131,9 @@ const OrderDetails = () => {
         label={order.paymentStatus}
         color={order.paymentStatus === "PAID" ? "success" : "warning"}
         sx={{ mt: 1 }}
+        variant="outlined"
+        size="small"
+
       />
 
 

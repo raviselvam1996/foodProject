@@ -84,6 +84,7 @@ export const navData = [
         , icon: ICONS.user ,
               children: [
           { title: 'Order Detail', path: paths.dashboard.orders.root },
+          { title: 'View Orders', path: paths.dashboard.orders.viewOrder },
     
    
         ],

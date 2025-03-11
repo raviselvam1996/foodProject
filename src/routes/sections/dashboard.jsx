@@ -69,6 +69,7 @@ const ShopDetail = lazy(() => import('src/pages/dashboard/admin/shopDetail'));
 const EmployeeProfile = lazy(() => import('src/pages/dashboard/admin/employeeProfile'));
 const CustomerProfile = lazy(() => import('src/pages/dashboard/admin/customerProfile'));
 const OrderPage = lazy(() => import('src/pages/dashboard/orders'));
+const ViewOrderPage = lazy(() => import('src/pages/dashboard/orders/viewDetails'));
 
 // ----------------------------------------------------------------------
 
@@ -190,6 +191,7 @@ export const dashboardRoutes = [
         element: <RoleGuard allowedRoles={'order'} />, // Only admins can access
         children: [
           { element: <OrderPage />, index: true },
+          { path: 'view-order', element: <ViewOrderPage /> },
    
       
         ],
