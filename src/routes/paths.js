@@ -162,6 +162,8 @@ export const paths = {
     },
     orders: {
       root: `${ROOTS.DASHBOARD}/orders`,
+      viewOrder: `${ROOTS.DASHBOARD}/orders/view-order`,
+
     },
   },
 };
