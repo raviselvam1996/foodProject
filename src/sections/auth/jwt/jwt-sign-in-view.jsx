@@ -88,6 +88,8 @@ export function JwtSignInView() {
       }
   
       setSession(token);
+      const response = JSON.stringify(res);
+      localStorage.setItem('res', response || {});
   await checkUserSession?.(res);
 
 

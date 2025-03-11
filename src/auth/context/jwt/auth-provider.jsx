@@ -18,7 +18,8 @@ export function AuthProvider({ children }) {
 
   const checkUserSession = useCallback(async (res) => {
     try {
-      const accessToken = sessionStorage.getItem(STORAGE_KEY);
+      // const accessToken = sessionStorage.getItem(STORAGE_KEY);
+      const accessToken = localStorage.getItem(STORAGE_KEY);
 
       if (accessToken) {
         setSession(accessToken);
@@ -27,8 +28,10 @@ export function AuthProvider({ children }) {
 
         // const { user } = res.data;
         const user = res
+        const response = localStorage.getItem('res');
+        const resParse = res ?  user : JSON.parse(response);
 
-        setState({ user: { ...user, accessToken }, loading: false });
+        setState({ user: { ...resParse, accessToken }, loading: false });
       } else {
         setState({ user: null, loading: false });
       }
@@ -55,6 +58,8 @@ export function AuthProvider({ children }) {
         ? {
             ...state.user,
             role: state.user?.role ?? 'admin',
+            // permissions: state.user?.permissions ?? ['menu'],
+            permissions:  ['menu','order','admin'],
           }
         : null,
       checkUserSession,

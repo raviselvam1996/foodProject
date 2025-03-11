@@ -160,5 +160,8 @@ export const paths = {
       customerProfile: `${ROOTS.DASHBOARD}/admin/customer-profile`,
 
     },
+    orders: {
+      root: `${ROOTS.DASHBOARD}/orders`,
+    },
   },
 };
