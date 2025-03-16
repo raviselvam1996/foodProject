@@ -14,9 +14,9 @@ export const orderApi = createApi({
         method: 'GET',
       }),
     }),
-    policyUpdate: builder.mutation({
+    orderChange: builder.mutation({
       query: (data) => ({
-        url: 'admin/policies/update',
+        url: 'admin/order/change_status',
         method: 'POST',
         body: data,
       }),
@@ -27,5 +27,5 @@ export const orderApi = createApi({
   }),
 });
 
-export const { useOrderListMutation, usePolicyUpdateMutation} =
+export const { useOrderListMutation, useOrderChangeMutation} =
   orderApi;

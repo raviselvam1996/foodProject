@@ -132,7 +132,7 @@ export function MenuDetails() {
   const [addonItemCreate, { isLoading: AddonitemAddLoad }] = useAddonItemCreateMutation();
   const [getAddonItems] = useGetAddonItemsMutation();
   const [getAddonItemsSuggest] = useGetAddonItemsSuggestMutation();
-  const [imageUpload] = useImageUploadMutation();
+  const [imageUpload,{isLoading:imageLoad}] = useImageUploadMutation();
   const [delAddOnItem, { isLoading: addonItemDelLoad }] = useDelAddOnItemMutation();
 
   // Form for the Menu
@@ -1160,8 +1160,13 @@ export function MenuDetails() {
         title={isEdit ? 'Edit Menu' : 'Add Menu'}
         content={formContent}
         action={
-          <Button onClick={handleExternalSubmit} variant="contained" color="primary">
-            Submit
+            <Button 
+            onClick={handleExternalSubmit} 
+            variant="contained" 
+            color="primary" 
+            disabled={imageLoad} // Disable button while submitting
+          >
+            {imageLoad ? <CircularProgress size={24} color="inherit" /> : "Submit"}
           </Button>
         }
       />
@@ -1196,9 +1201,14 @@ export function MenuDetails() {
         title={isEdit ? 'Edit Menu Item' : 'Add Menu Item'}
         content={itemFormContent}
         action={
-          <Button onClick={handleItemSubmit} variant="contained" color="primary">
-            Submit
-          </Button>
+             <Button 
+             onClick={handleItemSubmit} 
+             variant="contained" 
+             color="primary" 
+             disabled={imageLoad} // Disable button while submitting
+           >
+             {imageLoad ? <CircularProgress size={24} color="inherit" /> : "Submit"}
+           </Button>
         }
       />
       {/* Menu Item delete model */}
