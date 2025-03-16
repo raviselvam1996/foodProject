@@ -96,7 +96,7 @@ export function AdminTableRow({ row, selected, onEditRow, onSelectRow, onDeleteR
             }}
           >
             <Iconify icon="solar:user-bold" />
-            Setus Admin
+            Setus Employee
           </MenuItem>
           <MenuItem
             onClick={onEditRow}
