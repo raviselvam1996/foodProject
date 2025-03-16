@@ -23,8 +23,9 @@ export function sentenceCase(string) {
 }
 // ----------------------------------------------------------------------
 export function formatString(str) {
-  return str
+  return str ? str
       .split('_') // Split by underscore
       .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
-      .join(' '); // Join words with space
+      .join(' ') // Join words with space
+      : '' ;
 }
