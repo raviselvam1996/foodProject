@@ -52,7 +52,7 @@ export function AuthProvider({ children }) {
 
   const status = state.loading ? 'loading' : checkAuthenticated;
   const roles = state?.user?.permissions;
-  const permissions = (state?.user?.role === 'admin' || state?.user?.role === 'superAdmin') ? ['order_management','menu_management','admin'] :  roles;
+  const permissions = (state?.user?.role === 'admin' || state?.user?.role === 'superadmin') ? ['order_management','menu_management','admin'] :  roles;
   const memoizedValue = useMemo(
     () => ({
       user: state.user
