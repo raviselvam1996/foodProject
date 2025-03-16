@@ -8,14 +8,11 @@ import AdminDetails from '../admin-details';
 
 // ----------------------------------------------------------------------
 
-export function Admin() {
-    const dar = 'fsdfjsdf'
-    console.log(dar);
-    
+export function Admin() { 
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Menu"
+        heading="Admin"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Admin', href: paths.dashboard.tour.root },

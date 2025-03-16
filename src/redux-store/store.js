@@ -6,6 +6,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import { menuProductApi } from '../services/menu'
 import { authApi } from '../services/auth'
 import { adminApi } from '../services/admin'
+import { orderApi } from '../services/order'
 
 
 export const store = configureStore({  
@@ -14,6 +15,7 @@ export const store = configureStore({
     [menuProductApi.reducerPath]: menuProductApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
     [adminApi.reducerPath]: adminApi.reducer,
+    [orderApi.reducerPath]: orderApi.reducer,
 
   },
   middleware: getDefaultMiddleware =>
@@ -22,5 +24,6 @@ export const store = configureStore({
       .concat(menuProductApi.middleware)
       .concat(authApi.middleware)
       .concat(adminApi.middleware)
+      .concat(orderApi.middleware)
 
 })

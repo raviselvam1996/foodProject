@@ -108,6 +108,8 @@ export function MenuDetails() {
   const [imgUrl, setImageUrl] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [menuName, setMenuName] = useState('');
+  const [isSizeEnable, setIsSizeEnable] = useState(false);
+
   const imageBaseUrl = import.meta.env.VITE_DASHBOARD_BASE_URL;
   const [addMenu, { isLoading: statusLoad }] = useAddMenuMutation();
   const [editMenu, { isLoading: menuLoad }] = useEditMenuMutation();
@@ -170,6 +172,7 @@ export function MenuDetails() {
       is_required: false,
       is_multi_select: false,
       select_upto: 1, // Default empty selection
+      size_enb: false,
     },
   });
   const {
@@ -408,13 +411,11 @@ export function MenuDetails() {
       }
       if (response.status) {
         toast.success(response.message);
-        itemReset(
-        { 
-           name: '',
+        itemReset({
+          name: '',
           price: 0,
           food_type: 'veg', // Default empty selection
-        }
-        );
+        });
         menuItem.onFalse();
         menuItemsGet(menuId);
         setImageUrl(null);
@@ -541,9 +542,10 @@ export function MenuDetails() {
     }
   };
   // Get Addon Edit data
-  const openEditAddonData = (val, id) => {
+  const openEditAddonData = (val, id, isSize) => {
     setAddOnId(id);
     setEditId(id);
+    setIsSizeEnable(isSize || false);
     setIsEdit(true);
     addon.onTrue();
     addonReset(val);
@@ -572,7 +574,7 @@ export function MenuDetails() {
     console.log(data);
     try {
       // Create FormData instance
-      const formData = {...data};
+      const formData = { ...data };
       formData.addon_id = addOnId;
       const priceValue = formData.price || 0;
       formData.price = Number(priceValue);
@@ -628,7 +630,11 @@ export function MenuDetails() {
             <div className="flex items-center">
               {/* <SwitchComponent /> */}
               <RHFSwitch name="is_required" label="Required" />
-              <RHFSwitch name="is_multi_select" label="Select Multiple" />
+              {isSizeEnable ? (
+                <RHFSwitch name="size_enb" label="Enable" />
+              ) : (
+                <RHFSwitch name="is_multi_select" label="Select Multiple" />
+              )}
             </div>
             <div className="flex gap-2">
               {addonWatch('is_multi_select') && (
@@ -678,18 +684,20 @@ export function MenuDetails() {
         </Typography>
 
         <CardContent className="flex items-center flex-wrap gap-4">
-          {addOnItemsSuggest.length > 0 && (!isAddOn || isEdit) && (
+          {addOnItemsSuggest.length > 0 && (!isAddOn || isEdit) && !isSizeEnable && (
             <Autocomplete
               options={addOnItemsSuggest}
-              getOptionLabel={(option) => option.name + ' | '+ option.price}
-              renderInput={(params) => <TextField {...params} label="Previous AddOnItems" margin="none" />}
-              renderOption={(props, option,index) => (
+              getOptionLabel={(option) => option.name + ' | ' + option.price}
+              renderInput={(params) => (
+                <TextField {...params} label="Previous AddOnItems" margin="none" />
+              )}
+              renderOption={(props, option, index) => (
                 <li {...props} key={index}>
-                  {option.name + ' | '+ option.price}
+                  {option.name + ' | ' + option.price}
                 </li>
               )}
               onChange={(event, value) => {
-                if(value){
+                if (value) {
                   addonItemSubmit(value);
                 }
               }}
@@ -734,12 +742,12 @@ export function MenuDetails() {
     }
   };
   const addonItemsSuggestGet = async () => {
-    try {    
+    try {
       const response = await getAddonItemsSuggest().unwrap();
       if (response.status) {
         setAddOnItemsSuggest(response.message);
-      }else{
-        setAddOnItemsSuggest([])
+      } else {
+        setAddOnItemsSuggest([]);
       }
     } catch (error) {
       const errorMessage = handleApiError(error);
@@ -747,9 +755,9 @@ export function MenuDetails() {
       toast.error(errorMessage);
     }
   };
-useEffect(() => {
-  addonItemsSuggestGet();
- }, []);
+  useEffect(() => {
+    addonItemsSuggestGet();
+  }, []);
   const handleCardClick = (id, name) => {
     setSelectedCard(id); // Store the selected card ID
     if (menuId != id) {
@@ -817,21 +825,18 @@ useEffect(() => {
                         </div>
                         <div className="flex justify-between col-span-3 pt-2">
                           <div>
-                          <p className="text-gray-700 break-words whitespace-normal max-w-[120px]">
-                            {item.name}
-                          </p>
-                          <div className="max-w-[180px]">
-                            <p
-                              className="text-gray-700 text-sm mt-1 line-clamp-2"
-                              title={item.short_desc}
-                            >
-                              {item.short_desc}
+                            <p className="text-gray-700 break-words whitespace-normal max-w-[120px]">
+                              {item.name}
                             </p>
+                            <div className="max-w-[180px]">
+                              <p
+                                className="text-gray-700 text-sm mt-1 line-clamp-2"
+                                title={item.short_desc}
+                              >
+                                {item.short_desc}
+                              </p>
+                            </div>
                           </div>
-
-
-                          </div>
-                       
 
                           <div className="flex flex-col">
                             <div className="flex justify-end">
@@ -917,7 +922,7 @@ useEffect(() => {
                                       />
                                     </div>
                                     <p className="text-gray-700 break-words whitespace-normal max-w-[100px] md:max-w-[250px]">
-                                      {item.name}
+                                      {item.name} - <span className="text-red-500 font-bold"> {formatPrice(item.price)}</span>
                                     </p>
                                   </div>
 
@@ -959,71 +964,116 @@ useEffect(() => {
                                     <>
                                       {item?.add_ons.map((addons, i) => (
                                         <Card className="p-3 mt-3" key={i}>
-                                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-2">
-                                            <TextField
-                                              variant="outlined"
-                                              readOnly
-                                              fullWidth
-                                              label="Add On Name"
-                                              value={addons.name}
-                                              size="small"
-                                            />
-                                            <FormControlLabel
-                                              control={
-                                                <Switch
-                                                  checked={addons.is_required}
-                                                  size="small"
-                                                  readOnly
+                                          {!addons.is_size ? (
+                                            <>
+                                                  <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+                                                {addons.name}
+                                              </Typography>
+                                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-2">
+                                          
+                                                <FormControlLabel
+                                                  control={
+                                                    <Switch
+                                                      checked={addons.is_required}
+                                                      size="small"
+                                                      readOnly
+                                                    />
+                                                  }
+                                                  label="Required"
                                                 />
-                                              }
-                                              label="Required"
-                                            />
-                                            <FormControlLabel
-                                              control={
-                                                <Switch
-                                                  checked={addons.is_multi_select}
-                                                  size="small"
-                                                  readOnly
+                                                <FormControlLabel
+                                                  control={
+                                                    <Switch
+                                                      checked={addons.is_multi_select}
+                                                      size="small"
+                                                      readOnly
+                                                    />
+                                                  }
+                                                  label="Multiple"
                                                 />
-                                              }
-                                              label="Multiple"
-                                            />
-                                            {addons.is_multi_select && (
-                                              <div className="flex justify-end w-full">
-                                                <TextField
-                                                  sx={{ maxWidth: 100 }}
-                                                  variant="outlined"
-                                                  readOnly
-                                                  fullWidth
-                                                  label="Select Upto"
-                                                  value={addons.select_upto || ''}
-                                                  size="small"
-                                                />
+                                                {addons.is_multi_select && (
+                                                  <div className="flex justify-end w-full">
+                                                    <TextField
+                                                      sx={{ maxWidth: 100 }}
+                                                      variant="outlined"
+                                                      readOnly
+                                                      fullWidth
+                                                      label="Select Upto"
+                                                      value={addons.select_upto || ''}
+                                                      size="small"
+                                                    />
+                                                  </div>
+                                                )}
+                                                      <div className="flex items-center justify-end gap-3 text-xl text-red-700">
+                                                <IconButton
+                                                  color="primary"
+                                                  onClick={() => {
+                                                    setMenuItemId(item.id);
+                                                    openEditAddonData(addons, addons.id);
+                                                  }}
+                                                >
+                                                  <TbEdit className="cursor-pointer hover:text-red-500 transition" />
+                                                </IconButton>
+                                                <IconButton
+                                                  color="error"
+                                                  onClick={() => {
+                                                    setDelId(addons.id);
+                                                    addOnDel.onTrue();
+                                                  }}
+                                                >
+                                                  <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
+                                                </IconButton>
                                               </div>
-                                            )}
-                                          </div>
-                                          <div className="flex items-center justify-end gap-3 text-xl text-red-700">
-                                            <IconButton
-                                              color="primary"
-                                              onClick={() => {
-                                                setMenuItemId(item.id);
-                                                openEditAddonData(addons, addons.id);
-                                              }}
-                                            >
-                                              <TbEdit className="cursor-pointer hover:text-red-500 transition" />
-                                            </IconButton>
-                                            <IconButton
-                                              color="error"
-                                              onClick={() => {
-                                                setDelId(addons.id);
-                                                addOnDel.onTrue();
-                                              }}
-                                            >
-                                              <MdOutlineDeleteOutline className="cursor-pointer hover:text-red-500 transition" />
-                                            </IconButton>
-                                          </div>
+                                              </div>
+                                        
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+                                                {addons.name}
+                                              </Typography>
+                                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-2">
+                                                <FormControlLabel
+                                                  control={
+                                                    <Switch
+                                                      checked={addons.is_required}
+                                                      size="small"
+                                                      readOnly
+                                                    />
+                                                  }
+                                                  label="Required"
+                                                />
+                                                <FormControlLabel
+                                                  control={
+                                                    <Switch
+                                                      checked={addons.size_enb}
+                                                      size="small"
+                                                      readOnly
+                                                    />
+                                                  }
+                                                  label="Enable"
+                                                />
+                                                <div className="flex items-center justify-end gap-3 text-xl text-red-700">
+                                                  <IconButton
+                                                    color="primary"
+                                                    onClick={() => {
+                                                      setMenuItemId(item.id);
+                                                      openEditAddonData(
+                                                        addons,
+                                                        addons.id,
+                                                        addons.is_size
+                                                      );
+                                                    }}
+                                                  >
+                                                    <TbEdit className="cursor-pointer hover:text-red-500 transition" />
+                                                  </IconButton>
+                                                </div>
+                                              </div>
+                                            </>
+                                          )}
+
                                           {addons.items.length > 0 && (
-                                            <div className="px-5">
+                                            <div>
                                               <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
                                                 AddOn Items
                                               </Typography>
@@ -1175,6 +1225,7 @@ useEffect(() => {
               is_required: false,
               is_multi_select: false,
               select_upto: 1,
+              size_enb: false,
             });
             addonItemReset({
               name: '',
@@ -1182,9 +1233,10 @@ useEffect(() => {
             });
             setIsAddOn(true);
             setIsEdit(false);
+            setIsSizeEnable(false);
             // menuItemsGet(menuId);
             setAddOnItems([]);
-            addonItemsSuggestGet()
+            addonItemsSuggestGet();
           }
         }}
         title={isEdit ? 'Edit AddOn' : 'Create AddOn'}

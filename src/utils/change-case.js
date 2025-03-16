@@ -21,3 +21,10 @@ export function snakeCase(str) {
 export function sentenceCase(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+// ----------------------------------------------------------------------
+export function formatString(str) {
+  return str
+      .split('_') // Split by underscore
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+      .join(' '); // Join words with space
+}

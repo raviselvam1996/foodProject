@@ -9,10 +9,7 @@ import { CustomerProfileTable } from '../customerProfile/customer-profile-table'
 
 // ----------------------------------------------------------------------
 
-export function CustomerProfile() {
-    const dar = 'fsdfjsdf'
-    console.log(dar);
-    
+export function CustomerProfile() {  
   return (
     <DashboardContent>
       <CustomBreadcrumbs
