@@ -19,12 +19,13 @@ export const itemSchema = z.object({
   food_type: z.string(),
 });
 // Addon schema
-export const addonSchema = z
+export const addonSchema = z  
   .object({
     name: z.string().min(1, { message: 'AddOn Name is required!' }),
     select_upto: z.number(), // Prevents 0 and negative numbers
     is_required: z.boolean(),
     is_multi_select: z.boolean(),
+    size_enb: z.boolean(),
   })
   .refine(
     (data) => {

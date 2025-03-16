@@ -13,6 +13,7 @@ import {
 import { formatPrice } from 'src/utils/amountChange';
 import { useOrderListMutation } from 'src/services/order';
 import { toast } from 'sonner';
+import { handleApiError } from 'src/utils/errorHandler';
 
 const orders = [
   {
@@ -129,16 +130,12 @@ const OrderDetails = () => {
                         </Typography>
                         <Typography variant="subtitle1" fontSize={14}>
                           <span className="text-sm">
-                            ORD ID -<span style={{ color: 'red' }}> {selectedOrder.order_id}</span>{' '}
+                            ORD ID -<span style={{ color: 'red' }}> {order.order_id}</span>{' '}
                           </span>
                         </Typography>
                       </Box>
 
-                      {/* Time and Remaining Time */}
-                      <Typography color="error" fontSize={14} sx={{ mb: 1, mt: 1 }}>
-                        {/* Today {order.time} ({order.remainingTime}) */}
-                        Time
-                      </Typography>
+         
 
                       {/* Items List - Left Item Name, Right Price */}
                       {order.items.map((item, index) => (
@@ -146,9 +143,9 @@ const OrderDetails = () => {
                           key={index}
                           display="flex"
                           justifyContent="space-between"
-                          sx={{ mb: 1 }}
+                          sx={{ mb: 1 ,mt:3}}
                         >
-                          <Typography fontSize={14}>
+                          <Typography fontWeight="bold" fontSize={14}>
                             {item.qty} X {item.item_name}
                           </Typography>
                           <Typography fontWeight="bold" fontSize={14}>
@@ -194,12 +191,12 @@ const OrderDetails = () => {
                     <Box display="flex" justifyContent="space-between">
                       <Typography variant="h6">
                         {selectedOrder.user_name}{' '}
-                        <span className="text-sm">
-                          ( ORD ID -<span style={{ color: 'red' }}> {selectedOrder.order_id}</span>{' '}
-                          )
-                        </span>
+                    
                       </Typography>
-                      <Typography color="textSecondary">Today</Typography>
+                      <Typography color="textSecondary">    <span className="text-sm">
+                           ORD ID -<span style={{ color: 'red' }}> {selectedOrder.order_id}</span>{' '}
+                          
+                        </span></Typography>
                     </Box>
                     <Divider sx={{ my: 1 }} />
 
@@ -209,46 +206,30 @@ const OrderDetails = () => {
                           <Typography fontWeight="bold">
                             {item.qty} X {item.item_name}
                           </Typography>
-                          {/* <Typography variant="body2" sx={{ mt: 1 }}>
-                    <b>Toppings:</b>
-                    {selectedOrder?.toppings?.map((item, j) => (
-                      <span key={j} className="m-1">
-                        <Chip
-                          variant="outlined"
-                          size="small"
-                          label={<span>{item}</span>}
-                          color="primary"
-                        />
-                      </span>
-                    ))}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    <b>Dip:</b>
-                    {selectedOrder?.dips?.map((item, j) => (
-                      <span key={j} className="m-1">
-                        <Chip
-                          variant="outlined"
-                          size="small"
-                          label={<span>{item}</span>}
-                          color="primary"
-                        />
-                      </span>
-                    ))}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    <b>Drinks:</b>
-  
-                    {selectedOrder?.drinks?.map((item, j) => (
-                      <span key={j} className="m-1">
-                        <Chip
-                          variant="outlined"
-                          size="small"
-                          label={<span>{item}</span>}
-                          color="primary"
-                        />
-                      </span>
-                    ))}
-                  </Typography> */}
+                          <Typography variant="body2" sx={{ mt: 1 }}>
+                            {item?.addons?.map((addon,i) => {
+                              return (
+                              
+                                <div key={i} className="m-5">  
+
+                                  <b>{addon.addon_name}</b>
+
+                                  {addon?.addon_item?.map((ite, j) => (
+                                    <span key={j} className="m-1 ml-2">
+                                      <Chip
+                                        variant="outlined"
+                                        size="small"
+                                        label={<span>{ite}</span>}
+                                        color="primary"
+                                      />
+                                    </span>
+                                  ))}
+                                                                  </div>
+
+                              );
+                            })}
+                          </Typography>
+
                           <Divider sx={{ my: 1 }} />
                         </Box>
                       ))}

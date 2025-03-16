@@ -4,6 +4,7 @@ import Checkbox from '@mui/material/Checkbox';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import { formatString } from 'src/utils/change-case';
 
 // ----------------------------------------------------------------------
 
@@ -62,7 +63,7 @@ export function TableHeadCustom({
                 direction={orderBy === headCell.id ? order : 'asc'}
                 onClick={() => onSort(headCell.id)}
               >
-                {headCell.label}
+                {formatString(headCell.label)}
 
                 {orderBy === headCell.id ? (
                   <Box sx={{ ...visuallyHidden }}>

@@ -102,7 +102,7 @@ export function AdminTableRow({ row, selected, onEditRow, onSelectRow, onDeleteR
             onClick={onEditRow}
           >
             <Iconify icon="solar:pen-bold" />
-            Edit Employee Info
+            Edit Admin Info
           </MenuItem>
           <MenuItem
             onClick={onDeleteRow}
