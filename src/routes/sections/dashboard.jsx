@@ -169,8 +169,8 @@ export const dashboardRoutes = [
       { path: 'blank', element: <BlankPage /> },
 
 
-      { path: 'menu',
-        element: <RoleGuard allowedRoles={'menu'} />, // Only admins can access
+      { path: 'menu', 
+        element: <RoleGuard allowedRoles={'menu_management'} />, // Only admins can access
         children: [
           { element: <MenuPage />, index: true }
         ]
@@ -188,7 +188,7 @@ export const dashboardRoutes = [
       },
       {
         path: 'orders',
-        element: <RoleGuard allowedRoles={'order'} />, // Only admins can access
+        element: <RoleGuard allowedRoles={'order_management'} />, // Only admins can access
         children: [
           { element: <OrderPage />, index: true },
           { path: 'view-order', element: <ViewOrderPage /> },
