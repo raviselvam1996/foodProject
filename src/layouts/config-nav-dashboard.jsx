@@ -54,7 +54,7 @@ export const navData = [
    */
   {
     subheader: 'Menu Management',
-    roles: 'menu', // Only admins can see this section
+    roles: 'menu_management', // Only admins can see this section
     items: [{ title: 'Menu', path: paths.dashboard.menu.root, icon: ICONS.menuItem }],
   },
   {
@@ -75,8 +75,8 @@ export const navData = [
       }],
   },
   {
-    subheader: 'Order Mange',
-    roles: 'order', // Admins and Order Employees can see this
+    subheader: 'Order Mangement',
+    roles: 'order_management', // Admins and Order Employees can see this
     items: [
       { 
         title: 'Orders'

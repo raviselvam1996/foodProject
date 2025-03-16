@@ -9,11 +9,13 @@ import {
   Divider,
   Grid,
   CircularProgress,
+  MenuItem,
 } from '@mui/material';
 import { formatPrice } from 'src/utils/amountChange';
-import { useOrderListMutation } from 'src/services/order';
+import { useOrderChangeMutation, useOrderListMutation } from 'src/services/order';
 import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
+import { RHFSelect } from 'src/components/hook-form';
 
 const orders = [
   {
@@ -58,12 +60,19 @@ const orders = [
     notes: '',
   },
 ];
+const OPTIONS = [
+  { value: 'accepted', label: 'Accepted' },
+  { value: 'preparing', label: 'Preparing' },
+  { value: 'on the way', label: 'On The Way' },
+  { value: 'delivered', label: 'Delivered' },
+];
 
 const OrderDetails = () => {
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [orderData, setOrderData] = useState([]);
 
   const [orderList, { isLoading: orderLoad }] = useOrderListMutation();
+  const [orderChange, { isLoading: statusLoad }] = useOrderChangeMutation();
 
   const orderListGet = async () => {
     try {
@@ -84,6 +93,28 @@ const OrderDetails = () => {
   useEffect(() => {
     orderListGet();
   }, []);
+  //  Change the order status
+  const orderStatusChange = async (id, status) => {
+    try {
+      // Create FormData instance
+      const formData = {
+        id,
+        status,
+      };
+
+      const response = await orderChange(formData).unwrap();
+
+      if (response.status) {
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage);
+    }
+  };
   return (
     <Box>
       {/* Order Header */}
@@ -135,15 +166,13 @@ const OrderDetails = () => {
                         </Typography>
                       </Box>
 
-         
-
                       {/* Items List - Left Item Name, Right Price */}
                       {order.items.map((item, index) => (
                         <Box
                           key={index}
                           display="flex"
                           justifyContent="space-between"
-                          sx={{ mb: 1 ,mt:3}}
+                          sx={{ mb: 1, mt: 3 }}
                         >
                           <Typography fontWeight="bold" fontSize={14}>
                             {item.qty} X {item.item_name}
@@ -171,15 +200,31 @@ const OrderDetails = () => {
                           <b>{formatPrice(order.total_amount)}</b>
                         </Typography>
                       </Box>
-
-                      {/* Payment Status */}
-                      <Chip
+                      <div className='flex justify-between gap-4'>
+         {/* Payment Status */}
+         <Chip
                         label={order.payment_mode == 'COD' ? 'COD' : 'PAID'}
                         color={order.payment_mode != 'COD' ? 'success' : 'warning'}
                         sx={{ mt: 1 }}
                         variant="outlined"
                         size="small"
                       />
+                      <RHFSelect
+                        name="singleSelect"
+                        label="Single select"
+                        onChange={(event) => orderStatusChange(order?.order_id, event.target.value)}
+                        size="small"
+                      >
+                        <MenuItem value="">None</MenuItem>
+                        <Divider sx={{ borderStyle: 'dashed' }} />
+                        {OPTIONS.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </RHFSelect>
+                      </div>
+             
                     </Card>
                   ))}
               </Grid>
@@ -189,14 +234,13 @@ const OrderDetails = () => {
                 {selectedOrder && (
                   <Card sx={{ p: 2 }}>
                     <Box display="flex" justifyContent="space-between">
-                      <Typography variant="h6">
-                        {selectedOrder.user_name}{' '}
-                    
+                      <Typography variant="h6">{selectedOrder.user_name} </Typography>
+                      <Typography color="textSecondary">
+                        {' '}
+                        <span className="text-sm">
+                          ORD ID -<span style={{ color: 'red' }}> {selectedOrder.order_id}</span>{' '}
+                        </span>
                       </Typography>
-                      <Typography color="textSecondary">    <span className="text-sm">
-                           ORD ID -<span style={{ color: 'red' }}> {selectedOrder.order_id}</span>{' '}
-                          
-                        </span></Typography>
                     </Box>
                     <Divider sx={{ my: 1 }} />
 
@@ -207,11 +251,9 @@ const OrderDetails = () => {
                             {item.qty} X {item.item_name}
                           </Typography>
                           <Typography variant="body2" sx={{ mt: 1 }}>
-                            {item?.addons?.map((addon,i) => {
+                            {item?.addons?.map((addon, i) => {
                               return (
-                              
-                                <div key={i} className="m-5">  
-
+                                <div key={i} className="m-5">
                                   <b>{addon.addon_name}</b>
 
                                   {addon?.addon_item?.map((ite, j) => (
@@ -224,8 +266,7 @@ const OrderDetails = () => {
                                       />
                                     </span>
                                   ))}
-                                                                  </div>
-
+                                </div>
                               );
                             })}
                           </Typography>
