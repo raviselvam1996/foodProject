@@ -18,6 +18,10 @@ import {
 import { AnalyticsWidgetSummary } from '../analytics-widget-summary';
 import { AnalyticsWebsiteVisits } from '../analytics-website-visits';
 import { AnalyticsCurrentVisits } from '../analytics-current-visits';
+import { useGetAnalyticsMutation } from 'src/services/order';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { handleApiError } from 'src/utils/errorHandler';
 // import { AnalyticsTrafficBySite } from '../analytics-traffic-by-site';
 // import { AnalyticsCurrentSubject } from '../analytics-current-subject';
 // import { AnalyticsConversionRates } from '../analytics-conversion-rates';
@@ -25,6 +29,26 @@ import { AnalyticsCurrentVisits } from '../analytics-current-visits';
 // ----------------------------------------------------------------------
 
 export function OverviewAnalyticsView() {
+  const [analyticsData, setAnalyticsData] = useState(null);
+    const [getAnalytics, { isLoading: anlyticsLoad }] = useGetAnalyticsMutation();
+    const analyticsGet = async () => {
+      try {
+        const response = await getAnalytics().unwrap();
+        if (response.status) {
+          setAnalyticsData(response.data);
+        } else {
+          setAnalyticsData(null);
+          toast.error(response.message);
+        }
+      } catch (error) {
+        const errorMessage = handleApiError(error);
+        console.error(errorMessage);
+        toast.error(errorMessage);
+      }
+    };
+    useEffect(() => {
+      analyticsGet();
+    }, []);
   return (
     <DashboardContent maxWidth="xl">
       <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>
@@ -32,11 +56,11 @@ export function OverviewAnalyticsView() {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AnalyticsWidgetSummary
             title="Weekly sales"
             percent={2.6}
-            total={714000}
+            total={analyticsData?.total_amount}
             icon={
               <img alt="icon" src={`${CONFIG.site.basePath}/assets/icons/glass/ic-glass-bag.svg`} />
             }
@@ -47,11 +71,11 @@ export function OverviewAnalyticsView() {
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AnalyticsWidgetSummary
             title="New users"
             percent={-0.1}
-            total={1352831}
+            total={analyticsData?.users}
             color="secondary"
             icon={
               <img
@@ -66,11 +90,11 @@ export function OverviewAnalyticsView() {
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AnalyticsWidgetSummary
             title="Purchase orders"
             percent={2.8}
-            total={1723315}
+            total={analyticsData?.orders}
             color="warning"
             icon={
               <img alt="icon" src={`${CONFIG.site.basePath}/assets/icons/glass/ic-glass-buy.svg`} />
@@ -82,7 +106,7 @@ export function OverviewAnalyticsView() {
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        {/* <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
             title="Messages"
             percent={3.6}
@@ -99,7 +123,7 @@ export function OverviewAnalyticsView() {
               series: [56, 30, 23, 54, 47, 40, 62, 73],
             }}
           />
-        </Grid>
+        </Grid> */}
 
         <Grid xs={12} md={6} lg={4}>
           <AnalyticsCurrentVisits

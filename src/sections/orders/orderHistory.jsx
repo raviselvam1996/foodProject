@@ -14,101 +14,21 @@ import {
   Select,
 } from '@mui/material';
 import { formatPrice } from 'src/utils/amountChange';
-import { useOrderChangeMutation, useOrderListMutation } from 'src/services/order';
+import { useGetOrderHistoryMutation, useOrderChangeMutation, useOrderListMutation } from 'src/services/order';
 import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
-import { RHFSelect } from 'src/components/hook-form';
+import { formatString } from 'src/utils/change-case';
 
-const orders = [
-  {
-    id: '#123458',
-    customer: 'Alice Smith',
-    time: '17:40',
-    remainingTime: '30MIN',
-    items: [
-      { name: "Pizza Meal For 2 (12'')", quantity: 2, price: '6.50' },
-      { name: 'Burger', quantity: 2, price: '6.50' },
-      { name: 'Kebabs', quantity: 3, price: '7' },
-    ],
-    serviceFee: '0.50',
-    deliveryFee: '0.50',
-    totalBill: '25',
-    paymentStatus: 'PAID',
-    status: 'Accepted',
-    toppings: ['Ham', 'Pineapple'],
-    dips: ['Curry'],
-    drinks: ['1 Coca Cola', '1 Diet Coke'],
-    notes:
-      'I have a severe allergy to peanuts. Please ensure my food is prepared without any contact with peanuts or peanut products.',
-  },
-  {
-    id: '#123457',
-    customer: 'Jakob Tho',
-    time: '19:20',
-    remainingTime: '01:40MIN',
-    items: [
-      { name: "Pizza Meal For 2 (12'')", quantity: 2, price: '6.50' },
-      { name: 'Burger', quantity: 2, price: '6.50' },
-      { name: 'Kebabs', quantity: 3, price: '7' },
-    ],
-    serviceFee: '0.50',
-    deliveryFee: '0.50',
-    totalBill: '25',
-    paymentStatus: 'COD',
-    status: 'Pending',
-    toppings: ['Ham', 'Pineapple'],
-    dips: ['Curry'],
-    drinks: ['1 Coca Cola', '1 Diet Coke'],
-    notes: '',
-  },
-];
-const OPTIONS = [
-  { value: 'Pending', label: 'Pending' },
-  { value: 'accepted', label: 'Accepted' },
-  { value: 'preparing', label: 'Preparing' },
-  { value: 'on the way', label: 'On The Way' },
-  { value: 'delivered', label: 'Delivered' },
-];
 
-const OrderSelectBox = ({ initialVal, customerEnquiryStatus, orderStatusChange, orderId }) => {
-  const [initVal, setInitVal] = useState(initialVal)
-  return (
-      <>
-      
-          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-                          <Select
-                            labelId="demo-select-small-label"
-                            id="demo-select-small"
-                            value={initVal}
-                            label=""
-                            onChange={(event) => {
-                              setInitVal(event.target.value)
-                              orderStatusChange(orderId, event.target.value)
-                            } }
-                          >
-                            <Divider sx={{ borderStyle: 'dashed' }} />
-                            {OPTIONS.map((option) => (
-                              <MenuItem key={option.value} value={option.value}       disabled={option.value === 'Pending'} // Disable Pending option
->
-                                {option.label}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-      </>
-  )
-}
-
-const OrderDetails = () => {
+const OrderHistoryDetails = () => {
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [orderData, setOrderData] = useState([]);
 
-  const [orderList, { isLoading: orderLoad }] = useOrderListMutation();
-  const [orderChange, { isLoading: statusLoad }] = useOrderChangeMutation();
+  const [getOrderHistory, { isLoading: orderLoad }] = useGetOrderHistoryMutation();
 
   const orderListGet = async () => {
     try {
-      const response = await orderList().unwrap();
+      const response = await getOrderHistory().unwrap();
       if (response.status) {
         setOrderData(response.data);
         setSelectedOrder(response?.data[0] || []);
@@ -125,28 +45,7 @@ const OrderDetails = () => {
   useEffect(() => {
     orderListGet();
   }, []);
-  //  Change the order status
-  const orderStatusChange = async (id, status) => {
-    try {
-      // Create FormData instance
-      const formData = {
-        id,
-        status,
-      };
 
-      const response = await orderChange(formData).unwrap();
-
-      if (response.status) {
-        toast.success(response.message);
-      } else {
-        toast.error(response.message);
-      }
-    } catch (error) {
-      const errorMessage = handleApiError(error);
-      console.error(errorMessage);
-      toast.error(errorMessage);
-    }
-  };
   return (
     <Box>
       {/* Order Header */}
@@ -241,8 +140,13 @@ const OrderDetails = () => {
                           variant="outlined"
                           size="small"
                         />
-<OrderSelectBox initialVal={order.order_status} orderStatusChange={orderStatusChange} orderId={order?.order_id}/>
-                        
+                          <Chip
+                          label={formatString(order.order_status)}
+                          color={'success'}
+                          sx={{ mt: 1 }}
+                          variant="outlined"
+                          size="small"
+                        />
                       </div>
 
                     </Card>
@@ -316,4 +220,4 @@ const OrderDetails = () => {
   );
 };
 
-export default OrderDetails;
+export default OrderHistoryDetails;
