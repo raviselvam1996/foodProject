@@ -21,11 +21,25 @@ export const orderApi = createApi({
         body: data,
       }),
     }),
+    getAnalytics: builder.mutation({
+      query: (data) => ({
+        url: 'admin/analytics',
+        method: 'GET',
+        body: data,
+      }),
+    }),
+    getOrderHistory: builder.mutation({
+      query: (data) => ({
+        url: 'admin/order_history',
+        method: 'GET',
+        body: data,
+      }),
+    }),
 
 
 
   }),
 });
 
-export const { useOrderListMutation, useOrderChangeMutation} =
+export const { useOrderListMutation, useOrderChangeMutation,useGetAnalyticsMutation,useGetOrderHistoryMutation} =
   orderApi;

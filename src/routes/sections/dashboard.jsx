@@ -70,6 +70,7 @@ const EmployeeProfile = lazy(() => import('src/pages/dashboard/admin/employeePro
 const CustomerProfile = lazy(() => import('src/pages/dashboard/admin/customerProfile'));
 const OrderPage = lazy(() => import('src/pages/dashboard/orders'));
 const ViewOrderPage = lazy(() => import('src/pages/dashboard/orders/viewDetails'));
+const OrderHistory = lazy(() => import('src/pages/dashboard/orders/orderHistory'));
 
 // ----------------------------------------------------------------------
 
@@ -192,6 +193,7 @@ export const dashboardRoutes = [
         children: [
           { element: <OrderPage />, index: true },
           { path: 'view-order', element: <ViewOrderPage /> },
+          { path: 'order-history', element: <OrderHistory /> },
    
       
         ],
