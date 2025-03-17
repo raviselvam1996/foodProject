@@ -10,6 +10,8 @@ import {
   Grid,
   CircularProgress,
   MenuItem,
+  FormControl,
+  Select,
 } from '@mui/material';
 import { formatPrice } from 'src/utils/amountChange';
 import { useOrderChangeMutation, useOrderListMutation } from 'src/services/order';
@@ -61,6 +63,7 @@ const orders = [
   },
 ];
 const OPTIONS = [
+  { value: 'Pending', label: 'Pending' },
   { value: 'accepted', label: 'Accepted' },
   { value: 'preparing', label: 'Preparing' },
   { value: 'on the way', label: 'On The Way' },
@@ -201,30 +204,34 @@ const OrderDetails = () => {
                         </Typography>
                       </Box>
                       <div className='flex justify-between gap-4'>
-         {/* Payment Status */}
-         <Chip
-                        label={order.payment_mode == 'COD' ? 'COD' : 'PAID'}
-                        color={order.payment_mode != 'COD' ? 'success' : 'warning'}
-                        sx={{ mt: 1 }}
-                        variant="outlined"
-                        size="small"
-                      />
-                      <RHFSelect
-                        name="singleSelect"
-                        label="Single select"
-                        onChange={(event) => orderStatusChange(order?.order_id, event.target.value)}
-                        size="small"
-                      >
-                        <MenuItem value="">None</MenuItem>
-                        <Divider sx={{ borderStyle: 'dashed' }} />
-                        {OPTIONS.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </RHFSelect>
+                        {/* Payment Status */}
+                        <Chip
+                          label={order.payment_mode == 'COD' ? 'COD' : 'PAID'}
+                          color={order.payment_mode != 'COD' ? 'success' : 'warning'}
+                          sx={{ mt: 1 }}
+                          variant="outlined"
+                          size="small"
+                        />
+
+                        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                          <Select
+                            labelId="demo-select-small-label"
+                            id="demo-select-small"
+                            value={order.order_status}
+                            label=""
+                            onChange={(event) => orderStatusChange(order?.order_id, event.target.value)}
+                          >
+                            <MenuItem value="">None</MenuItem>
+                            <Divider sx={{ borderStyle: 'dashed' }} />
+                            {OPTIONS.map((option) => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
                       </div>
-             
+
                     </Card>
                   ))}
               </Grid>
