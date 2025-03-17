@@ -70,6 +70,34 @@ const OPTIONS = [
   { value: 'delivered', label: 'Delivered' },
 ];
 
+const OrderSelectBox = ({ initialVal, customerEnquiryStatus, orderStatusChange, orderId }) => {
+  const [initVal, setInitVal] = useState(initialVal)
+  return (
+      <>
+      
+          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                          <Select
+                            labelId="demo-select-small-label"
+                            id="demo-select-small"
+                            value={initVal}
+                            label=""
+                            onChange={(event) => {
+                              setInitVal(event.target.value)
+                              orderStatusChange(orderId, event.target.value)
+                            } }
+                          >
+                            <Divider sx={{ borderStyle: 'dashed' }} />
+                            {OPTIONS.map((option) => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+      </>
+  )
+}
+
 const OrderDetails = () => {
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [orderData, setOrderData] = useState([]);
@@ -212,24 +240,8 @@ const OrderDetails = () => {
                           variant="outlined"
                           size="small"
                         />
-
-                        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-                          <Select
-                            labelId="demo-select-small-label"
-                            id="demo-select-small"
-                            value={order.order_status}
-                            label=""
-                            onChange={(event) => orderStatusChange(order?.order_id, event.target.value)}
-                          >
-                            <MenuItem value="">None</MenuItem>
-                            <Divider sx={{ borderStyle: 'dashed' }} />
-                            {OPTIONS.map((option) => (
-                              <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
+<OrderSelectBox initialVal={order.order_status} orderStatusChange={orderStatusChange} orderId={order?.order_id}/>
+                        
                       </div>
 
                     </Card>
