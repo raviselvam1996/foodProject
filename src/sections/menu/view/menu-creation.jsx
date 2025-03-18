@@ -11,7 +11,7 @@ import { MenuDetails } from '../menu-details';
 export function MenuCreation() {
   return (
     <DashboardContent>
-      <CustomBreadcrumbs
+      {/* <CustomBreadcrumbs
         heading="Menu"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
@@ -19,7 +19,7 @@ export function MenuCreation() {
           // { name: 'New tour' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
-      />
+      /> */}
 
       <MenuDetails />
     </DashboardContent>

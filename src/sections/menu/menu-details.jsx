@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   CircularProgress,
   Autocomplete,
+  Grid,
 } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -108,7 +109,6 @@ export function MenuDetails() {
   const [imgUrl, setImageUrl] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [menuName, setMenuName] = useState('');
-  const [isSizeEnable, setIsSizeEnable] = useState(false);
 
   const imageBaseUrl = import.meta.env.VITE_DASHBOARD_BASE_URL;
   const [addMenu, { isLoading: statusLoad }] = useAddMenuMutation();
@@ -172,7 +172,6 @@ export function MenuDetails() {
       is_required: false,
       is_multi_select: false,
       select_upto: 1, // Default empty selection
-      size_enb: false,
     },
   });
   const {
@@ -497,6 +496,7 @@ export function MenuDetails() {
           options={[
             { label: 'VEG', value: 'veg' },
             { label: 'NON-VEG', value: 'non-veg' },
+            { label: 'OTHRES', value: 'others' },
           ]}
           sx={{ gap: 4 }}
         />
@@ -545,7 +545,6 @@ export function MenuDetails() {
   const openEditAddonData = (val, id, isSize) => {
     setAddOnId(id);
     setEditId(id);
-    setIsSizeEnable(isSize || false);
     setIsEdit(true);
     addon.onTrue();
     addonReset(val);
@@ -629,12 +628,8 @@ export function MenuDetails() {
 
             <div className="flex items-center">
               {/* <SwitchComponent /> */}
-              <RHFSwitch name="is_required" label="Required" />
-              {isSizeEnable ? (
-                <RHFSwitch name="size_enb" label="Enable" />
-              ) : (
+              <RHFSwitch name="is_required" label="Required" />         
                 <RHFSwitch name="is_multi_select" label="Select Multiple" />
-              )}
             </div>
             <div className="flex gap-2">
               {addonWatch('is_multi_select') && (
@@ -684,7 +679,7 @@ export function MenuDetails() {
         </Typography>
 
         <CardContent className="flex items-center flex-wrap gap-4">
-          {addOnItemsSuggest.length > 0 && (!isAddOn || isEdit) && !isSizeEnable && (
+          {addOnItemsSuggest.length > 0 && (!isAddOn || isEdit) && (
             <Autocomplete
               options={addOnItemsSuggest}
               getOptionLabel={(option) => option.name + ' | ' + option.price}
@@ -775,7 +770,7 @@ export function MenuDetails() {
 
   return (
     <>
-      <div className="flex mb-3">
+      <div className="flex">
         <div>
           <Button
             variant="contained"
@@ -797,8 +792,15 @@ export function MenuDetails() {
       ) : (
         <>
           {categoriesData?.data && categoriesData?.data?.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3">
-              <Card className="col-span-1 p-2">
+            <>
+                        <Grid container spacing={2} sx={{mt:2}}>
+                        <Grid
+                item
+                xs={5}
+                sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}
+                className="custom-scroll"
+              >
+         <Card className="p-2">
                 <div className="flex items-center  pb-2 mb-4">
                   <h2 className="text-xl font-bold text-gray-800">Menu</h2>
                 </div>
@@ -877,7 +879,10 @@ export function MenuDetails() {
                     ))}
                 </div>
               </Card>
-              <Card className="col-span-1 lg:col-span-2 p-3">
+
+                </Grid>
+                              <Grid item xs={7} className="sticky top-0 custom-scroll" sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}>
+                              <Card className="p-3">
                 <div className="flex justify-between">
                   <div>
                     <h2 className="text-xl font-bold text-gray-800">{menuName}</h2>
@@ -964,7 +969,7 @@ export function MenuDetails() {
                                     <>
                                       {item?.add_ons.map((addons, i) => (
                                         <Card className="p-3 mt-3" key={i}>
-                                          {!addons.is_size ? (
+                                   
                                             <>
                                                   <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
                                                 {addons.name}
@@ -1027,50 +1032,7 @@ export function MenuDetails() {
                                               </div>
                                         
                                             </>
-                                          ) : (
-                                            <>
-                                              <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-                                                {addons.name}
-                                              </Typography>
-                                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-2">
-                                                <FormControlLabel
-                                                  control={
-                                                    <Switch
-                                                      checked={addons.is_required}
-                                                      size="small"
-                                                      readOnly
-                                                    />
-                                                  }
-                                                  label="Required"
-                                                />
-                                                <FormControlLabel
-                                                  control={
-                                                    <Switch
-                                                      checked={addons.size_enb}
-                                                      size="small"
-                                                      readOnly
-                                                    />
-                                                  }
-                                                  label="Enable"
-                                                />
-                                                <div className="flex items-center justify-end gap-3 text-xl text-red-700">
-                                                  <IconButton
-                                                    color="primary"
-                                                    onClick={() => {
-                                                      setMenuItemId(item.id);
-                                                      openEditAddonData(
-                                                        addons,
-                                                        addons.id,
-                                                        addons.is_size
-                                                      );
-                                                    }}
-                                                  >
-                                                    <TbEdit className="cursor-pointer hover:text-red-500 transition" />
-                                                  </IconButton>
-                                                </div>
-                                              </div>
-                                            </>
-                                          )}
+                                  
 
                                           {addons.items.length > 0 && (
                                             <div>
@@ -1134,7 +1096,12 @@ export function MenuDetails() {
                   )}
                 </div>
               </Card>
-            </div>
+
+                </Grid>
+                </Grid>
+            
+   
+            </>
           ) : (
             <div className="flex items-center justify-center mt-10">
               <p>No Menu added,Please add Menu !</p>
@@ -1235,7 +1202,6 @@ export function MenuDetails() {
               is_required: false,
               is_multi_select: false,
               select_upto: 1,
-              size_enb: false,
             });
             addonItemReset({
               name: '',
@@ -1243,7 +1209,6 @@ export function MenuDetails() {
             });
             setIsAddOn(true);
             setIsEdit(false);
-            setIsSizeEnable(false);
             // menuItemsGet(menuId);
             setAddOnItems([]);
             addonItemsSuggestGet();
