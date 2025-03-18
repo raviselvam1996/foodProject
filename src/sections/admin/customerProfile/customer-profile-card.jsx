@@ -31,12 +31,12 @@ const CustomerProfileCard = ({customerData}) => {
           <Typography variant="subtitle1" fontWeight="bold">
               {customerData.name}
           </Typography>
-          <Typography
+          {/* <Typography
             variant="caption"
             sx={{ backgroundColor: "green", color: "white", px: 1, py: 0.5, borderRadius: 1 }}
           >
             ● Last Order Yesterday
-          </Typography>
+          </Typography> */}
           <Stack direction="row" alignItems="center" spacing={1} mt={1}>
             <Typography variant="body2">{customerData.email}</Typography>
           </Stack>
@@ -61,9 +61,9 @@ const CustomerProfileCard = ({customerData}) => {
           <Typography variant="subtitle2" fontWeight="bold">
             Orders & Feedback
           </Typography>
-          <Button color="error" size="small">View All</Button>
+          {/* <Button color="error" size="small">View All</Button> */}
         </Stack>
-        <OrderList />
+        <OrderList orderData={customerData?.orders}/>
       </Box>
 
   
@@ -85,7 +85,9 @@ const AddressList = ({addressData}) => {
                 <Card key={index} variant="outlined">
         <Paper key={index} sx={{ p: 1.5, borderRadius: 1 }}>
           <Typography variant="caption" fontWeight="bold">
-          Home (Primary Address)
+            {
+              item.type || 'Home'
+            } Address
           </Typography>
           <Typography variant="body2">{ item.address+','+item.city+','+item.country+'-'+item.pincode }</Typography>
         </Paper>
@@ -96,7 +98,7 @@ const AddressList = ({addressData}) => {
 };
 
 // Orders Component
-const OrderList = () => {
+const OrderList = ({orderData}) => {
   const orders = [
     { date: "Yesterday", meal: "Pizza Meal For 2 (12\") - 2", drinks: 4, burgers: 2, total: 20 },
     { date: "13 Nov 2024", meal: "Pizza Meal For 2 (12\") - 2", drinks: 4, burgers: 2, total: 20 },
@@ -104,25 +106,24 @@ const OrderList = () => {
 
   return (
     <Stack spacing={2} mt={2}>
-      {orders.map((order, index) => (
+      {orderData?.map((order, index) => (
         <Card key={index} variant="outlined">
           <CardContent>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Typography variant="body1" fontWeight="bold">
-                {order.meal}
+                {order.item_name} - {order.qty}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {order.date}
+               ORD ID - {order.order_id}
               </Typography>
             </Stack>
-            <Typography variant="body2">🥤 Drinks - {order.drinks}</Typography>
-            <Typography variant="body2">🍔 Burger - {order.burgers}</Typography>
+
             <Typography variant="body2" fontWeight="bold">
-              💰 Order Total - £{order.total}
+              💰 Order Total - £{order.total_amount}
             </Typography>
-            <Button color="error" size="small" sx={{ mt: 1 }}>
+            {/* <Button color="error" size="small" sx={{ mt: 1 }}>
               View Feedback
-            </Button>
+            </Button> */}
           </CardContent>
         </Card>
       ))}

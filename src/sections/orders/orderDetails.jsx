@@ -12,12 +12,18 @@ import {
   MenuItem,
   FormControl,
   Select,
+  Stack,
+  Paper,
+  TextField,
 } from '@mui/material';
 import { formatPrice } from 'src/utils/amountChange';
 import { useOrderChangeMutation, useOrderListMutation } from 'src/services/order';
 import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
 import { RHFSelect } from 'src/components/hook-form';
+import { FaAddressCard } from "react-icons/fa";
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { useBoolean } from 'src/hooks/use-boolean';
 
 const orders = [
   {
@@ -70,38 +76,50 @@ const OPTIONS = [
   { value: 'delivered', label: 'Delivered' },
 ];
 
-const OrderSelectBox = ({ initialVal, customerEnquiryStatus, orderStatusChange, orderId }) => {
+const OrderSelectBox = ({ initialVal, customerEnquiryStatus, orderStatusChange, orderId,orderChange }) => {
   const [initVal, setInitVal] = useState(initialVal)
+
+  const orderChanges = (id,value) => {
+    if(value == 'delivered'){
+console.log('is develivery');
+orderChange()
+
+    }else{
+      orderStatusChange(id,value)
+    }
+
+  }
   return (
-      <>
-      
-          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-                          <Select
-                            labelId="demo-select-small-label"
-                            id="demo-select-small"
-                            value={initVal}
-                            label=""
-                            onChange={(event) => {
-                              setInitVal(event.target.value)
-                              orderStatusChange(orderId, event.target.value)
-                            } }
-                          >
-                            <Divider sx={{ borderStyle: 'dashed' }} />
-                            {OPTIONS.map((option) => (
-                              <MenuItem key={option.value} value={option.value}       disabled={option.value === 'Pending'} // Disable Pending option
->
-                                {option.label}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-      </>
+    <>
+
+      <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+        <Select
+          labelId="demo-select-small-label"
+          id="demo-select-small"
+          value={initVal}
+          label=""
+          onChange={(event) => {
+            setInitVal(event.target.value)
+            orderChanges(orderId, event.target.value)
+          }}
+        >
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          {OPTIONS.map((option) => (
+            <MenuItem key={option.value} value={option.value} disabled={option.value === 'Pending'} // Disable Pending option
+            >
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </>
   )
 }
 
 const OrderDetails = () => {
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [orderData, setOrderData] = useState([]);
+  const delivery = useBoolean();
 
   const [orderList, { isLoading: orderLoad }] = useOrderListMutation();
   const [orderChange, { isLoading: statusLoad }] = useOrderChangeMutation();
@@ -147,6 +165,9 @@ const OrderDetails = () => {
       toast.error(errorMessage);
     }
   };
+  const deliveryChange = () => {
+
+  }
   return (
     <Box>
       {/* Order Header */}
@@ -241,8 +262,8 @@ const OrderDetails = () => {
                           variant="outlined"
                           size="small"
                         />
-<OrderSelectBox initialVal={order.order_status} orderStatusChange={orderStatusChange} orderId={order?.order_id}/>
-                        
+                        <OrderSelectBox initialVal={order.order_status} orderStatusChange={orderStatusChange} orderId={order?.order_id} orderChange={() => delivery.onTrue()}/>
+
                       </div>
 
                     </Card>
@@ -250,11 +271,28 @@ const OrderDetails = () => {
               </Grid>
 
               {/* Right Side - Order Details */}
-              <Grid item xs={7} className="sticky top-0 custom-scroll"    sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}>
+              <Grid item xs={7} className="sticky top-0 custom-scroll" sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}>
                 {selectedOrder && (
                   <Card sx={{ p: 2 }}>
                     <Box display="flex" justifyContent="space-between">
+                      <div>
                       <Typography variant="h6">{selectedOrder.user_name} </Typography>
+
+                        {selectedOrder?.address?.map((item, index) => (
+                          <Card key={index}  className='mt-5 border-l-4 border-red-500'>
+                            <Paper key={index} sx={{ p: 1.5, borderRadius: 1 }}>
+                              <div className='flex items-center gap-2'>
+                              <FaAddressCard />
+
+                              <Typography  fontWeight="bold">
+                                {item.type || 'Home'} Address
+                              </Typography>
+                              </div>
+                              <Typography variant="body2" sx={{mt:1}}>{item.address + ',' + item.city + ',' + item.country + '-' + item.pincode} </Typography>
+                            </Paper>
+                          </Card>
+                        ))}
+                      </div>
                       <Typography color="textSecondary">
                         {' '}
                         <span className="text-sm">
@@ -312,7 +350,32 @@ const OrderDetails = () => {
           )}
         </>
       )}
+                <ConfirmDialog
+            open={delivery.value}
+            onClose={delivery.onFalse}
+            title="Delivery"
+            content= {
+              <>
+              <p>Please Enter Order Id to delivered !</p>
+              <TextField
+          id="outlined-multiline-flexible"
+          label="Order Id"
+          size='small'
+          sx={{mt:3}}
+
+        />
+              </>
+            }
+            action={
+              <Button
+              //  onClick={deleteAddon}
+                variant="contained" color="error">
+                Confirm
+              </Button>
+            }
+          />
     </Box>
+
   );
 };
 

@@ -12,12 +12,14 @@ import {
   MenuItem,
   FormControl,
   Select,
+  Paper,
 } from '@mui/material';
 import { formatPrice } from 'src/utils/amountChange';
 import { useGetOrderHistoryMutation, useOrderChangeMutation, useOrderListMutation } from 'src/services/order';
 import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
 import { formatString } from 'src/utils/change-case';
+import { FaAddressCard } from 'react-icons/fa';
 
 
 const OrderHistoryDetails = () => {
@@ -158,7 +160,24 @@ const OrderHistoryDetails = () => {
                 {selectedOrder && (
                   <Card sx={{ p: 2 }}>
                     <Box display="flex" justifyContent="space-between">
+                      <div>
+
                       <Typography variant="h6">{selectedOrder.user_name} </Typography>
+                      {selectedOrder?.address?.map((item, index) => (
+                          <Card key={index}  className='mt-5 border-l-4 border-red-500'>
+                            <Paper key={index} sx={{ p: 1.5, borderRadius: 1 }}>
+                              <div className='flex items-center gap-2'>
+                              <FaAddressCard />
+
+                              <Typography  fontWeight="bold">
+                                {item.type || 'Home'} Address
+                              </Typography>
+                              </div>
+                              <Typography variant="body2" sx={{mt:1}}>{item.address + ',' + item.city + ',' + item.country + '-' + item.pincode} </Typography>
+                            </Paper>
+                          </Card>
+                        ))}
+                      </div>
                       <Typography color="textSecondary">
                         {' '}
                         <span className="text-sm">

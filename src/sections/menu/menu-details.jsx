@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   CircularProgress,
   Autocomplete,
+  Grid,
 } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -495,6 +496,7 @@ export function MenuDetails() {
           options={[
             { label: 'VEG', value: 'veg' },
             { label: 'NON-VEG', value: 'non-veg' },
+            { label: 'OTHRES', value: 'others' },
           ]}
           sx={{ gap: 4 }}
         />
@@ -768,7 +770,7 @@ export function MenuDetails() {
 
   return (
     <>
-      <div className="flex mb-3">
+      <div className="flex">
         <div>
           <Button
             variant="contained"
@@ -790,8 +792,15 @@ export function MenuDetails() {
       ) : (
         <>
           {categoriesData?.data && categoriesData?.data?.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3">
-              <Card className="col-span-1 p-2">
+            <>
+                        <Grid container spacing={2} sx={{mt:2}}>
+                        <Grid
+                item
+                xs={5}
+                sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}
+                className="custom-scroll"
+              >
+         <Card className="p-2">
                 <div className="flex items-center  pb-2 mb-4">
                   <h2 className="text-xl font-bold text-gray-800">Menu</h2>
                 </div>
@@ -870,7 +879,10 @@ export function MenuDetails() {
                     ))}
                 </div>
               </Card>
-              <Card className="col-span-1 lg:col-span-2 p-3">
+
+                </Grid>
+                              <Grid item xs={7} className="sticky top-0 custom-scroll" sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}>
+                              <Card className="p-3">
                 <div className="flex justify-between">
                   <div>
                     <h2 className="text-xl font-bold text-gray-800">{menuName}</h2>
@@ -1084,7 +1096,12 @@ export function MenuDetails() {
                   )}
                 </div>
               </Card>
-            </div>
+
+                </Grid>
+                </Grid>
+            
+   
+            </>
           ) : (
             <div className="flex items-center justify-center mt-10">
               <p>No Menu added,Please add Menu !</p>
