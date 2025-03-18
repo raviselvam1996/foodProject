@@ -108,7 +108,6 @@ export function MenuDetails() {
   const [imgUrl, setImageUrl] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [menuName, setMenuName] = useState('');
-  const [isSizeEnable, setIsSizeEnable] = useState(false);
 
   const imageBaseUrl = import.meta.env.VITE_DASHBOARD_BASE_URL;
   const [addMenu, { isLoading: statusLoad }] = useAddMenuMutation();
@@ -172,7 +171,6 @@ export function MenuDetails() {
       is_required: false,
       is_multi_select: false,
       select_upto: 1, // Default empty selection
-      size_enb: false,
     },
   });
   const {
@@ -545,7 +543,6 @@ export function MenuDetails() {
   const openEditAddonData = (val, id, isSize) => {
     setAddOnId(id);
     setEditId(id);
-    setIsSizeEnable(isSize || false);
     setIsEdit(true);
     addon.onTrue();
     addonReset(val);
@@ -629,12 +626,8 @@ export function MenuDetails() {
 
             <div className="flex items-center">
               {/* <SwitchComponent /> */}
-              <RHFSwitch name="is_required" label="Required" />
-              {isSizeEnable ? (
-                <RHFSwitch name="size_enb" label="Enable" />
-              ) : (
+              <RHFSwitch name="is_required" label="Required" />         
                 <RHFSwitch name="is_multi_select" label="Select Multiple" />
-              )}
             </div>
             <div className="flex gap-2">
               {addonWatch('is_multi_select') && (
@@ -684,7 +677,7 @@ export function MenuDetails() {
         </Typography>
 
         <CardContent className="flex items-center flex-wrap gap-4">
-          {addOnItemsSuggest.length > 0 && (!isAddOn || isEdit) && !isSizeEnable && (
+          {addOnItemsSuggest.length > 0 && (!isAddOn || isEdit) && (
             <Autocomplete
               options={addOnItemsSuggest}
               getOptionLabel={(option) => option.name + ' | ' + option.price}
@@ -964,7 +957,7 @@ export function MenuDetails() {
                                     <>
                                       {item?.add_ons.map((addons, i) => (
                                         <Card className="p-3 mt-3" key={i}>
-                                          {!addons.is_size ? (
+                                   
                                             <>
                                                   <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
                                                 {addons.name}
@@ -1027,50 +1020,7 @@ export function MenuDetails() {
                                               </div>
                                         
                                             </>
-                                          ) : (
-                                            <>
-                                              <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-                                                {addons.name}
-                                              </Typography>
-                                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-2">
-                                                <FormControlLabel
-                                                  control={
-                                                    <Switch
-                                                      checked={addons.is_required}
-                                                      size="small"
-                                                      readOnly
-                                                    />
-                                                  }
-                                                  label="Required"
-                                                />
-                                                <FormControlLabel
-                                                  control={
-                                                    <Switch
-                                                      checked={addons.size_enb}
-                                                      size="small"
-                                                      readOnly
-                                                    />
-                                                  }
-                                                  label="Enable"
-                                                />
-                                                <div className="flex items-center justify-end gap-3 text-xl text-red-700">
-                                                  <IconButton
-                                                    color="primary"
-                                                    onClick={() => {
-                                                      setMenuItemId(item.id);
-                                                      openEditAddonData(
-                                                        addons,
-                                                        addons.id,
-                                                        addons.is_size
-                                                      );
-                                                    }}
-                                                  >
-                                                    <TbEdit className="cursor-pointer hover:text-red-500 transition" />
-                                                  </IconButton>
-                                                </div>
-                                              </div>
-                                            </>
-                                          )}
+                                  
 
                                           {addons.items.length > 0 && (
                                             <div>
@@ -1235,7 +1185,6 @@ export function MenuDetails() {
               is_required: false,
               is_multi_select: false,
               select_upto: 1,
-              size_enb: false,
             });
             addonItemReset({
               name: '',
@@ -1243,7 +1192,6 @@ export function MenuDetails() {
             });
             setIsAddOn(true);
             setIsEdit(false);
-            setIsSizeEnable(false);
             // menuItemsGet(menuId);
             setAddOnItems([]);
             addonItemsSuggestGet();
