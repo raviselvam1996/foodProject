@@ -770,7 +770,10 @@ export function MenuDetails() {
 
   return (
     <>
-      <div className="flex">
+        <Typography variant="h5" style={{ color: 'red' }}>
+                  Menu Management
+                </Typography>
+      <div className="flex mt-2">
         <div>
           <Button
             variant="contained"

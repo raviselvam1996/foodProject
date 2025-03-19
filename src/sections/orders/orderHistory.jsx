@@ -13,6 +13,7 @@ import {
   FormControl,
   Select,
   Paper,
+  TextField,
 } from '@mui/material';
 import { formatPrice } from 'src/utils/amountChange';
 import { useGetOrderHistoryMutation, useOrderChangeMutation, useOrderListMutation } from 'src/services/order';
@@ -25,8 +26,16 @@ import { FaAddressCard } from 'react-icons/fa';
 const OrderHistoryDetails = () => {
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [orderData, setOrderData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [getOrderHistory, { isLoading: orderLoad }] = useGetOrderHistoryMutation();
+
+    // Filter orders based on searchQuery
+    const filteredOrders = orderData?.filter(
+      (order) =>
+        order.order_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.user_name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   const orderListGet = async () => {
     try {
@@ -50,6 +59,9 @@ const OrderHistoryDetails = () => {
 
   return (
     <Box>
+          <Typography variant="h5" style={{ color: 'red' }}>
+              Orders History
+            </Typography>
       {/* Order Header */}
       {/* <Box display="flex" gap={2} mt={2}>
         <Button variant="contained" color="error">
@@ -66,8 +78,18 @@ const OrderHistoryDetails = () => {
         </div>
       ) : (
         <>
-          {orderData.length > 0 ? (
-            <Grid container spacing={2}>
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                    <TextField
+                      label="Search Order ID or Name"
+                      variant="outlined"
+                      fullWidth
+                      size="small"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </Grid>
+          {filteredOrders.length > 0 ? (
+            <Grid container spacing={2} sx={{ mt: 2 }}>
               {/* Left Side - Orders List */}
               <Grid
                 item
@@ -75,8 +97,8 @@ const OrderHistoryDetails = () => {
                 sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}
                 className="custom-scroll"
               >
-                {orderData.length > 0 &&
-                  orderData.map((order) => (
+                {filteredOrders.length > 0 &&
+                  filteredOrders.map((order) => (
                     <Card
                       key={order.order_id}
                       sx={{

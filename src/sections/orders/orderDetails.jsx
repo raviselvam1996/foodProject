@@ -21,53 +21,10 @@ import { useOrderChangeMutation, useOrderListMutation } from 'src/services/order
 import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
 import { RHFSelect } from 'src/components/hook-form';
-import { FaAddressCard } from "react-icons/fa";
+import { FaAddressCard } from 'react-icons/fa';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useBoolean } from 'src/hooks/use-boolean';
 
-const orders = [
-  {
-    id: '#123458',
-    customer: 'Alice Smith',
-    time: '17:40',
-    remainingTime: '30MIN',
-    items: [
-      { name: "Pizza Meal For 2 (12'')", quantity: 2, price: '6.50' },
-      { name: 'Burger', quantity: 2, price: '6.50' },
-      { name: 'Kebabs', quantity: 3, price: '7' },
-    ],
-    serviceFee: '0.50',
-    deliveryFee: '0.50',
-    totalBill: '25',
-    paymentStatus: 'PAID',
-    status: 'Accepted',
-    toppings: ['Ham', 'Pineapple'],
-    dips: ['Curry'],
-    drinks: ['1 Coca Cola', '1 Diet Coke'],
-    notes:
-      'I have a severe allergy to peanuts. Please ensure my food is prepared without any contact with peanuts or peanut products.',
-  },
-  {
-    id: '#123457',
-    customer: 'Jakob Tho',
-    time: '19:20',
-    remainingTime: '01:40MIN',
-    items: [
-      { name: "Pizza Meal For 2 (12'')", quantity: 2, price: '6.50' },
-      { name: 'Burger', quantity: 2, price: '6.50' },
-      { name: 'Kebabs', quantity: 3, price: '7' },
-    ],
-    serviceFee: '0.50',
-    deliveryFee: '0.50',
-    totalBill: '25',
-    paymentStatus: 'COD',
-    status: 'Pending',
-    toppings: ['Ham', 'Pineapple'],
-    dips: ['Curry'],
-    drinks: ['1 Coca Cola', '1 Diet Coke'],
-    notes: '',
-  },
-];
 const OPTIONS = [
   { value: 'Pending', label: 'Pending' },
   { value: 'accepted', label: 'Accepted' },
@@ -76,22 +33,27 @@ const OPTIONS = [
   { value: 'delivered', label: 'Delivered' },
 ];
 
-const OrderSelectBox = ({ initialVal, customerEnquiryStatus, orderStatusChange, orderId,orderChange }) => {
-  const [initVal, setInitVal] = useState(initialVal)
+const OrderSelectBox = ({
+  initialVal,
+  orderStatusChange,
+  orderId,
+  orderChange,
+  setOrderStatus,
+  setOrderId,
+}) => {
+  const [initVal, setInitVal] = useState(initialVal);
 
-  const orderChanges = (id,value) => {
-    if(value == 'delivered'){
-console.log('is develivery');
-orderChange()
-
-    }else{
-      orderStatusChange(id,value)
+  const orderChanges = (id, value) => {
+    if (value == 'delivered') {
+      orderChange();
+      setOrderStatus(orderId);
+      setOrderId(id);
+    } else {
+      orderStatusChange(id, value);
     }
-
-  }
+  };
   return (
     <>
-
       <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
         <Select
           labelId="demo-select-small-label"
@@ -99,13 +61,16 @@ orderChange()
           value={initVal}
           label=""
           onChange={(event) => {
-            setInitVal(event.target.value)
-            orderChanges(orderId, event.target.value)
+            setInitVal(event.target.value);
+            orderChanges(orderId, event.target.value);
           }}
         >
           <Divider sx={{ borderStyle: 'dashed' }} />
           {OPTIONS.map((option) => (
-            <MenuItem key={option.value} value={option.value} disabled={option.value === 'Pending'} // Disable Pending option
+            <MenuItem
+              key={option.value}
+              value={option.value}
+              disabled={option.value === 'Pending'} // Disable Pending option
             >
               {option.label}
             </MenuItem>
@@ -113,16 +78,27 @@ orderChange()
         </Select>
       </FormControl>
     </>
-  )
-}
+  );
+};
 
 const OrderDetails = () => {
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [orderData, setOrderData] = useState([]);
+  const [orderStatus, setOrderStatus] = useState(null);
+  const [orderId, setOrderId] = useState(null);
+  const [checkOrderId, setCheckOrderId] = useState('');
   const delivery = useBoolean();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [orderList, { isLoading: orderLoad }] = useOrderListMutation();
   const [orderChange, { isLoading: statusLoad }] = useOrderChangeMutation();
+
+  // Filter orders based on searchQuery
+  const filteredOrders = orderData?.filter(
+    (order) =>
+      order.order_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.user_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const orderListGet = async () => {
     try {
@@ -156,6 +132,11 @@ const OrderDetails = () => {
 
       if (response.status) {
         toast.success(response.message);
+        delivery.onFalse();
+        if (status == 'delivered') {
+          orderListGet();
+        }
+        setOrderStatus(null);
       } else {
         toast.error(response.message);
       }
@@ -166,10 +147,17 @@ const OrderDetails = () => {
     }
   };
   const deliveryChange = () => {
-
-  }
+    if (orderStatus == checkOrderId) {
+      orderStatusChange(orderId, 'delivered');
+    } else {
+      toast.error('Order Id not match');
+    }
+  };
   return (
     <Box>
+      <Typography variant="h5" style={{ color: 'red' }}>
+        Orders Details
+      </Typography>
       {/* Order Header */}
       {/* <Box display="flex" gap={2} mt={2}>
         <Button variant="contained" color="error">
@@ -186,17 +174,28 @@ const OrderDetails = () => {
         </div>
       ) : (
         <>
-          {orderData.length > 0 ? (
-            <Grid container spacing={2}>
+          <Grid item xs={12} sx={{ mt: 2 }}>
+            <TextField
+              label="Search Order ID or Name"
+              variant="outlined"
+              fullWidth
+              size="small"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </Grid>
+          {filteredOrders?.length > 0 ? (
+            <Grid container spacing={2} sx={{ mt: 2 }}>
               {/* Left Side - Orders List */}
+
               <Grid
                 item
                 xs={5}
                 sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}
                 className="custom-scroll"
               >
-                {orderData.length > 0 &&
-                  orderData.map((order) => (
+                {filteredOrders?.length > 0 &&
+                  filteredOrders.map((order) => (
                     <Card
                       key={order.order_id}
                       sx={{
@@ -213,8 +212,14 @@ const OrderDetails = () => {
                           {order.user_name}
                         </Typography>
                         <Typography variant="subtitle1" fontSize={14}>
-                          <span className="text-sm">
-                            ORD ID -<span style={{ color: 'red' }}> {order.order_id}</span>{' '}
+                          <span
+                            className="text-sm cursor-pointer"
+                            onClick={() => {
+                              navigator.clipboard.writeText(order.order_id);
+                              toast.success('Order ID copied');
+                            }}
+                          >
+                           ORD - ID- <span style={{ color: 'red' }}> {order.order_id}</span>
                           </span>
                         </Typography>
                       </Box>
@@ -253,7 +258,7 @@ const OrderDetails = () => {
                           <b>{formatPrice(order.total_amount)}</b>
                         </Typography>
                       </Box>
-                      <div className='flex justify-between gap-4'>
+                      <div className="flex justify-between gap-4">
                         {/* Payment Status */}
                         <Chip
                           label={order.payment_mode == 'COD' ? 'COD' : 'PAID'}
@@ -262,33 +267,51 @@ const OrderDetails = () => {
                           variant="outlined"
                           size="small"
                         />
-                        <OrderSelectBox initialVal={order.order_status} orderStatusChange={orderStatusChange} orderId={order?.order_id} orderChange={() => delivery.onTrue()}/>
-
+                        <OrderSelectBox
+                          initialVal={order.order_status}
+                          orderStatusChange={orderStatusChange}
+                          orderId={order?.order_id}
+                          orderChange={() => delivery.onTrue()}
+                          setOrderStatus={setOrderStatus}
+                          setOrderId={setOrderId}
+                        />
                       </div>
-
                     </Card>
                   ))}
               </Grid>
 
               {/* Right Side - Order Details */}
-              <Grid item xs={7} className="sticky top-0 custom-scroll" sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}>
+              <Grid
+                item
+                xs={7}
+                className="sticky top-0 custom-scroll"
+                sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}
+              >
                 {selectedOrder && (
                   <Card sx={{ p: 2 }}>
                     <Box display="flex" justifyContent="space-between">
                       <div>
-                      <Typography variant="h6">{selectedOrder.user_name} </Typography>
+                        <Typography variant="h6">{selectedOrder.user_name} </Typography>
 
                         {selectedOrder?.address?.map((item, index) => (
-                          <Card key={index}  className='mt-5 border-l-4 border-red-500'>
+                          <Card key={index} className="mt-5 border-l-4 border-red-500">
                             <Paper key={index} sx={{ p: 1.5, borderRadius: 1 }}>
-                              <div className='flex items-center gap-2'>
-                              <FaAddressCard />
+                              <div className="flex items-center gap-2">
+                                <FaAddressCard />
 
-                              <Typography  fontWeight="bold">
-                                {item.type || 'Home'} Address
-                              </Typography>
+                                <Typography fontWeight="bold">
+                                  {item.type || 'Home'} Address
+                                </Typography>
                               </div>
-                              <Typography variant="body2" sx={{mt:1}}>{item.address + ',' + item.city + ',' + item.country + '-' + item.pincode} </Typography>
+                              <Typography variant="body2" sx={{ mt: 1 }}>
+                                {item.address +
+                                  ',' +
+                                  item.city +
+                                  ',' +
+                                  item.country +
+                                  '-' +
+                                  item.pincode}{' '}
+                              </Typography>
                             </Paper>
                           </Card>
                         ))}
@@ -350,32 +373,34 @@ const OrderDetails = () => {
           )}
         </>
       )}
-                <ConfirmDialog
-            open={delivery.value}
-            onClose={delivery.onFalse}
-            title="Delivery"
-            content= {
-              <>
-              <p>Please Enter Order Id to delivered !</p>
-              <TextField
-          id="outlined-multiline-flexible"
-          label="Order Id"
-          size='small'
-          sx={{mt:3}}
-
-        />
-              </>
-            }
-            action={
-              <Button
-              //  onClick={deleteAddon}
-                variant="contained" color="error">
-                Confirm
-              </Button>
-            }
-          />
+      <ConfirmDialog
+        open={delivery.value}
+        onClose={() => {
+          delivery.onFalse();
+          setOrderStatus(null);
+          orderListGet();
+        }}
+        title="Delivery"
+        content={
+          <>
+            <p>Please Enter Order Id to delivered !</p>
+            <TextField
+              id="outlined-multiline-flexible"
+              label="Order Id"
+              size="small"
+              sx={{ mt: 3 }}
+              value={checkOrderId}
+              onChange={(e) => setCheckOrderId(e.target.value)} // Capture input value
+            />
+          </>
+        }
+        action={
+          <Button onClick={deliveryChange} variant="contained" color="error">
+            Confirm
+          </Button>
+        }
+      />
     </Box>
-
   );
 };
 
