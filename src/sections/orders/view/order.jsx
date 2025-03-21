@@ -14,7 +14,7 @@ export function Order() {
     
   return (
     <DashboardContent>
-      <CustomBreadcrumbs
+      {/* <CustomBreadcrumbs
         heading="Orders"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
@@ -22,7 +22,7 @@ export function Order() {
           // { name: 'New tour' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
-      />
+      /> */}
 
 <OrderDetails/>
     </DashboardContent>
