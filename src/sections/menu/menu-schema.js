@@ -25,7 +25,6 @@ export const addonSchema = z
     select_upto: z.number(), // Prevents 0 and negative numbers
     is_required: z.boolean(),
     is_multi_select: z.boolean(),
-    size_enb: z.boolean(),
   })
   .refine(
     (data) => {
