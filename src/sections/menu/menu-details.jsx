@@ -515,6 +515,7 @@ export function MenuDetails() {
       // Create FormData instance
       const formData = data;
       formData.menu_item_id = menuItemId;
+      formData.size_enb = false;
       let response;
       if (isEdit) {
         formData.id = editId;
