@@ -10,9 +10,11 @@ import {
   Divider,
   Paper,
   Stack,
+  Chip,
 } from "@mui/material";
 import { EmailInboxIcon } from "src/assets/icons";
 import { TbPhoneIncoming } from "react-icons/tb";
+import { FaInfoCircle } from "react-icons/fa";
 
 
 const CustomerProfileCard = ({customerData}) => {
@@ -110,17 +112,56 @@ const OrderList = ({orderData}) => {
         <Card key={index} variant="outlined">
           <CardContent>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography variant="body1" fontWeight="bold">
+              <Typography variant="body1" fontWeight="bold"   sx={{
+    width: '150px', 
+    overflowWrap: 'break-word',
+    whiteSpace: 'normal',
+  }}>
                 {order.item_name} - {order.qty}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" color="text.secondary" >
                ORD ID - {order.order_id}
               </Typography>
             </Stack>
+            {
+              order.addons.map((item) => (
 
-            <Typography variant="body2" fontWeight="bold">
-              💰 Order Total - £{order.total_amount}
+                <Typography variant="body2"  sx={{ mt: 1 }}>
+                  <span className="flex items-center gap-3">
+                    <span>{item.addon_name} - </span>
+                    {
+                  item.items.map((addon) => (
+                         <>
+                                   <span className="flex items-center gap-3">
+                            <Chip
+                                              label={addon}
+                                              color={'primary'}
+                                              sx={{ mt: 1 }}
+                                              variant="outlined"
+                                              size="small"
+                                            />
+                    </span>
+                         </>
+          ))
+                }
+                </span>
+   
+                <span>
+
+                </span>
+                </Typography>)
+                )
+            }
+
+<Stack direction="row" justifyContent="space-between" alignItems="center">
+
+            <Typography variant="body2" fontWeight="bold" color={'primary'} sx={{ mt: 1 }}>
+              Order Total - £{order.total_amount}
             </Typography>
+            <Typography variant="caption" fontWeight="bold" color={'primary'} sx={{ mt: 1 }}>
+              {order.updatedAt}
+            </Typography>
+            </Stack>
             {/* <Button color="error" size="small" sx={{ mt: 1 }}>
               View Feedback
             </Button> */}
