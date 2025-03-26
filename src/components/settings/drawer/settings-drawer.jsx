@@ -126,7 +126,7 @@ export function SettingsDrawer({
         { name: 'orange', value: PRIMARY_COLOR.orange.main },
         { name: 'red', value: PRIMARY_COLOR.red.main },
       ]}
-    />
+    /> 
   );
 
   const renderNav = (
@@ -180,12 +180,12 @@ export function SettingsDrawer({
           <Box gap={2} display="grid" gridTemplateColumns="repeat(2, 1fr)">
             {!hideColorScheme && renderMode}
             {!hideContrast && renderContrast}
-            {!hideDirection && renderRTL}
-            {!hideCompact && renderCompact}
+            {/* {!hideDirection && renderRTL} */}
+            {/* {!hideCompact && renderCompact} */}
           </Box>
-          {!(hideNavLayout && hideNavColor) && renderNav}
-          {!hidePresets && renderPresets}
-          {!hideFont && renderFont}
+          {/* {!(hideNavLayout && hideNavColor) && renderNav} */}
+          {/* {!hidePresets && renderPresets} */}
+          {/* {!hideFont && renderFont} */}
         </Stack>
       </Scrollbar>
     </Drawer>
