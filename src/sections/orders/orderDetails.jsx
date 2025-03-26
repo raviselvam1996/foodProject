@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -49,6 +49,7 @@ const OrderSelectBox = ({
       setOrderStatus(orderId);
       setOrderId(id);
     } else {
+      // setInitVal(value);
       orderStatusChange(id, value);
     }
   };
@@ -61,7 +62,6 @@ const OrderSelectBox = ({
           value={initVal}
           label=""
           onChange={(event) => {
-            setInitVal(event.target.value);
             orderChanges(orderId, event.target.value);
           }}
         >
@@ -93,12 +93,13 @@ const OrderDetails = () => {
   const [orderList, { isLoading: orderLoad }] = useOrderListMutation();
   const [orderChange, { isLoading: statusLoad }] = useOrderChangeMutation();
 
-  // Filter orders based on searchQuery
-  const filteredOrders = orderData?.filter(
-    (order) =>
-      order.order_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.user_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredOrders = useMemo(() => {
+    return orderData?.filter(
+      (order) =>
+        order.order_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.user_name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [orderData, searchQuery]);
 
   const orderListGet = async () => {
     try {
@@ -133,9 +134,14 @@ const OrderDetails = () => {
       if (response.status) {
         toast.success(response.message);
         delivery.onFalse();
-        if (status == 'delivered') {
-          orderListGet();
-        }
+        // if (status == 'delivered') {
+        //   orderListGet();
+        // }
+        const updateData = orderData.map((order) => 
+          order.order_id === id ? { ...order, order_status: status } : order
+        );
+        setOrderData(updateData);
+        setOrderId(null);
         setOrderStatus(null);
       } else {
         toast.error(response.message);
@@ -153,6 +159,9 @@ const OrderDetails = () => {
       toast.error('Order Id not match');
     }
   };
+  useEffect(() => {
+    console.log("Filtered Orders Updated:", filteredOrders);
+  }, [filteredOrders]);
   return (
     <Box>
       <Typography variant="h5" style={{ color: 'red' }}>
@@ -267,14 +276,43 @@ const OrderDetails = () => {
                           variant="outlined"
                           size="small"
                         />
-                        <OrderSelectBox
+                        {/* <OrderSelectBox
                           initialVal={order.order_status}
                           orderStatusChange={orderStatusChange}
                           orderId={order?.order_id}
                           orderChange={() => delivery.onTrue()}
                           setOrderStatus={setOrderStatus}
                           setOrderId={setOrderId}
-                        />
+                        /> */}
+                         <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+        <Select
+          labelId="demo-select-small-label"
+          id="demo-select-small"
+          value={order.order_status}
+          label=""
+          onChange={(event) => {
+            setOrderId(order?.order_id);
+            setOrderStatus(order?.order_id);
+            if (event.target.value == 'delivered') {
+              delivery.onTrue();
+            } else {
+            orderStatusChange(order?.order_id, event.target.value);
+            }
+          }}
+          disabled={order.order_status === 'delivered'}
+        >
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          {OPTIONS.map((option) => (
+            <MenuItem
+              key={option.value}
+              value={option.value}
+              disabled={option.value === 'Pending'} // Disable Pending option
+            >
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
                       </div>
                     </Card>
                   ))}
@@ -378,7 +416,7 @@ const OrderDetails = () => {
         onClose={() => {
           delivery.onFalse();
           setOrderStatus(null);
-          orderListGet();
+          // orderListGet();
         }}
         title="Delivery"
         content={
