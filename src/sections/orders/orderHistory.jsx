@@ -112,7 +112,7 @@ const OrderHistoryDetails = () => {
                       {/* Customer and Order ID */}
                       <Box display="flex" justifyContent="space-between">
                         <Typography variant="subtitle1" fontSize={15} style={{ color: 'red' }}>
-                          {order.user_name}
+                          {order.name}
                         </Typography>
                         <Typography variant="subtitle1" fontSize={14}>
                           <span className="text-sm">
@@ -130,10 +130,10 @@ const OrderHistoryDetails = () => {
                           sx={{ mb: 1, mt: 3 }}
                         >
                           <Typography fontWeight="bold" fontSize={14}>
-                            {item.qty} X {item.item_name}
+                            {item.qty} X {item.name}
                           </Typography>
                           <Typography fontWeight="bold" fontSize={14}>
-                            {formatPrice(item.total_amount)}
+                            {formatPrice(item.amount)}
                           </Typography>
                         </Box>
                       ))}
@@ -184,21 +184,20 @@ const OrderHistoryDetails = () => {
                     <Box display="flex" justifyContent="space-between">
                       <div>
 
-                      <Typography variant="h6">{selectedOrder.user_name} </Typography>
-                      {selectedOrder?.address?.map((item, index) => (
-                          <Card key={index}  className='mt-5 border-l-4 border-red-500'>
-                            <Paper key={index} sx={{ p: 1.5, borderRadius: 1 }}>
+                      <Typography variant="h6">{selectedOrder.name} </Typography>
+                      {selectedOrder?.address &&
+                          <Card  className='mt-5 border-l-4 border-red-500'>
+                            <Paper sx={{ p: 1.5, borderRadius: 1 }}>
                               <div className='flex items-center gap-2'>
                               <FaAddressCard />
-
                               <Typography  fontWeight="bold">
-                                {item.type || 'Home'} Address
+                                {selectedOrder?.address.type || 'Home'} Address
                               </Typography>
                               </div>
-                              <Typography variant="body2" sx={{mt:1}}>{item.address + ',' + item.city + ',' + item.country + '-' + item.pincode} </Typography>
+                              <Typography variant="body2" sx={{mt:1}}>{selectedOrder?.address?.address + ',' + selectedOrder?.address?.city + ',' + selectedOrder?.address?.country + '-' + selectedOrder?.address?.pincode} </Typography>
                             </Paper>
                           </Card>
-                        ))}
+                       }
                       </div>
                       <Typography color="textSecondary">
                         {' '}
@@ -213,20 +212,20 @@ const OrderHistoryDetails = () => {
                       selectedOrder.items.map((item, index) => (
                         <Box key={index} mt={1}>
                           <Typography fontWeight="bold">
-                            {item.qty} X {item.item_name}
+                            {item.qty} X {item.name}
                           </Typography>
                           <Typography variant="body2" sx={{ mt: 1 }}>
-                            {item?.addons?.map((addon, i) => {
+                            {item?.addon?.map((addons, i) => {
                               return (
                                 <div key={i} className="m-5">
-                                  <b>{addon.addon_name}</b>
+                                  <b>{addons.addon_name}</b>
 
-                                  {addon?.addon_item?.map((ite, j) => (
+                                  {addons?.addon_item?.map((ite, j) => (
                                     <span key={j} className="m-1 ml-2">
                                       <Chip
                                         variant="outlined"
                                         size="small"
-                                        label={<span>{ite}</span>}
+                                        label={<span>{ite.addon_item_name}</span>}
                                         color="primary"
                                       />
                                     </span>
