@@ -17,6 +17,8 @@ export const itemSchema = z.object({
     ]).nullable().refine(val => (val !== null && val != ''), { message: 'Required' }),
 
   food_type: z.string(),
+  short_desc: z.string(),
+  long_desc: z.string(),
 });
 // Addon schema
 export const addonSchema = z  

@@ -156,6 +156,8 @@ export function MenuDetails() {
       name: '',
       price: 0,
       food_type: 'veg', // Default empty selection
+      short_desc: '', // Default empty selection
+      long_desc: '', // Default empty selection
     },
   });
   const {
@@ -414,6 +416,8 @@ export function MenuDetails() {
           name: '',
           price: 0,
           food_type: 'veg', // Default empty selection
+          short_desc: '', // Default empty selection
+          long_desc: '', // Default empty selection
         });
         menuItem.onFalse();
         menuItemsGet(menuId);
@@ -488,6 +492,9 @@ export function MenuDetails() {
         <RHFTextField name="name" label="Menu Item Name" size="small" />
 
         <RHFTextField name="price" label="Price" type="number" size="small" />
+        <RHFTextField name="short_desc" label="Short Description" size="small" />
+        <RHFTextField name="long_desc" label="Description" size="small"    multiline
+          maxRows={4}/>
 
         <RHFRadioGroup
           row
@@ -1163,6 +1170,8 @@ export function MenuDetails() {
               name: '',
               price: 0,
               food_type: 'veg',
+              short_desc: '', // Default empty selection
+              long_desc: '', // Default empty selection
             });
             setIsEdit(false);
             setImageUrl(null);
