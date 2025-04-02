@@ -21,7 +21,21 @@ import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
 import { formatString } from 'src/utils/change-case';
 import { FaAddressCard } from 'react-icons/fa';
+import moment from "moment";
 
+const OrderTimer = ({ orderTime }) => {
+  const [timeAgo, setTimeAgo] = useState(moment(orderTime).fromNow());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeAgo(moment(orderTime).fromNow());
+    }, 60000); // Update every 60 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [orderTime]);
+
+  return <p>{timeAgo}</p>;
+};
 
 const OrderHistoryDetails = () => {
   const [selectedOrder, setSelectedOrder] = useState([]);
@@ -118,6 +132,7 @@ const OrderHistoryDetails = () => {
                           <span className="text-sm">
                             ORD ID -<span style={{ color: 'red' }}> {order.order_id}</span>{' '}
                           </span>
+                          <OrderTimer orderTime="2025-04-02T20:32:36"/>
                         </Typography>
                       </Box>
 
