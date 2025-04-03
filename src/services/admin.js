@@ -142,10 +142,30 @@ export const adminApi = createApi({
       body: data,
     }),
   }),
+  holidayInserts: builder.mutation({
+    query: (data) => ({
+      url: 'admin/holiday/add',
+      method: 'POST',
+      body: data,
+    }),
+  }),
+  holidayDel: builder.mutation({
+    query: (data) => ({
+      url: 'admin/holiday/del',
+      method: 'POST',
+      body: data,
+    }),
+  }),
+  holidayList: builder.mutation({
+    query: () => ({
+      url: 'admin/holiday/list',
+      method: 'GET',
+    }),
+  }),
 
 
   }),
 });
 
-export const { useShopSettingsQuery, usePolicyUpdateMutation, useInfoUpdateMutation, useTimingUpdateMutation, useGetEmployeeMutation, useAddEmployeeMutation, useEditEmployeeMutation, useDelEmployeeMutation, useEmployeeStatusChangeMutation,useEmployeeRollChangeMutation,useGetAdminMutation ,useAddAdminMutation, useEditAdminMutation, useDelAdminMutation,useAdminRollChangeMutation,useGetCustommerMutation,useGetCustomerDetailMutation,useCustomerStatusChangeMutation} =
+export const { useShopSettingsQuery, usePolicyUpdateMutation, useInfoUpdateMutation, useTimingUpdateMutation, useGetEmployeeMutation, useAddEmployeeMutation, useEditEmployeeMutation, useDelEmployeeMutation, useEmployeeStatusChangeMutation,useEmployeeRollChangeMutation,useGetAdminMutation ,useAddAdminMutation, useEditAdminMutation, useDelAdminMutation,useAdminRollChangeMutation,useGetCustommerMutation,useGetCustomerDetailMutation,useCustomerStatusChangeMutation,useHolidayInsertsMutation,useHolidayDelMutation,useHolidayListMutation} =
   adminApi;
