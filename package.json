@@ -62,7 +62,7 @@
     "apexcharts": "^3.49.1",
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.7.2",
-    "dayjs": "^1.11.11",
+    "dayjs": "^1.11.13",
     "embla-carousel": "^8.1.5",
     "embla-carousel-auto-height": "^8.1.5",
     "embla-carousel-auto-scroll": "^8.1.5",

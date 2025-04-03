@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -103,7 +103,7 @@ const OrderDetails = () => {
   const delivery = useBoolean();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [orderList, { isLoading: orderLoad }] = useOrderListMutation();
+  const [orderList, { isFetching: orderLoad ,isLoading:orderLoding }] = useOrderListMutation();
   const [orderChange, { isLoading: statusLoad }] = useOrderChangeMutation();
 
   const filteredOrders = useMemo(() => {
@@ -130,9 +130,25 @@ const OrderDetails = () => {
       toast.error(errorMessage);
     }
   };
+  const orderListRef = useRef(orderListGet); // Store function reference
+
   useEffect(() => {
-    orderListGet();
+    const fetchOrders = async () => {
+      try {
+        await orderListRef.current(); // Call the mutation function
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders(); // Call immediately on mount
+
+    const interval = setInterval(fetchOrders, 30000); // Call every 5 minutes
+
+    return () => clearInterval(interval); // Cleanup on unmount
   }, []);
+
+
   //  Change the order status
   const orderStatusChange = async (id, status) => {
     try {
@@ -190,7 +206,7 @@ const OrderDetails = () => {
         </Button>
         <Button variant="outlined">Previous Orders</Button>
       </Box> */}
-      {orderLoad ? (
+      {orderLoad  ? (
         <div className="flex justify-center items-center mt-10">
           <CircularProgress color="primary" />
         </div>
@@ -230,9 +246,19 @@ const OrderDetails = () => {
                     >
                       {/* Customer and Order ID */}
                       <Box display="flex" justifyContent="space-between">
+                        <div>
                         <Typography variant="subtitle1" fontSize={15} style={{ color: 'red' }}>
                           {order.name}
                         </Typography>
+                        <Chip
+                          label={order.order_mode == 'delivery' ? 'DELIVERY' : 'PICK UP'}
+                          color={order.order_mode != 'delivery' ? 'success' : 'info'}
+                          sx={{ mt: 1 }}
+                          variant="outlined"
+                          size="small"
+                        />
+                        </div>
+                
                         <Typography variant="subtitle1" fontSize={14}>
                           <span
                             className="text-sm cursor-pointer"
@@ -411,9 +437,19 @@ const OrderDetails = () => {
               </Grid>
             </Grid>
           ) : (
+            <>
+                      {
+            !orderLoding  ?
             <div className="flex items-center justify-center mt-10">
               <p>No Orders Found Today!</p>
             </div>
+            :    <div className="flex justify-center items-center mt-10">
+            <CircularProgress color="primary" />
+          </div>
+            }
+            </>
+  
+
           )}
         </>
       )}
