@@ -262,7 +262,32 @@ Time Update
 
         </CardContent>
       </Card>
+      <Card>
+        <CardHeader
+          title={
+            <span className="flex items-center gap-4">
+              Shop Contact Info
+            </span>
+          }
+        />
+        <CardContent>
+          <FormProvider {...shopMethods}>
+            <form onSubmit={shopHandleSubmit(shopSubmit)} noValidate className="p-3 flex flex-col gap-4">
+              <RHFTextField name="email" label="Email Address" size="small" type='email' />
+              <RHFTextField name="phone" label="Phone Number" size="small"  />
+              <RHFTextField name="address" label="Address" size="small" />
+              <div className='flex justify-end'>
 
+              <Button variant="contained" color="primary" type="submit" 
+            >
+              Submit
+            </Button>
+            </div>
+            </form>
+          </FormProvider>  
+
+        </CardContent>
+      </Card>
       <Card className='mt-5'>
         <CardHeader
           title={

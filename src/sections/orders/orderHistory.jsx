@@ -132,7 +132,7 @@ const OrderHistoryDetails = () => {
                           <span className="text-sm">
                             ORD ID -<span style={{ color: 'red' }}> {order.order_id}</span>{' '}
                           </span>
-                          <OrderTimer orderTime="2025-04-02T20:32:36"/>
+                          <OrderTimer orderTime={order.createdAt}/>
                         </Typography>
                       </Box>
 
