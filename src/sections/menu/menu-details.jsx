@@ -578,7 +578,6 @@ export function MenuDetails() {
   };
   // Addon Item creation and Edit fun
   const addonItemSubmit = async (data) => {
-    console.log(data);
     try {
       // Create FormData instance
       const formData = { ...data };

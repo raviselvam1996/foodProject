@@ -9,9 +9,7 @@ import OrderDetails from '../orderDetails';
 // ----------------------------------------------------------------------
 
 export function Order() {
-    const dar = 'fsdfjsdf'
-    console.log(dar);
-    
+
   return (
     <DashboardContent>
       {/* <CustomBreadcrumbs

@@ -25,6 +25,8 @@ import { FaAddressCard } from 'react-icons/fa';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useBoolean } from 'src/hooks/use-boolean';
 import moment from "moment";
+import { TbTruckDelivery } from 'react-icons/tb';
+import { FaPersonWalkingLuggage } from 'react-icons/fa6';
 
 const OPTIONS = [
   { value: 'Pending', label: 'Pending' },
@@ -44,7 +46,7 @@ const OrderTimer = ({ orderTime }) => {
     return () => clearInterval(interval); // Cleanup on unmount
   }, [orderTime]);
 
-  return <p>{timeAgo}</p>;
+  return <p style={{ color: 'red' }}>{timeAgo}</p>;
 };
 const OrderSelectBox = ({
   initialVal,
@@ -188,9 +190,7 @@ const OrderDetails = () => {
       toast.error('Order Id not match');
     }
   };
-  useEffect(() => {
-    console.log("Filtered Orders Updated:", filteredOrders);
-  }, [filteredOrders]);
+
   return (
     <Box>
       <Typography variant="h5" style={{ color: 'red' }}>
@@ -244,14 +244,43 @@ const OrderDetails = () => {
                       onClick={() => setSelectedOrder(order)}
                       className={`border-l-4 p-4 ${order.order_id === selectedOrder.order_id ? 'border-red-500' : 'border-grey-500'}`}
                     >
+                                           {order.order_status === 'Pending' && (
+        <Box
+          className="flashing"
+          sx={{
+            backgroundColor: '#ffeb3b',
+            color: '#000',
+            padding: 1,
+            borderRadius: 1,
+            display: 'inline-block',
+          }}
+        >
+               <Typography fontWeight="bold" fontSize={14}>
+               ⚠️ Order not yet accepted
+               </Typography>
+        </Box>
+      )}
                       {/* Customer and Order ID */}
-                      <Box display="flex" justifyContent="space-between">
+                      <Box display="flex" justifyContent="space-between" sx={{mt: 1}}>
                         <div>
                         <Typography variant="subtitle1" fontSize={15} style={{ color: 'red' }}>
                           {order.name}
                         </Typography>
                         <Chip
-                          label={order.order_mode == 'delivery' ? 'DELIVERY' : 'PICK UP'}
+                          label={
+                            order.order_mode === 'delivery' ? (
+                              <span className='flex'>
+                                <TbTruckDelivery fontSize={19} style={{ marginRight: 4 }} />
+                                 <span>DELIVERY</span>
+                              </span>
+                            ) : (
+                              
+                              <span className='flex'>
+                              <FaPersonWalkingLuggage fontSize={19} style={{ marginRight: 4 }} />
+                               <span>PICK UP</span>
+                            </span>
+                            )
+                          }
                           color={order.order_mode != 'delivery' ? 'success' : 'info'}
                           sx={{ mt: 1 }}
                           variant="outlined"
@@ -270,7 +299,7 @@ const OrderDetails = () => {
                            ORD - ID- <span style={{ color: 'red' }}> {order.order_id}</span>
                           </span>
                           <OrderTimer orderTime={order.createdAt}/>
-
+     
                         </Typography>
                       </Box>
 
@@ -347,7 +376,7 @@ const OrderDetails = () => {
             <MenuItem
               key={option.value}
               value={option.value}
-              disabled={option.value === 'Pending'} // Disable Pending option
+              disabled={option.value === 'Pending'|| (option.value === 'on the way' && order.order_mode != 'delivery') } // Disable Pending option
             >
               {option.label}
             </MenuItem>
@@ -401,7 +430,7 @@ const OrderDetails = () => {
                           <Typography fontWeight="bold">
                             {item.qty} X {item.name}
                           </Typography>
-                          <Typography variant="body2" sx={{ mt: 1 }}>
+                          <Typography variant="body2" component="div" sx={{ mt: 1 }}>
                             {item?.addon?.map((addons, i) => {
                                                      return (
                                                        <div key={i} className="m-5">

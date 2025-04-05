@@ -3,7 +3,7 @@ import { useAuthContext } from "../hooks";
 
 const RoleGuard = ({ allowedRoles }) => {
 const { user } = useAuthContext();
-console.log(user || {});
+// console.log(user || {});
 
 
   if (!user) {

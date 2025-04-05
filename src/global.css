@@ -115,3 +115,13 @@ input[type='number']::-webkit-inner-spin-button {
 .custom-scroll::-webkit-scrollbar {
   display: none;
 }
+
+.flashing {
+  animation: flash 1s infinite;
+}
+
+@keyframes flash {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
