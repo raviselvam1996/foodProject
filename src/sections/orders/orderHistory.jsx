@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -13,15 +13,21 @@ import {
   FormControl,
   Select,
   Paper,
+  Badge,
   TextField,
+  Stack,
 } from '@mui/material';
 import { formatPrice } from 'src/utils/amountChange';
-import { useGetOrderHistoryMutation, useOrderChangeMutation, useOrderListMutation } from 'src/services/order';
+import {
+  useGetOrderHistoryMutation,
+  useOrderChangeMutation,
+  useOrderListMutation,
+} from 'src/services/order';
 import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
 import { formatString } from 'src/utils/change-case';
 import { FaAddressCard } from 'react-icons/fa';
-import moment from "moment";
+import moment from 'moment';
 import { TbTruckDelivery } from 'react-icons/tb';
 import { FaPersonWalkingLuggage } from 'react-icons/fa6';
 
@@ -40,25 +46,43 @@ const OrderTimer = ({ orderTime }) => {
 };
 
 const OrderHistoryDetails = () => {
-  const [selectedOrder, setSelectedOrder] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderData, setOrderData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   const [getOrderHistory, { isLoading: orderLoad }] = useGetOrderHistoryMutation();
+  const OPTIONS = [
+    { value: 'pickup', label: 'Pickup' },
+    { value: 'delivery', label: 'Delivery' },
 
-    // Filter orders based on searchQuery
-    const filteredOrders = orderData?.filter(
-      (order) =>
+  ];
+  // Filter orders based on searchQuery
+
+  const filteredOrders = useMemo(() => {
+    return orderData?.filter((order) => {
+      const matchesStatus = statusFilter ? order.order_mode === statusFilter : true;
+      const matchesSearch =
         order.order_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.user_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+        order.name.toLowerCase().includes(searchQuery.toLowerCase()); // Changed from user_name to name
+      return matchesStatus && matchesSearch;
+    });
+  }, [orderData, searchQuery, statusFilter]);
+
+  const statusCounts = useMemo(() => {
+    const counts = {};
+    OPTIONS.forEach((opt) => {
+      counts[opt.value] = orderData.filter((order) => order.order_mode === opt.value).length;
+    });
+    return counts;
+  }, [orderData]);
 
   const orderListGet = async () => {
     try {
       const response = await getOrderHistory().unwrap();
       if (response.status) {
         setOrderData(response.data);
-        setSelectedOrder(response?.data[0] || []);
+        setSelectedOrder(response?.data[0] || null);
       } else {
         setOrderData([]);
         toast.error(response.message);
@@ -75,9 +99,9 @@ const OrderHistoryDetails = () => {
 
   return (
     <Box>
-          <Typography variant="h5" style={{ color: 'red' }}>
-              Orders History
-            </Typography>
+      <Typography variant="h5" style={{ color: 'red' }}>
+        Orders History
+      </Typography>
       {/* Order Header */}
       {/* <Box display="flex" gap={2} mt={2}>
         <Button variant="contained" color="error">
@@ -94,16 +118,43 @@ const OrderHistoryDetails = () => {
         </div>
       ) : (
         <>
-              <Grid item xs={12} sx={{ mt: 2 }}>
-                    <TextField
-                      label="Search Order ID or Name"
-                      variant="outlined"
-                      fullWidth
-                      size="small"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </Grid>
+          <Grid item xs={12} sx={{ mt: 2 }}>
+            <div className="flex flex-wrap gap-5">
+              <TextField
+                label="Search Order ID or Name"
+                variant="outlined"
+                size="small"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                <Button
+                  variant={!statusFilter ? 'contained' : 'outlined'}
+                  onClick={() => setStatusFilter('')}
+                >
+                  All
+                </Button>
+                {OPTIONS.map((opt) => (
+                  <Badge
+                    key={opt.value}
+                    badgeContent={statusCounts[opt.value] || 0}
+                    color="primary"
+                  >
+                    <Button
+                      variant={statusFilter === opt.value ? 'contained' : 'outlined'}
+                      onClick={() =>{
+                        setStatusFilter(opt.value);
+                        setSelectedOrder(null)
+                        
+                      }}
+                    >
+                      {opt.label}
+                    </Button>
+                  </Badge>
+                ))}
+              </Stack>
+            </div>
+          </Grid>
           {filteredOrders.length > 0 ? (
             <Grid container spacing={2} sx={{ mt: 2 }}>
               {/* Left Side - Orders List */}
@@ -123,41 +174,42 @@ const OrderHistoryDetails = () => {
                         cursor: 'pointer',
                       }}
                       onClick={() => setSelectedOrder(order)}
-                      className={`border-l-4 p-4 ${order.order_id === selectedOrder.order_id ? 'border-red-500' : 'border-grey-500'}`}
+                      className={`border-l-4 p-4 ${order.order_id === selectedOrder?.order_id ? 'border-red-500' : 'border-grey-500'}`}
                     >
                       {/* Customer and Order ID */}
                       <Box display="flex" justifyContent="space-between">
-                     
-                            <div>
-                                                <Typography variant="subtitle1" fontSize={15} style={{ color: 'red' }}>
-                                                  {order.name}
-                                                </Typography>
-                                                <Chip
-                                                  label={
-                                                    order.order_mode === 'delivery' ? (
-                                                      <span className='flex'>
-                                                        <TbTruckDelivery fontSize={19} style={{ marginRight: 4 }} />
-                                                         <span>DELIVERY</span>
-                                                      </span>
-                                                    ) : (
-                                                      
-                                                      <span className='flex'>
-                                                      <FaPersonWalkingLuggage fontSize={19} style={{ marginRight: 4 }} />
-                                                       <span>PICK UP</span>
-                                                    </span>
-                                                    )
-                                                  }
-                                                  color={order.order_mode != 'delivery' ? 'success' : 'info'}
-                                                  sx={{ mt: 1 }}
-                                                  variant="outlined"
-                                                  size="small"
-                                                />
-                                                </div>
+                        <div>
+                          <Typography variant="subtitle1" fontSize={15} style={{ color: 'red' }}>
+                            {order.name}
+                          </Typography>
+                          <Chip
+                            label={
+                              order.order_mode === 'delivery' ? (
+                                <span className="flex">
+                                  <TbTruckDelivery fontSize={19} style={{ marginRight: 4 }} />
+                                  <span>DELIVERY</span>
+                                </span>
+                              ) : (
+                                <span className="flex">
+                                  <FaPersonWalkingLuggage
+                                    fontSize={19}
+                                    style={{ marginRight: 4 }}
+                                  />
+                                  <span>PICK UP</span>
+                                </span>
+                              )
+                            }
+                            color={order.order_mode != 'delivery' ? 'success' : 'info'}
+                            sx={{ mt: 1 }}
+                            variant="outlined"
+                            size="small"
+                          />
+                        </div>
                         <Typography variant="subtitle1" fontSize={14}>
                           <span className="text-sm">
                             ORD ID -<span style={{ color: 'red' }}> {order.order_id}</span>{' '}
                           </span>
-                          <OrderTimer orderTime={order.createdAt}/>
+                          <OrderTimer orderTime={order.createdAt} />
                         </Typography>
                       </Box>
 
@@ -195,7 +247,7 @@ const OrderHistoryDetails = () => {
                           <b>{formatPrice(order.total_amount)}</b>
                         </Typography>
                       </Box>
-                      <div className='flex justify-between gap-4'>
+                      <div className="flex justify-between gap-4">
                         {/* Payment Status */}
                         <Chip
                           label={order.payment_mode == 'COD' ? 'COD' : 'PAID'}
@@ -204,7 +256,7 @@ const OrderHistoryDetails = () => {
                           variant="outlined"
                           size="small"
                         />
-                          <Chip
+                        <Chip
                           label={formatString(order.order_status)}
                           color={'success'}
                           sx={{ mt: 1 }}
@@ -212,32 +264,43 @@ const OrderHistoryDetails = () => {
                           size="small"
                         />
                       </div>
-
                     </Card>
                   ))}
               </Grid>
 
               {/* Right Side - Order Details */}
-              <Grid item xs={7} className="sticky top-0 custom-scroll"    sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}>
-                {selectedOrder && (
+              <Grid
+                item
+                xs={7}
+                className="sticky top-0 custom-scroll"
+                sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}
+              >
+                {selectedOrder ? (
                   <Card sx={{ p: 2 }}>
                     <Box display="flex" justifyContent="space-between">
                       <div>
-
-                      <Typography variant="h6">{selectedOrder.name} </Typography>
-                      {selectedOrder?.address &&
-                          <Card  className='mt-5 border-l-4 border-red-500'>
+                        <Typography variant="h6">{selectedOrder?.name} </Typography>
+                        {selectedOrder?.address && (
+                          <Card className="mt-5 border-l-4 border-red-500">
                             <Paper sx={{ p: 1.5, borderRadius: 1 }}>
-                              <div className='flex items-center gap-2'>
-                              <FaAddressCard />
-                              <Typography  fontWeight="bold">
-                                {selectedOrder?.address.type || 'Home'} Address
-                              </Typography>
+                              <div className="flex items-center gap-2">
+                                <FaAddressCard />
+                                <Typography fontWeight="bold">
+                                  {selectedOrder?.address.type || 'Home'} Address
+                                </Typography>
                               </div>
-                              <Typography variant="body2" sx={{mt:1}}>{selectedOrder?.address?.address + ',' + selectedOrder?.address?.city + ',' + selectedOrder?.address?.country + '-' + selectedOrder?.address?.pincode} </Typography>
+                              <Typography variant="body2" sx={{ mt: 1 }}>
+                                {selectedOrder?.address?.address +
+                                  ',' +
+                                  selectedOrder?.address?.city +
+                                  ',' +
+                                  selectedOrder?.address?.country +
+                                  '-' +
+                                  selectedOrder?.address?.pincode}{' '}
+                              </Typography>
                             </Paper>
                           </Card>
-                       }
+                        )}
                       </div>
                       <Typography color="textSecondary">
                         {' '}
@@ -254,7 +317,7 @@ const OrderHistoryDetails = () => {
                           <Typography fontWeight="bold">
                             {item.qty} X {item.name}
                           </Typography>
-                          <Typography variant="body2"  component="div" sx={{ mt: 1 }}>
+                          <Typography variant="body2" component="div" sx={{ mt: 1 }}>
                             {item?.addon?.map((addons, i) => {
                               return (
                                 <div key={i} className="m-5">
@@ -286,6 +349,11 @@ const OrderHistoryDetails = () => {
                       </Box>
                     )}
                   </Card>
+                )
+                  : (
+                  <div className="flex items-center justify-center mt-10">
+                    <p>Select an Order to view details!</p>
+                  </div>
                 )}
               </Grid>
             </Grid>

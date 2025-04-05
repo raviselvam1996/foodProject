@@ -395,6 +395,10 @@ export function MenuDetails() {
       const formData = data;
       const priceValue = formData.price || 0;
       formData.price = Number(priceValue);
+      const shortDesc = formData.short_desc || '';
+      const longDesc = formData.long_desc || '';
+      formData.short_desc = shortDesc;
+      formData.long_desc = longDesc;
 
       formData.menu_id = menuId;
       if (!imgUrl) {
