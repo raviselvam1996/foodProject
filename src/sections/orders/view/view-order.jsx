@@ -10,8 +10,7 @@ import ViewOrderDetails from '../viewOrderDetails';
 // ----------------------------------------------------------------------
 
 export function ViewOrder() {
-    const dar = 'fsdfjsdf'
-    console.log(dar);
+
     
   return (
     <DashboardContent>

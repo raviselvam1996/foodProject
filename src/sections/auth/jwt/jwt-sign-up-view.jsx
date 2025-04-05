@@ -71,9 +71,7 @@ export function JwtSignUpView() {
     try {
       const payload = data;
 
-      const res = await signIn(payload).unwrap(); 
-      console.log(res);
-      
+      const res = await signIn(payload).unwrap();       
       if(res.status){
         toast.success(res.message)
         router.push('/auth/jwt/sign-in');

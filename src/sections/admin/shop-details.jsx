@@ -151,6 +151,10 @@ export const ShopDetailComponent = () => {
   // Addon Item creation and Edit fun
   const holidayInsert = async (data) => {
     try {
+      if(!data.holiday_date){
+        toast.error('Please select a holiday date!');
+        return;
+      }
       const formattedDate = dayjs(data.holiday_date).format('YYYY-MM-DD'); // Format date
       const formData = {
         holiday_date: formattedDate,

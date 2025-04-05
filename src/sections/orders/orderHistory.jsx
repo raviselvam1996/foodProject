@@ -22,6 +22,8 @@ import { handleApiError } from 'src/utils/errorHandler';
 import { formatString } from 'src/utils/change-case';
 import { FaAddressCard } from 'react-icons/fa';
 import moment from "moment";
+import { TbTruckDelivery } from 'react-icons/tb';
+import { FaPersonWalkingLuggage } from 'react-icons/fa6';
 
 const OrderTimer = ({ orderTime }) => {
   const [timeAgo, setTimeAgo] = useState(moment(orderTime).fromNow());
@@ -34,7 +36,7 @@ const OrderTimer = ({ orderTime }) => {
     return () => clearInterval(interval); // Cleanup on unmount
   }, [orderTime]);
 
-  return <p>{timeAgo}</p>;
+  return <p style={{ color: 'red' }}>{timeAgo}</p>;
 };
 
 const OrderHistoryDetails = () => {
@@ -125,9 +127,32 @@ const OrderHistoryDetails = () => {
                     >
                       {/* Customer and Order ID */}
                       <Box display="flex" justifyContent="space-between">
-                        <Typography variant="subtitle1" fontSize={15} style={{ color: 'red' }}>
-                          {order.name}
-                        </Typography>
+                     
+                            <div>
+                                                <Typography variant="subtitle1" fontSize={15} style={{ color: 'red' }}>
+                                                  {order.name}
+                                                </Typography>
+                                                <Chip
+                                                  label={
+                                                    order.order_mode === 'delivery' ? (
+                                                      <span className='flex'>
+                                                        <TbTruckDelivery fontSize={19} style={{ marginRight: 4 }} />
+                                                         <span>DELIVERY</span>
+                                                      </span>
+                                                    ) : (
+                                                      
+                                                      <span className='flex'>
+                                                      <FaPersonWalkingLuggage fontSize={19} style={{ marginRight: 4 }} />
+                                                       <span>PICK UP</span>
+                                                    </span>
+                                                    )
+                                                  }
+                                                  color={order.order_mode != 'delivery' ? 'success' : 'info'}
+                                                  sx={{ mt: 1 }}
+                                                  variant="outlined"
+                                                  size="small"
+                                                />
+                                                </div>
                         <Typography variant="subtitle1" fontSize={14}>
                           <span className="text-sm">
                             ORD ID -<span style={{ color: 'red' }}> {order.order_id}</span>{' '}
@@ -229,7 +254,7 @@ const OrderHistoryDetails = () => {
                           <Typography fontWeight="bold">
                             {item.qty} X {item.name}
                           </Typography>
-                          <Typography variant="body2" sx={{ mt: 1 }}>
+                          <Typography variant="body2"  component="div" sx={{ mt: 1 }}>
                             {item?.addon?.map((addons, i) => {
                               return (
                                 <div key={i} className="m-5">
