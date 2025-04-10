@@ -64,6 +64,7 @@ const ParamsPage = lazy(() => import('src/pages/dashboard/params'));
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 // Menu Page
 const MenuPage = lazy(() => import('src/pages/dashboard/menu'));
+const OffersPage = lazy(() => import('src/pages/dashboard/menu/offers'));
 const AdminPage = lazy(() => import('src/pages/dashboard/admin'));
 const ShopDetail = lazy(() => import('src/pages/dashboard/admin/shopDetail'));
 const EmployeeProfile = lazy(() => import('src/pages/dashboard/admin/employeeProfile'));
@@ -173,7 +174,8 @@ export const dashboardRoutes = [
       { path: 'menu', 
         element: <RoleGuard allowedRoles={'menu_management'} />, // Only admins can access
         children: [
-          { element: <MenuPage />, index: true }
+          { element: <MenuPage />, index: true },
+          { path: 'offers-page', element: <OffersPage /> },
         ]
       },
       {

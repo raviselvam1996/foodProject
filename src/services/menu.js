@@ -133,8 +133,29 @@ export const menuProductApi = createApi({
         method: 'GET',
       }),
     }),
+    // For Offers    
+  offerInserts: builder.mutation({
+    query: (data) => ({
+      url: 'admin/discount/add',
+      method: 'POST',
+      body: data,
+    }),
+  }),
+  offerDel: builder.mutation({
+    query: (data) => ({
+      url: 'admin/discount/del',
+      method: 'POST',
+      body: data,
+    }),
+  }),
+  offerList: builder.mutation({
+    query: () => ({
+      url: 'admin/discount/list',
+      method: 'GET',
+    }),
+  }),
   }),
 });
 
-export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation,useEditMenuMutation,useItemEditMutation,useDelMenuItemMutation,useAddonUpdateMutation,useDelAddOnMutation,useGetAddonItemsMutation,useMenuItemStatusChangeMutation,useImageUploadMutation,useDelAddOnItemMutation ,useGetAddonItemsSuggestMutation} =
+export const { useGetSupplierCategoryQuery, useMenuStatusChangeMutation, useAddMenuMutation,useDelMenuMutation,useGetMenuItemsMutation,useItemCreateMutation,useAddonCreateMutation,useAddonItemCreateMutation,useEditMenuMutation,useItemEditMutation,useDelMenuItemMutation,useAddonUpdateMutation,useDelAddOnMutation,useGetAddonItemsMutation,useMenuItemStatusChangeMutation,useImageUploadMutation,useDelAddOnItemMutation ,useGetAddonItemsSuggestMutation,useOfferInsertsMutation,useOfferDelMutation,useOfferListMutation} =
   menuProductApi;

@@ -37,6 +37,8 @@ const ICONS = {
   analytics: icon('ic-analytics'),
   dashboard: icon('ic-dashboard'),
   parameter: icon('ic-parameter'),
+  offer: icon('mdi--discount'),
+
 };
 
 // ----------------------------------------------------------------------
@@ -55,7 +57,9 @@ export const navData = [
   {
     subheader: 'Menu Management',
     roles: 'menu_management', // Only admins can see this section
-    items: [{ title: 'Menu', path: paths.dashboard.menu.root, icon: ICONS.menuItem }],
+    items: [{ title: 'Menu', path: paths.dashboard.menu.root, icon: ICONS.menuItem },
+      { title: 'Offers', path: paths.dashboard.menu.offers, icon: ICONS.offer }
+    ],
   },
   {
     subheader: 'Super Admmin Settings',

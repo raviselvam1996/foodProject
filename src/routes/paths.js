@@ -152,6 +152,7 @@ export const paths = {
     },
     menu: {
       root: `${ROOTS.DASHBOARD}/menu`,
+      offers: `${ROOTS.DASHBOARD}/menu/offers-page`,
     },
     admin: {
       root: `${ROOTS.DASHBOARD}/admin`,

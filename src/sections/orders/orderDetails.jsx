@@ -314,7 +314,8 @@ const OrderDetails = () => {
                                     fontSize={19}
                                     style={{ marginRight: 4 }}
                                   />
-                                  <span>PICK UP</span>
+                                  <span>PICK UP</span> 
+                                  <span style={{ color: 'red',paddingLeft:10 }}> - {order.pickup_time || '00.00'}</span> 
                                 </span>
                               )
                             }
