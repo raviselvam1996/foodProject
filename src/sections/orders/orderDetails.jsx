@@ -133,7 +133,7 @@ const OrderDetails = () => {
       const response = await orderList().unwrap();
       if (response.status) {
         setOrderData(response.data);
-        setSelectedOrder(response?.data[0] || null);
+        // setSelectedOrder(response?.data[0] || null);
       } else {
         setOrderData([]);
         toast.error(response.message);
@@ -157,7 +157,7 @@ const OrderDetails = () => {
 
     fetchOrders(); // Call immediately on mount
 
-    const interval = setInterval(fetchOrders, 30000); // Call every 5 minutes
+    const interval = setInterval(fetchOrders, 120000); // Call every 5 minutes
 
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
