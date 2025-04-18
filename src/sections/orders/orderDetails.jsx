@@ -366,7 +366,11 @@ const OrderDetails = () => {
                         <Typography variant="body2">{formatPrice(order.service_fee)}</Typography>
                       </Box>
                 
-                */}     
+                */}   
+                                <Box display="flex" justifyContent="space-between">
+                                        <Typography variant="body2">Discount:</Typography>
+                                        <Typography variant="body2">{formatPrice(order.discount_amount)}</Typography>
+                                      </Box>  
                       <Box display="flex" justifyContent="space-between">
                         <Typography variant="body2">Delivery Fee:</Typography>
                         <Typography variant="body2">{formatPrice(order.delivery_fee)}</Typography>
