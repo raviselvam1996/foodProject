@@ -233,13 +233,13 @@ const OrderHistoryDetails = () => {
                       <Divider sx={{ my: 1 }} />
 
                       {/* Fees and Total - Left Label, Right Amount */}
-                      <Box display="flex" justifyContent="space-between">
+                      {/* <Box display="flex" justifyContent="space-between">
                         <Typography variant="body2">Service Fee:</Typography>
                         <Typography variant="body2">{formatPrice(order.service_fee)}</Typography>
-                      </Box>
+                      </Box> */}
                       <Box display="flex" justifyContent="space-between">
                         <Typography variant="body2">Delivery Fee:</Typography>
-                        <Typography variant="body2">{formatPrice(order.service_fee)}</Typography>
+                        <Typography variant="body2">{formatPrice(order.delivery_fee)}</Typography>
                       </Box>
                       <Box display="flex" justifyContent="space-between" fontWeight="bold">
                         <Typography>Total Bill:</Typography>
