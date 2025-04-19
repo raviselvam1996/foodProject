@@ -284,7 +284,7 @@ const OrderHistoryDetails = () => {
                     <Box display="flex" justifyContent="space-between">
                       <div>
                         <Typography variant="h6">{selectedOrder?.name} </Typography>
-                        {selectedOrder?.address && (
+                        {(selectedOrder?.address && selectedOrder?.order_mode != 'pickup') && (
                           <Card className="mt-5 border-l-4 border-red-500">
                             <Paper sx={{ p: 1.5, borderRadius: 1 }}>
                               <div className="flex items-center gap-2">
