@@ -253,13 +253,27 @@ const OrderHistoryDetails = () => {
                       </Box>
                       <div className="flex justify-between gap-4">
                         {/* Payment Status */}
-                        <Chip
-                          label={order.payment_mode == 'COD' ? 'COD' : 'PAID'}
-                          color={order.payment_mode != 'COD' ? 'success' : 'warning'}
-                          sx={{ mt: 1 }}
-                          variant="outlined"
-                          size="small"
-                        />
+                   {
+                                           order.payment_mode == 'Stripe' ?
+                                           (
+                                             order.payment_status == 'Pending' ? (
+                                               <Chip label="Pending" color="warning" variant="outlined" size="small" sx={{ mt: 1 }} />
+                                             ) : (
+                                               <Chip label="Paid" color="success" variant="outlined" size="small" sx={{ mt: 1 }}/>
+                                             )
+                                           )
+                                           :
+                 
+                                           <Chip
+                                           label={'COD'}
+                                           color='success'
+                                           sx={{ mt: 1 }}
+                                           variant="outlined"
+                                           size="small"
+                                         />
+                 
+                                         }
+                               
                         <Chip
                           label={formatString(order.order_status)}
                           color={'success'}
@@ -341,17 +355,17 @@ const OrderHistoryDetails = () => {
                               );
                             })}
                           </Typography>
-
+                    {item?.notes && (
+                      <Box mt={2} p={2} sx={{ backgroundColor: '#f5f5f5', borderRadius: '5px' }}>
+                        <Typography fontWeight="bold">Notes:</Typography>
+                        <Typography variant="body2">{item.notes}</Typography>
+                      </Box>
+                    )}
                           <Divider sx={{ my: 1 }} />
                         </Box>
                       ))}
 
-                    {selectedOrder?.notes && (
-                      <Box mt={2} p={2} sx={{ backgroundColor: '#f5f5f5', borderRadius: '5px' }}>
-                        <Typography fontWeight="bold">Notes:</Typography>
-                        <Typography variant="body2">{selectedOrder.notes}</Typography>
-                      </Box>
-                    )}
+
                   </Card>
                 )
                   : (
