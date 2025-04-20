@@ -299,7 +299,9 @@ export function MenuDetails() {
         <RHFTextField name="name" label="Menu Item Name" size="small" />
         <RHFTextField name="short_desc" label="Short Description" size="small" />
         <Stack direction="row" spacing={2}>
-          <Upload value={file} onDrop={handleDropSingleFile} onDelete={() => setFile(null)} />
+          <Upload value={file} onDrop={handleDropSingleFile} onDelete={() => {
+            setImageUrl(null)
+            setFile(null)}} />
         </Stack>
       </form>
     </FormProvider>
@@ -512,7 +514,9 @@ export function MenuDetails() {
           sx={{ gap: 4 }}
         />
         <Stack direction="row" spacing={2}>
-          <Upload value={file} onDrop={handleDropSingleFile} onDelete={() => setFile(null)} />
+          <Upload value={file} onDrop={handleDropSingleFile} onDelete={() => {
+            setImageUrl(null)
+            setFile(null)}} />
         </Stack>
       </form>
     </FormProvider>
