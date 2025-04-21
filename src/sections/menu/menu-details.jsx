@@ -403,12 +403,12 @@ export function MenuDetails() {
       formData.long_desc = longDesc;
 
       formData.menu_id = menuId;
-      if (!imgUrl) {
-        toast.error('Please upload a image');
-        return;
-      }
-      const modifiedUrl = imgUrl.replace('https://api.turkish-kebab-pizza-house.co.uk', '');
-      formData.image = modifiedUrl;
+      // if (!imgUrl) {
+      //   toast.error('Please upload a image');
+      //   return;
+      // }
+      // const modifiedUrl = imgUrl.replace('https://api.turkish-kebab-pizza-house.co.uk', '');
+      // formData.image = modifiedUrl || '';
       let response;
       if (isEdit) {
         formData.id = editId;
@@ -513,11 +513,11 @@ export function MenuDetails() {
           ]}
           sx={{ gap: 4 }}
         />
-        <Stack direction="row" spacing={2}>
+        {/* <Stack direction="row" spacing={2}>
           <Upload value={file} onDrop={handleDropSingleFile} onDelete={() => {
             setImageUrl(null)
             setFile(null)}} />
-        </Stack>
+        </Stack> */}
       </form>
     </FormProvider>
   );
@@ -937,13 +937,13 @@ export function MenuDetails() {
                                 <div className="flex items-center justify-between w-full">
                                   {/* Left Side: Name */}
                                   <div className="flex items-center gap-2">
-                                    <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
+                                    {/* <div className="w-15 h-15 flex items-center justify-center overflow-hidden">
                                       <img
                                         src={imageBaseUrl + item.image}
                                         alt="Item"
                                         className="w-full h-full object-cover"
                                       />
-                                    </div>
+                                    </div> */}
                                     <p className="text-gray-700 break-words whitespace-normal max-w-[100px] md:max-w-[250px]">
                                       {item.name} - <span className="text-red-500 font-bold"> {formatPrice(item.price)}</span>
                                     </p>
