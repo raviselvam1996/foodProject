@@ -104,6 +104,7 @@ const OrderDetails = () => {
   const [orderId, setOrderId] = useState(null);
   const [checkOrderId, setCheckOrderId] = useState('');
   const delivery = useBoolean();
+  const orderDetail = useBoolean();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
@@ -223,39 +224,44 @@ const OrderDetails = () => {
         </div>
       ) : (
         <>
-          <Grid item xs={12} sx={{ mt: 2 }}>
-            <div className='flex flex-wrap gap-5'>
-            <TextField
-              label="Search Order ID or Name"
-              variant="outlined"
-              
-              size="small"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-              <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-              <Button
-                variant={!statusFilter ? 'contained' : 'outlined'}
-                onClick={() => setStatusFilter('')}
-              >
-                All
-              </Button>
-              {OPTIONS.map((opt) => (
-                <Badge key={opt.value} badgeContent={statusCounts[opt.value] || 0} color="primary">
-                  <Button
-                    variant={statusFilter === opt.value ? 'contained' : 'outlined'}
-                    onClick={() =>{
-                      setStatusFilter(opt.value);
-                      setSelectedOrder(null)
-                    } }
-                  >
-                    {opt.label}
-                  </Button>
-                </Badge>
-              ))}
-            </Stack>
-            </div>
-          </Grid>
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+
+        <Grid item xs={12} sx={{ mt: 2 }}>
+  <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+    <TextField
+      label="Search Order ID or Name"
+      variant="outlined"
+      size="small"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      sx={{ minWidth: '250px' }}
+    />
+    <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap">
+      <Button
+        variant={!statusFilter ? 'contained' : 'outlined'}
+        onClick={() => setStatusFilter('')}
+      >
+        All
+      </Button>
+      {OPTIONS.map((opt) => (
+        <Badge key={opt.value} badgeContent={statusCounts[opt.value] || 0} color="primary">
+          <Button
+            variant={statusFilter === opt.value ? 'contained' : 'outlined'}
+            onClick={() => {
+              setStatusFilter(opt.value);
+              setSelectedOrder(null);
+            }}
+          >
+            {opt.label}
+          </Button>
+        </Badge>
+      ))}
+    </Stack>
+  </Stack>
+</Grid>
+
+        </Grid>
+    
      
           {filteredOrders?.length > 0 ? (
             <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -263,7 +269,9 @@ const OrderDetails = () => {
 
               <Grid
                 item
-                xs={5}
+                sm={6}
+                md={5}
+                xs={12}
                 sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}
                 className="custom-scroll"
               >
@@ -309,19 +317,29 @@ const OrderDetails = () => {
                                   <span>DELIVERY</span>
                                 </span>
                               ) : (
+                                <>
+                                <div>
                                 <span className="flex">
                                   <FaPersonWalkingLuggage
                                     fontSize={19}
                                     style={{ marginRight: 4 }}
                                   />
                                   <span>PICK UP</span> 
-                                  <span style={{ color: 'red',paddingLeft:10 }}> - {order.pickup_time || '00.00'}</span> 
                                 </span>
+                                <p style={{ color: 'red',paddingLeft:10 }}> - {order.pickup_time || '00.00'}</p> 
+
+                                </div>
+               
+                                </>
+                      
                               )
                             }
                             color={order.order_mode != 'delivery' ? 'success' : 'info'}
-                            sx={{ mt: 1 }}
-                            variant="outlined"
+                            sx={{
+                              mt: 1,
+                              py: order.order_mode !== 'delivery' ? 3 : 0  // MUI uses spacing units, not Tailwind
+                            }}
+                                                        variant="outlined"
                             size="small"
                           />
                         </div>
@@ -445,6 +463,23 @@ const OrderDetails = () => {
                           </Select>
                         </FormControl>
                       </div>
+                      <div className='w-full mt-2 block md:hidden'>
+  <Button
+    variant='contained'
+    onClick={() => {
+      setSelectedOrder(order)
+      orderDetail.onTrue();
+
+    } }
+    size='small'
+    className='text-sm w-full'
+  >
+    View Detail
+  </Button>
+</div>
+
+
+
                     </Card>
                   ))}
               </Grid>
@@ -453,7 +488,9 @@ const OrderDetails = () => {
               <Grid
                 item
                 xs={7}
-                className="sticky top-0 custom-scroll"
+                sm={6}
+                md={7}
+                className="hidden md:block sticky top-0 custom-scroll"
                 sx={{ height: '100vh', overflowY: 'auto', pr: 1, pb: 1 }}
               >
                 {selectedOrder ? (
@@ -582,6 +619,109 @@ const OrderDetails = () => {
           </Button>
         }
       />
+            <ConfirmDialog
+              open={orderDetail.value}
+              onClose={orderDetail.onFalse}
+              title="Order Detail"
+              content={
+                <>
+                {
+                  selectedOrder && 
+                  (
+                    <div >
+                      <Box display="flex" justifyContent="space-between">
+                        <div>
+                          <Typography>
+                            <span className='text-sm'>
+                            {selectedOrder?.name}
+                            </span>
+                            </Typography> 
+                 
+                        </div>
+                        <Typography color="textSecondary">
+                          <span className="text-xs">
+                            ORD ID -<span style={{ color: 'red' }}> {selectedOrder.order_id}</span>{' '}
+                          </span>
+                        </Typography>
+                      </Box>
+                      <div>
+                      {(selectedOrder?.address && selectedOrder?.order_mode != 'pickup') && (
+                            <Card className="mt-5 border-l-4 border-red-500">
+                              <Paper sx={{ p: 1.5, borderRadius: 1 }}>
+                                <div className="flex items-center gap-2">
+                                  <FaAddressCard />
+                                  <Typography fontWeight="bold">
+                                    <span className='text-sm'>
+                                    {selectedOrder?.address.type || 'Home'} Address
+                                    </span>
+                                  </Typography>
+                                </div>
+                                <Typography variant="body2" sx={{ mt: 1 }}>
+                                  {selectedOrder?.address?.address +
+                                    ',' +
+                                    selectedOrder?.address?.city +
+                                    ',' +
+                                    selectedOrder?.address?.country +
+                                    '-' +
+                                    selectedOrder?.address?.pincode}{' '}
+                                </Typography>
+                              </Paper>
+                            </Card>
+                          )}
+                      </div>
+                      <Divider sx={{ my: 1 }} />
+  
+                      {selectedOrder?.items?.length > 0 &&
+                        selectedOrder.items.map((item, index) => (
+                          <Box key={index} mt={1}>
+                            <Typography fontWeight="bold">
+                              <span className='text-sm'>
+                              {item.qty} X {item.name}
+                              </span>
+                            </Typography>
+                            <Typography variant="body2" component="div" sx={{ mt: 1 }}>
+                              {item?.addon?.map((addons, i) => {
+                                return (
+                                  <div key={i} className="m-5">
+                                    <span className='text-xs'>
+                                    <b>{addons.addon_name}</b>
+                                    </span>
+  
+                                    {addons?.addon_item?.map((ite, j) => (
+                                      <span key={j} className="m-1 ml-2">
+                                        <Chip
+                                          variant="outlined"
+                                          size="small"
+                                          label={<span>{ite.addon_item_name}</span>}
+                                          color="primary"
+                                        />
+                                      </span>
+                                    ))}
+                                  </div>
+                                );
+                              })}
+                            </Typography>
+  
+                            {item?.notes && (
+                        <Box mt={2} p={2} sx={{ backgroundColor: '#f5f5f5', borderRadius: '5px' }}>
+                          <Typography fontWeight="bold">Notes:</Typography>
+                          <Typography variant="body2">{item.notes}</Typography>
+                        </Box>
+                      )}
+  
+                            <Divider sx={{ my: 1 }} />
+                          </Box>
+                        ))}
+  
+  
+                    </div>
+                  ) 
+                }
+             
+                </>
+              }
+
+            />
     </Box>
   );
 };
