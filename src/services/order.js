@@ -35,11 +35,18 @@ export const orderApi = createApi({
         body: data,
       }),
     }),
+    getFaildOrders: builder.mutation({
+      query: (data) => ({
+        url: 'admin/order/pending_payments',
+        method: 'GET',
+        body: data,
+      }),
+    }),
 
 
 
   }),
 });
 
-export const { useOrderListMutation, useOrderChangeMutation,useGetAnalyticsMutation,useGetOrderHistoryMutation} =
+export const { useOrderListMutation, useOrderChangeMutation,useGetAnalyticsMutation,useGetOrderHistoryMutation,useGetFaildOrdersMutation} =
   orderApi;

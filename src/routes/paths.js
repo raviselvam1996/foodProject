@@ -165,6 +165,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/orders`,
       viewOrder: `${ROOTS.DASHBOARD}/orders/view-order`,
       orderHistory: `${ROOTS.DASHBOARD}/orders/order-history`,
+      orderFaild: `${ROOTS.DASHBOARD}/orders/faild-orders`,
 
     },
   },
