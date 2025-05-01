@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -12,27 +12,30 @@ import {
   MenuItem,
   FormControl,
   Select,
+  Stack,
   Paper,
   Badge,
   TextField,
-  Stack,
 } from '@mui/material';
 import { formatPrice } from 'src/utils/amountChange';
-import {
-  useGetOrderHistoryMutation,
-  useOrderChangeMutation,
-  useOrderListMutation,
-} from 'src/services/order';
+import { useGetFaildOrdersMutation, useOrderChangeMutation, useOrderListMutation } from 'src/services/order';
 import { toast } from 'sonner';
 import { handleApiError } from 'src/utils/errorHandler';
-import { formatString } from 'src/utils/change-case';
+import { RHFSelect } from 'src/components/hook-form';
 import { FaAddressCard } from 'react-icons/fa';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { useBoolean } from 'src/hooks/use-boolean';
 import moment from 'moment';
 import { TbTruckDelivery } from 'react-icons/tb';
 import { FaPersonWalkingLuggage } from 'react-icons/fa6';
-import { useBoolean } from 'src/hooks/use-boolean';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 
+const OPTIONS = [
+  { value: 'Pending', label: 'Pending' },
+  { value: 'accepted', label: 'Accepted' },
+  { value: 'preparing', label: 'Preparing' },
+  { value: 'on the way', label: 'On The Way' },
+  { value: 'delivered', label: 'Delivered' },
+];
 const OrderTimer = ({ orderTime }) => {
   const [timeAgo, setTimeAgo] = useState(moment(orderTime).fromNow());
 
@@ -46,25 +49,71 @@ const OrderTimer = ({ orderTime }) => {
 
   return <p style={{ color: 'red' }}>{timeAgo}</p>;
 };
+const OrderSelectBox = ({
+  initialVal,
+  orderStatusChange,
+  orderId,
+  orderChange,
+  setOrderStatus,
+  setOrderId,
+}) => {
+  const [initVal, setInitVal] = useState(initialVal);
 
-const OrderHistoryDetails = () => {
+  const orderChanges = (id, value) => {
+    if (value == 'delivered') {
+      orderChange();
+      setOrderStatus(orderId);
+      setOrderId(id);
+    } else {
+      // setInitVal(value);
+      orderStatusChange(id, value);
+    }
+  };
+  return (
+    <>
+      <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+        <Select
+          labelId="demo-select-small-label"
+          id="demo-select-small"
+          value={initVal}
+          label=""
+          onChange={(event) => {
+            orderChanges(orderId, event.target.value);
+          }}
+        >
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          {OPTIONS.map((option) => (
+            <MenuItem
+              key={option.value}
+              value={option.value}
+              disabled={option.value === 'Pending'} // Disable Pending option
+            >
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </>
+  );
+};
+
+const FaildOrdersDetails = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderData, setOrderData] = useState([]);
+  const [orderStatus, setOrderStatus] = useState(null);
+  const [orderId, setOrderId] = useState(null);
+  const [checkOrderId, setCheckOrderId] = useState('');
+  const delivery = useBoolean();
+  const orderDetail = useBoolean();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const orderDetail = useBoolean();
 
-  const [getOrderHistory, { isLoading: orderLoad }] = useGetOrderHistoryMutation();
-  const OPTIONS = [
-    { value: 'pickup', label: 'Pickup' },
-    { value: 'delivery', label: 'Delivery' },
-
-  ];
-  // Filter orders based on searchQuery
+  const [orderList, { isFetching: orderLoad, isLoading: orderLoding }] = useGetFaildOrdersMutation();
+  const [orderChange, { isLoading: statusLoad }] = useOrderChangeMutation();
 
   const filteredOrders = useMemo(() => {
     return orderData?.filter((order) => {
-      const matchesStatus = statusFilter ? order.order_mode === statusFilter : true;
+      const matchesStatus = statusFilter ? order.order_status === statusFilter : true;
       const matchesSearch =
         order.order_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.name.toLowerCase().includes(searchQuery.toLowerCase()); // Changed from user_name to name
@@ -75,14 +124,14 @@ const OrderHistoryDetails = () => {
   const statusCounts = useMemo(() => {
     const counts = {};
     OPTIONS.forEach((opt) => {
-      counts[opt.value] = orderData.filter((order) => order.order_mode === opt.value).length;
+      counts[opt.value] = orderData.filter((order) => order.order_status === opt.value).length;
     });
     return counts;
   }, [orderData]);
 
   const orderListGet = async () => {
     try {
-      const response = await getOrderHistory().unwrap();
+      const response = await orderList().unwrap();
       if (response.status) {
         setOrderData(response.data);
         setSelectedOrder(response?.data[0] || null);
@@ -96,14 +145,68 @@ const OrderHistoryDetails = () => {
       toast.error(errorMessage);
     }
   };
+  const orderListRef = useRef(orderListGet); // Store function reference
+
   useEffect(() => {
-    orderListGet();
+    const fetchOrders = async () => {
+      try {
+        await orderListRef.current(); // Call the mutation function
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      }
+    };
+
+    fetchOrders(); // Call immediately on mount
+
+    const interval = setInterval(fetchOrders, 120000); // Call every 5 minutes
+
+    return () => clearInterval(interval); // Cleanup on unmount
   }, []);
+
+  //  Change the order status
+  const orderStatusChange = async (id, status) => {
+    try {
+      // Create FormData instance
+      const formData = {
+        id,
+        status,
+      };
+
+      const response = await orderChange(formData).unwrap();
+
+      if (response.status) {
+        toast.success(response.message);
+        delivery.onFalse();
+        // if (status == 'delivered') {
+        //   orderListGet();
+        // }
+        const updateData = orderData.map((order) =>
+          order.order_id === id ? { ...order, order_status: status } : order
+        );
+        setOrderData(updateData);
+        setOrderId(null);
+        setOrderStatus(null);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+      console.error(errorMessage);
+      toast.error(errorMessage);
+    }
+  };
+  const deliveryChange = () => {
+    if (orderStatus == checkOrderId) {
+      orderStatusChange(orderId, 'delivered');
+    } else {
+      toast.error('Order Id not match');
+    }
+  };
 
   return (
     <Box>
       <Typography variant="h5" style={{ color: 'red' }}>
-        Orders History
+        Faild Orders
       </Typography>
       {/* Order Header */}
       {/* <Box display="flex" gap={2} mt={2}>
@@ -131,29 +234,9 @@ const OrderHistoryDetails = () => {
       size="small"
       value={searchQuery}
       onChange={(e) => setSearchQuery(e.target.value)}
-      sx={{ minWidth: '250px' }}
+    //   sx={{ minWidth: '250px' }}
     />
-    <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap">
-      <Button
-        variant={!statusFilter ? 'contained' : 'outlined'}
-        onClick={() => setStatusFilter('')}
-      >
-        All
-      </Button>
-      {OPTIONS.map((opt) => (
-        <Badge key={opt.value} badgeContent={statusCounts[opt.value] || 0} color="primary">
-          <Button
-            variant={statusFilter === opt.value ? 'contained' : 'outlined'}
-            onClick={() => {
-              setStatusFilter(opt.value);
-              setSelectedOrder(null);
-            }}
-          >
-            {opt.label}
-          </Button>
-        </Badge>
-      ))}
-    </Stack>
+  
   </Stack>
 </Grid>
 
@@ -184,6 +267,22 @@ const OrderHistoryDetails = () => {
                       onClick={() => setSelectedOrder(order)}
                       className={`border-l-4 p-4 ${order.order_id === selectedOrder?.order_id ? 'border-red-500' : 'border-grey-500'}`}
                     >
+                      {/* {order.order_status === 'Pending' && (
+                        <Box
+                          className="flashing"
+                          sx={{
+                            backgroundColor: '#ffeb3b',
+                            color: '#000',
+                            padding: 1,
+                            borderRadius: 1,
+                            display: 'inline-block',
+                          }}
+                        >
+                          <Typography fontWeight="bold" fontSize={14}>
+                            ⚠️ Order not yet accepted
+                          </Typography>
+                        </Box>
+                      )} */}
                       {/* Customer and Order ID */}
                       <Box display="flex" justifyContent="space-between" sx={{ mt: 1 }}>
                         <div>
@@ -224,9 +323,16 @@ const OrderHistoryDetails = () => {
                             size="small"
                           />
                         </div>
+
                         <Typography variant="subtitle1" fontSize={14}>
-                          <span className="text-sm">
-                            ORD ID -<span style={{ color: 'red' }}> {order.order_id}</span>{' '}
+                          <span
+                            className="text-sm cursor-pointer"
+                            onClick={() => {
+                              navigator.clipboard.writeText(order.order_id);
+                              toast.success('Order ID copied');
+                            }}
+                          >
+                            ORD - ID- <span style={{ color: 'red' }}> {order.order_id}</span>
                           </span>
                           <OrderTimer orderTime={order.createdAt} />
                         </Typography>
@@ -252,10 +358,13 @@ const OrderHistoryDetails = () => {
                       <Divider sx={{ my: 1 }} />
 
                       {/* Fees and Total - Left Label, Right Amount */}
-                      {/* <Box display="flex" justifyContent="space-between">
+                {/*
+                 <Box display="flex" justifyContent="space-between">
                         <Typography variant="body2">Service Fee:</Typography>
                         <Typography variant="body2">{formatPrice(order.service_fee)}</Typography>
-                      </Box> */}
+                      </Box>
+                
+                */}   
                                 <Box display="flex" justifyContent="space-between">
                                         <Typography variant="body2">Discount:</Typography>
                                         <Typography variant="body2">{formatPrice(order.discount_amount)}</Typography>
@@ -276,7 +385,7 @@ const OrderHistoryDetails = () => {
                           order.payment_mode == 'Stripe' ?
                           (
                             order.payment_status == 'Pending' ? (
-                              <Chip label="Pending" color="warning" variant="outlined" size="small" sx={{ mt: 1 }} />
+                              <Chip label="Pending" color="error" variant="contained" size="small" sx={{ mt: 1 }} />
                             ) : (
                               <Chip label="Paid" color="success" variant="outlined" size="small" sx={{ mt: 1 }}/>
                             )
@@ -293,13 +402,46 @@ const OrderHistoryDetails = () => {
 
                         }
               
-                        <Chip
-                          label={formatString(order.order_status)}
-                          color={'success'}
-                          sx={{ mt: 1 }}
-                          variant="outlined"
-                          size="small"
-                        />
+                        {/* <OrderSelectBox
+                          initialVal={order.order_status}
+                          orderStatusChange={orderStatusChange}
+                          orderId={order?.order_id}
+                          orderChange={() => delivery.onTrue()}
+                          setOrderStatus={setOrderStatus}
+                          setOrderId={setOrderId}
+                        /> */}
+                        {/* <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                          <Select
+                            labelId="demo-select-small-label"
+                            id="demo-select-small"
+                            value={order.order_status}
+                            label=""
+                            onChange={(event) => {
+                              setOrderId(order?.order_id);
+                              setOrderStatus(order?.order_id);
+                              if (event.target.value == 'delivered') {
+                                delivery.onTrue();
+                              } else {
+                                orderStatusChange(order?.order_id, event.target.value);
+                              }
+                            }}
+                            disabled={order.order_status === 'delivered'}
+                          >
+                            <Divider sx={{ borderStyle: 'dashed' }} />
+                            {OPTIONS.map((option) => (
+                              <MenuItem
+                                key={option.value}
+                                value={option.value}
+                                disabled={
+                                  option.value === 'Pending' ||
+                                  (option.value === 'on the way' && order.order_mode != 'delivery')
+                                } // Disable Pending option
+                              >
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl> */}
                       </div>
                       <div className='w-full mt-2 block md:hidden'>
   <Button
@@ -336,6 +478,7 @@ const OrderHistoryDetails = () => {
                     <Box display="flex" justifyContent="space-between">
                       <div>
                         <Typography variant="h6">{selectedOrder?.name} </Typography>
+
                         {(selectedOrder?.address && selectedOrder?.order_mode != 'pickup') && (
                           <Card className="mt-5 border-l-4 border-red-500">
                             <Paper sx={{ p: 1.5, borderRadius: 1 }}>
@@ -354,6 +497,9 @@ const OrderHistoryDetails = () => {
                                   '-' +
                                   selectedOrder?.address?.pincode}{' '}
                               </Typography>
+                              <Typography variant="body2" sx={{ mt: 1 }}>
+                                 Phone No - {selectedOrder?.address.phone}
+                                </Typography>
                             </Paper>
                           </Card>
                         )}
@@ -393,12 +539,14 @@ const OrderHistoryDetails = () => {
                               );
                             })}
                           </Typography>
+
                           {item?.notes && (
                       <Box mt={2} p={2} sx={{ backgroundColor: '#f5f5f5', borderRadius: '5px' }}>
                         <Typography fontWeight="bold">Notes:</Typography>
                         <Typography variant="body2">{item.notes}</Typography>
                       </Box>
                     )}
+
                           <Divider sx={{ my: 1 }} />
                         </Box>
                       ))}
@@ -413,15 +561,47 @@ const OrderHistoryDetails = () => {
               </Grid>
             </Grid>
           ) : (
+            <>
+              {!orderLoding ? (
                 <div className="flex items-center justify-center mt-10">
-              <p>No Orders Found Today!</p>
+                  <p>No Orders Found!</p>
+                </div>
+              ) : (
+                <div className="flex justify-center items-center mt-10">
+                  <CircularProgress color="primary" />
                 </div>
               )}
             </>
           )}
-   
-      
-
+        </>
+      )}
+      <ConfirmDialog
+        open={delivery.value}
+        onClose={() => {
+          delivery.onFalse();
+          setOrderStatus(null);
+          // orderListGet();
+        }}
+        title="Delivery"
+        content={
+          <>
+            <p>Please Enter Order Id to delivered !</p>
+            <TextField
+              id="outlined-multiline-flexible"
+              label="Order Id"
+              size="small"
+              sx={{ mt: 3 }}
+              value={checkOrderId}
+              onChange={(e) => setCheckOrderId(e.target.value)} // Capture input value
+            />
+          </>
+        }
+        action={
+          <Button onClick={deliveryChange} variant="contained" color="error">
+            Confirm
+          </Button>
+        }
+      />
             <ConfirmDialog
               open={orderDetail.value}
               onClose={orderDetail.onFalse}
@@ -467,6 +647,9 @@ const OrderHistoryDetails = () => {
                                     selectedOrder?.address?.country +
                                     '-' +
                                     selectedOrder?.address?.pincode}{' '}
+                                </Typography>
+                                      <Typography variant="body2" sx={{ mt: 1 }}>
+                                 Phone No - {selectedOrder?.address.phone}
                                 </Typography>
                               </Paper>
                             </Card>
@@ -529,4 +712,4 @@ const OrderHistoryDetails = () => {
   );
 };
 
-export default OrderHistoryDetails;
+export default FaildOrdersDetails;

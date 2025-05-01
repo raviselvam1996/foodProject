@@ -90,6 +90,7 @@ export const navData = [
           { title: 'Order Detail', path: paths.dashboard.orders.root },
           // { title: 'View Orders', path: paths.dashboard.orders.viewOrder },
           { title: 'Order History', path: paths.dashboard.orders.orderHistory },
+          { title: 'Faild Orders', path: paths.dashboard.orders.orderFaild },
     
    
         ],

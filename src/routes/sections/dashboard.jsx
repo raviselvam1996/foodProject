@@ -72,6 +72,7 @@ const CustomerProfile = lazy(() => import('src/pages/dashboard/admin/customerPro
 const OrderPage = lazy(() => import('src/pages/dashboard/orders'));
 const ViewOrderPage = lazy(() => import('src/pages/dashboard/orders/viewDetails'));
 const OrderHistory = lazy(() => import('src/pages/dashboard/orders/orderHistory'));
+const FaildOrders = lazy(() => import('src/pages/dashboard/orders/failidOrders'));
 
 // ----------------------------------------------------------------------
 
@@ -196,6 +197,7 @@ export const dashboardRoutes = [
           { element: <OrderPage />, index: true },
           { path: 'view-order', element: <ViewOrderPage /> },
           { path: 'order-history', element: <OrderHistory /> },
+          { path: 'faild-orders', element: <FaildOrders /> },
    
       
         ],
